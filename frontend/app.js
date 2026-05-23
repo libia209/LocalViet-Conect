@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 4,
-            title: "Ẩm thực miền Tây - Vị ngọt phù sa",
-            summary: "Khám phá nét dân dã, hào sảng qua những món ăn sông nước.",
-            content: "Ẩm thực miền Tây Nam Bộ đặc sắc với vị ngọt tự nhiên từ rau củ, nước dừa và cá tôm tươi sống. Các món như canh chua cá linh, bông điên điển hay lẩu mắm là linh hồn của vùng đất này.",
-            img: "https://images.unsplash.com/photo-1562967962-d28448ec628c?auto=format&fit=crop&q=80&w=800",
+            title: "Ẩm thực miền Tây - Vị quê dân dã",
+            summary: "Nơi sông nước hữu tình với những món ăn đậm chất Nam Bộ.",
+            content: "Miền Tây nổi tiếng với các món cá lóc nướng trui, lẩu mắm, bánh xèo... Đặc trưng ẩm thực ở đây là sự kết hợp hài hòa giữa vị ngọt của đường thốt nốt, vị mặn của mắm và tươi ngon của rau trái miệt vườn.",
+            img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800",
             category: "Ẩm thực"
         }
     ];
@@ -75,7 +75,22 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: "Lụa Vạn Phúc", lat: 20.9782, lng: 105.7761, desc: "Trung tâm lụa truyền thống nức tiếng." },
         { name: "Đồ gỗ Đồng Kỵ", lat: 21.1333, lng: 105.9500, desc: "Làng nghề đồ gỗ mỹ nghệ tinh xảo." },
         { name: "Nón lá Huế", lat: 16.4637, lng: 107.5908, desc: "Nơi sinh ra những chiếc nón bài thơ duyên dáng." },
-        { name: "Nước mắm Phú Quốc", lat: 10.2181, lng: 103.9607, desc: "Đặc sản nước mắm truyền thống lâu đời." }
+        { name: "Nước mắm Phú Quốc", lat: 10.2181, lng: 103.9607, desc: "Đặc sản nước mắm truyền thống lâu đời." },
+        // Sovereignty Markers (Hoàng Sa & Trường Sa)
+        { 
+            name: "Quần đảo Hoàng Sa – Việt Nam", 
+            lat: 16.5, 
+            lng: 111.7, 
+            desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
+            isSovereign: true 
+        },
+        { 
+            name: "Quần đảo Trường Sa – Việt Nam", 
+            lat: 10.3, 
+            lng: 114.3, 
+            desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
+            isSovereign: true
+        }
     ];
 
     // === STATE ===
@@ -100,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (index === 1) {
                 mapView.classList.remove('hidden');
                 initMap();
+                // Ensure recenter when opening
+                if (map) map.setView([16.0, 114.5], 5);
             } else if (index === 2) {
                 knowledgeView.classList.remove('hidden');
                 renderKnowledge();
@@ -110,20 +127,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // === MAP LOGIC ===
     function initMap() {
         if (map) return;
-        // Set view to Vietnam but allow zoom out to world level (minZoom: 2)
-        map = L.map('map', {
-            minZoom: 2,
-            maxZoom: 18
-        }).setView([16.0, 106.0], 5);
+        
+        // Giới hạn bản đồ trong khu vực Đông Nam Á và Biển Đông (Yêu cầu 3)
+        const southWest = L.latLng(0, 95);
+        const northEast = L.latLng(32, 130); // Bao quát toàn bộ chủ quyền vùng biển
+        const bounds = L.latLngBounds(southWest, northEast);
 
+        map = L.map('map', {
+            minZoom: 5,
+            maxZoom: 13,
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0
+        }).setView([16.0, 114.5], 5); // Tọa độ trung tâm Biển Đông (Yêu cầu 3)
+
+        // Tile server trung lập kèm attribution khẳng định chủ quyền (Yêu cầu 1)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Bản đồ khẳng định chủ quyền Việt Nam (Hoàng Sa - Trường Sa)</b>'
         }).addTo(map);
 
-
         CRAFT_LOCATIONS.forEach(loc => {
-            L.marker([loc.lat, loc.lng]).addTo(map)
-                .bindPopup(`<b>${loc.name}</b><br>${loc.desc}`);
+            if (loc.isSovereign) {
+                // Marker đặc biệt nổi bật không thể ẩn (Yêu cầu 2 & 4)
+                const sovereignIcon = L.divIcon({
+                    className: 'sovereign-marker',
+                    html: `<div style="background: rgba(220, 0, 0, 0.9); color: white; padding: 4px 10px; border: 2px solid #ffd700; border-radius: 4px; font-weight: 800; white-space: nowrap; box-shadow: 0 4px 8px rgba(0,0,0,0.3); font-size: 11px; transform: translate(-50%, -50%);">🚩 ${loc.name}</div>`,
+                    iconSize: [0, 0],
+                    iconAnchor: [0, 0]
+                });
+
+                L.marker([loc.lat, loc.lng], { 
+                    icon: sovereignIcon,
+                    zIndexOffset: 1000 
+                }).addTo(map).bindPopup(`<b>${loc.name}</b><br>${loc.desc}`).openPopup();
+            } else {
+                L.marker([loc.lat, loc.lng]).addTo(map)
+                    .bindPopup(`<b>${loc.name}</b><br>${loc.desc}`);
+            }
         });
     }
 
