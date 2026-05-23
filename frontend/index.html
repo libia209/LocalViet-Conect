@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalViet Connect | Trợ lý Văn hóa & Làng nghề</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="login-container" class="full-page">
+        <div class="login-card glass">
+            <div class="cultural-pattern top"></div>
+            <h1>LocalViet Connect</h1>
+            <p class="subtitle">Kết nối giá trị văn hóa & di sản làng nghề Việt</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="user-name">Tên hiển thị</label>
+                    <input type="text" id="user-name" placeholder="Nguyễn Văn A" required>
+                </div>
+                <div class="input-group">
+                    <label for="user-email">Email</label>
+                    <input type="email" id="user-email" placeholder="email@example.com" required>
+                </div>
+                <div class="terms-group">
+                    <input type="checkbox" id="terms-check" required>
+                    <label for="terms-check">Tôi đồng ý với <a href="#" id="terms-link">điều khoản sử dụng</a></label>
+                </div>
+                <button type="submit" class="btn-primary">Bắt đầu ngay 🚀</button>
+            </form>
+            <div class="cultural-pattern bottom"></div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <span class="flag">🇻🇳</span>
+                <h2>LocalViet</h2>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="avatar-initial">?</div>
+                <div class="user-info">
+                    <h3 id="display-name">User Name</h3>
+                    <p id="display-email">user@email.com</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active"><i class="icon-chat"></i> Trò chuyện</button>
+                <button class="nav-item"><i class="icon-map"></i> Bản đồ làng nghề</button>
+                <button class="nav-item"><i class="icon-info"></i> Kiến thức di sản</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn-text">🚪 Đăng xuất</button>
+                <p class="version">v3.0 Premium Edition</p>
+            </div>
+        </aside>
+
+        <main class="chat-area">
+            <header class="chat-header glass">
+                <div class="status-indicator">
+                    <span class="pulse"></span> Online
+                </div>
+                <h2>Trợ lý Văn hóa</h2>
+            </header>
+            
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be injected here -->
+                <div class="message assistant">
+                    <div class="bubble">
+                        Xin chào! Tôi là LocalViet Connect. Tôi có thể giúp gì cho bạn về văn hóa, phương ngữ hay các làng nghề truyền thống hôm nay?
+                    </div>
+                </div>
+            </div>
+
+            <div id="map-view" class="view-container hidden">
+                <div class="view-header">
+                    <h2>🗺 Bản đồ làng nghề</h2>
+                    <p>Khám phá các làng nghề di sản truyền thống.</p>
+                </div>
+                <div id="craft-list" class="item-grid">
+                    <!-- Crafts will be injected here -->
+                </div>
+            </div>
+
+            <div id="knowledge-view" class="view-container hidden">
+                <div class="view-header">
+                    <h2>📚 Kiến thức di sản</h2>
+                    <p>Tìm hiểu tinh hoa văn hóa và phương ngữ Việt.</p>
+                </div>
+                <div id="dialect-list" class="item-grid">
+                    <!-- Dialects will be injected here -->
+                </div>
+            </div>
+
+            <div class="chat-input-container glass">
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Hỏi tôi về nón lá, gốm Chu Đậu, hay tiếng Huế..." autocomplete="off">
+                    <button type="submit" class="btn-send">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="terms-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h2>Điều khoản sử dụng</h2>
+            <div class="modal-body">
+                <p>Khi sử dụng LocalViet Connect, bạn đồng ý:</p>
+                <ul>
+                    <li>Tôn trọng di sản văn hóa Việt Nam.</li>
+                    <li>Không yêu cầu các nội dung xuyên tạc lịch sử.</li>
+                    <li>Thông tin về giá cả chỉ mang tính chất tham khảo.</li>
+                </ul>
+            </div>
+            <button id="close-terms" class="btn-primary">Đã hiểu</button>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
