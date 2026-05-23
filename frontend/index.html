@@ -6,6 +6,10 @@
     <title>LocalViet Connect | Trợ lý Văn hóa & Làng nghề</title>
     <link rel="stylesheet" href="/static/style.css?v=1.2">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 </head>
 <body>
     <button id="theme-toggle" class="theme-toggle" title="Chuyển chế độ Sáng/Tối">
@@ -100,23 +104,24 @@
 
             <div id="map-view" class="view-container hidden">
                 <div class="view-header">
-                    <h2>🗺 Bản đồ làng nghề</h2>
-                    <p>Khám phá các làng nghề di sản truyền thống.</p>
+                    <h2>🗺️ Bản đồ di sản & Làng nghề</h2>
+                    <p>Khám phá các địa danh làng nghề truyền thống dọc chiều dài đất nước.</p>
                 </div>
-                <div id="craft-list" class="item-grid">
-                    <!-- Crafts will be injected here -->
+                <div id="map-container" class="glass">
+                    <div id="map" style="height: 500px; width: 100%; border-radius: 15px;"></div>
                 </div>
             </div>
 
             <div id="knowledge-view" class="view-container hidden">
                 <div class="view-header">
-                    <h2>📚 Kiến thức di sản</h2>
-                    <p>Tìm hiểu tinh hoa văn hóa và phương ngữ Việt.</p>
+                    <h2>📚 Tuyển tập Kiến thức Di sản</h2>
+                    <p>Những mẩu chuyện về tinh hoa văn hóa, phong tục và phong vị Việt.</p>
                 </div>
-                <div id="dialect-list" class="item-grid">
-                    <!-- Dialects will be injected here -->
+                <div id="knowledge-grid" class="item-grid">
+                    <!-- Dynamic content -->
                 </div>
             </div>
+
 
             <div class="chat-input-container glass">
                 <form id="chat-form">
@@ -145,6 +150,23 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=1.2"></script>
+    <!-- Heritage Detail Modal -->
+    <div id="heritage-modal" class="modal hidden">
+        <div class="modal-content glass large">
+            <div class="modal-header">
+                <h2 id="modal-title">Tiêu đề bài viết</h2>
+                <button id="close-heritage" class="btn-close">×</button>
+            </div>
+            <div class="modal-body custom-scroll">
+                <img id="modal-img" src="" alt="Heritage Image" class="full-img">
+                <div id="modal-content" class="article-text">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js?v=1.3"></script>
+
 </body>
 </html>
