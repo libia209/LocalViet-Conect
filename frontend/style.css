@@ -13,7 +13,9 @@
     --radius-lg: 24px;
     --radius-md: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --bubble-bot: #ffffff;
 }
+
 
 [data-theme="dark"] {
     /* Dark Mode (Imperial Night) */
@@ -27,7 +29,9 @@
     --accent: #FFD700; /* Golden Yellow */
     --glass-border: rgba(255, 255, 255, 0.1);
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    --bubble-bot: #2A2A2A;
 }
+
 
 
 * {
@@ -471,10 +475,12 @@ h1, h2, h3 {
 }
 
 .message.assistant .bubble {
-    background: white;
+    background: var(--bubble-bot);
     border-bottom-left-radius: 4px;
     color: var(--text-main);
+    border: 1px solid var(--glass-border);
 }
+
 
 .message.user .bubble {
     background: var(--primary);
