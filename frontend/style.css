@@ -397,13 +397,15 @@ h1, h2, h3 {
     position: relative;
 }
 
-.chat-header {
-    padding: 1rem 2rem;
+.main-content-header {
+    padding: 1.2rem 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    z-index: 10;
+    z-index: 100;
+    flex-shrink: 0;
 }
+
 
 .status-indicator {
     display: flex;
@@ -428,14 +430,14 @@ h1, h2, h3 {
     100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
 }
 
-.chat-messages {
+.chat-messages, .view-container {
     flex: 1;
     overflow-y: auto;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    height: 0; /* Ensures flex grow works correctly */
+    min-height: 0; /* Critical for flex scrolling */
 }
 
 
@@ -646,6 +648,25 @@ h1, h2, h3 {
 
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(0,0,0,0.2);
+}
+
+/* APP CONTAINER */
+#app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--background);
+}
+
+/* MAIN CONTENT AREA */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+    height: 100vh;
 }
 
 /* MAP CONTAINER */
