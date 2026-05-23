@@ -508,6 +508,20 @@ h1, h2, h3 {
     z-index: 10;
     display: flex; /* Ensure display is flex */
     background: var(--surface); /* Fallback */
+    border: 1px solid var(--glass-border);
+}
+
+.sovereign-marker {
+    pointer-events: none;
+}
+
+.sovereign-marker div {
+    animation: markerFloat 2s ease-in-out infinite;
+}
+
+@keyframes markerFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
 }
 
 #chat-form {

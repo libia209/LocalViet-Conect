@@ -71,23 +71,84 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const CRAFT_LOCATIONS = [
-        { name: "Gốm Bát Tràng", lat: 20.9633, lng: 105.9133, desc: "Làng gốm di sản ven sông Hồng." },
-        { name: "Lụa Vạn Phúc", lat: 20.9782, lng: 105.7761, desc: "Trung tâm lụa truyền thống nức tiếng." },
-        { name: "Đồ gỗ Đồng Kỵ", lat: 21.1333, lng: 105.9500, desc: "Làng nghề đồ gỗ mỹ nghệ tinh xảo." },
-        { name: "Nón lá Huế", lat: 16.4637, lng: 107.5908, desc: "Nơi sinh ra những chiếc nón bài thơ duyên dáng." },
-        { name: "Nước mắm Phú Quốc", lat: 10.2181, lng: 103.9607, desc: "Đặc sản nước mắm truyền thống lâu đời." },
+        {
+            id: 1,
+            name: "Làng gốm Bát Tràng",
+            location: "Gia Lâm, Hà Nội",
+            lat: 20.9800,
+            lng: 105.9200,
+            desc: "Làng gốm di sản ven sông Hồng với kỹ thuật men rạn cổ truyền.",
+            history: "Hình thành từ thời nhà Lý (thế kỷ 11), khi các nghệ nhân từ Thanh Hóa theo triều đình ra Thăng Long lập nghiệp.",
+            products: "Gốm gia dụng, đồ thờ cúng, gốm trang trí nghệ thuật với các loại men cổ như men rạn, men lam.",
+            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 2,
+            name: "Làng lụa Vạn Phúc",
+            location: "Hà Đông, Hà Nội",
+            lat: 20.9500,
+            lng: 105.7600,
+            desc: "Nổi tiếng với dòng lụa vân mịn màng, ấm vào mùa đông, mát vào mùa hè.",
+            history: "Có lịch sử hơn 1000 năm. Tương truyền bà A Lã Thị Nương đã truyền nghề dệt cho dân làng.",
+            products: "Lụa vân, gấm, satin với hoa văn tinh xảo như mây trời, hoa cúc.",
+            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 3,
+            name: "Làng đúc đồng Đồng Xâm",
+            location: "Kiến Xương, Thái Bình",
+            lat: 20.4500,
+            lng: 106.3400,
+            desc: "Đỉnh cao nghệ thuật chạm bạc và đúc đồng mỹ nghệ.",
+            history: "Hình thành từ thời Hậu Lê. Nghệ nhân Nguyễn Kim Lâu được coi là tổ nghề của vùng đất này.",
+            products: "Tranh đồng, lư hương, bộ đồ sành sứ bao bạc, trang sức bạc.",
+            img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 4,
+            name: "Làng mộc Đồng Kỵ",
+            location: "Từ Sơn, Bắc Ninh",
+            lat: 21.0800,
+            lng: 105.9900,
+            desc: "Thủ phủ đồ gỗ mỹ nghệ tinh xảo từ các loại gỗ quý.",
+            history: "Nổi danh từ nhiều thế kỷ trước nhờ kỹ thuật mộc chạm khắc tinh vi không nơi nào sánh kịp.",
+            products: "Bàn ghế bát tiên, tủ chè, sập gụ khảm trai truyền thống.",
+            img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 5,
+            name: "Làng nón lá Huế",
+            location: "Thừa Thiên Huế",
+            lat: 16.4670,
+            lng: 107.5900,
+            desc: "Biểu tượng của vẻ đẹp dịu dàng và tinh tế của phụ nữ Cố đô.",
+            history: "Nghề chằm nón tại Huế phát triển mạnh dưới thời Nguyễn, nổi tiếng nhất là nón bài thơ.",
+            products: "Nón bài thơ, nón lá cỏ, nón thêu phong cảnh cung đình Huế.",
+            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 6,
+            name: "Làng gốm Thanh Hà",
+            location: "Hội An, Quảng Nam",
+            lat: 15.8800,
+            lng: 108.3300,
+            desc: "Dòng gốm mộc không dùng men, mang hơi thở đất nung Hội An.",
+            history: "Phát triển cùng thời với phố cổ Hội An (thế kỷ 16-17), chuyên cung cấp gạch ngói cho các ngôi nhà cổ.",
+            products: "Chậu hoa, tượng gốm mộc, các vật dụng nhà bếp bằng đất nung đỏ.",
+            img: "https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=800"
+        },
         // Sovereignty Markers (Hoàng Sa & Trường Sa)
         { 
             name: "Quần đảo Hoàng Sa – Việt Nam", 
             lat: 16.5, 
-            lng: 111.7, 
+            lng: 112.5, 
             desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
             isSovereign: true 
         },
         { 
             name: "Quần đảo Trường Sa – Việt Nam", 
-            lat: 10.3, 
-            lng: 114.3, 
+            lat: 10.0, 
+            lng: 114.5, 
             desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
             isSovereign: true
         }
@@ -115,8 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (index === 1) {
                 mapView.classList.remove('hidden');
                 initMap();
-                // Ensure recenter when opening
-                if (map) map.setView([16.0, 114.5], 5);
+                // Hiệu ứng bay từ tầm nhìn toàn cầu về Việt Nam (Yêu cầu 2)
+                if (map) {
+                    map.setView([20, 0], 2); // Bắt đầu từ góc nhìn toàn cầu
+                    setTimeout(() => {
+                        map.flyTo([14.0583, 108.2772], 7, {
+                            duration: 2.5,
+                            easeLinearity: 0.25
+                        });
+                    }, 500);
+                }
             } else if (index === 2) {
                 knowledgeView.classList.remove('hidden');
                 renderKnowledge();
@@ -128,40 +197,44 @@ document.addEventListener('DOMContentLoaded', () => {
     function initMap() {
         if (map) return;
         
-        // Giới hạn bản đồ trong khu vực Đông Nam Á và Biển Đông (Yêu cầu 3)
-        const southWest = L.latLng(0, 95);
-        const northEast = L.latLng(32, 130); // Bao quát toàn bộ chủ quyền vùng biển
+        // Giới hạn bản đồ (Yêu cầu 3)
+        const southWest = L.latLng(-10, 90);
+        const northEast = L.latLng(40, 140); 
         const bounds = L.latLngBounds(southWest, northEast);
 
         map = L.map('map', {
-            minZoom: 5,
-            maxZoom: 13,
+            minZoom: 2,
+            maxZoom: 14,
             maxBounds: bounds,
             maxBoundsViscosity: 1.0
-        }).setView([16.0, 114.5], 5); // Tọa độ trung tâm Biển Đông (Yêu cầu 3)
+        }).setView([20, 0], 2);
 
-        // Tile server trung lập kèm attribution khẳng định chủ quyền (Yêu cầu 1)
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Bản đồ khẳng định chủ quyền Việt Nam (Hoàng Sa - Trường Sa)</b>'
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Hoàng Sa - Trường Sa là của Việt Nam</b>'
         }).addTo(map);
 
         CRAFT_LOCATIONS.forEach(loc => {
             if (loc.isSovereign) {
-                // Marker đặc biệt nổi bật không thể ẩn (Yêu cầu 2 & 4)
                 const sovereignIcon = L.divIcon({
                     className: 'sovereign-marker',
-                    html: `<div style="background: rgba(220, 0, 0, 0.9); color: white; padding: 4px 10px; border: 2px solid #ffd700; border-radius: 4px; font-weight: 800; white-space: nowrap; box-shadow: 0 4px 8px rgba(0,0,0,0.3); font-size: 11px; transform: translate(-50%, -50%);">🚩 ${loc.name}</div>`,
+                    html: `<div style="background: #ff0000; color: #ffffff; padding: 4px 8px; border: 2px solid #ffff00; border-radius: 4px; font-weight: bold; white-space: nowrap; box-shadow: 0 0 10px rgba(0,0,0,0.5); font-size: 11px;">📍 ${loc.name}</div>`,
                     iconSize: [0, 0],
                     iconAnchor: [0, 0]
                 });
 
-                L.marker([loc.lat, loc.lng], { 
-                    icon: sovereignIcon,
-                    zIndexOffset: 1000 
-                }).addTo(map).bindPopup(`<b>${loc.name}</b><br>${loc.desc}`).openPopup();
-            } else {
-                L.marker([loc.lat, loc.lng]).addTo(map)
+                L.marker([loc.lat, loc.lng], { icon: sovereignIcon, zIndexOffset: 1000 }).addTo(map)
                     .bindPopup(`<b>${loc.name}</b><br>${loc.desc}`);
+            } else {
+                const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+                const popupContent = `
+                    <div style="width: 200px;">
+                        <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px;">
+                        <b style="font-size:1.1rem; color:var(--primary);">${loc.name}</b>
+                        <p style="font-size:0.85rem; margin:5px 0;">${loc.desc}</p>
+                        <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; width:100%; font-weight:600;">🔍 Xem chi tiết</button>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
             }
         });
     }
@@ -170,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderKnowledge() {
         if (knowledgeGrid.children.length > 0) return;
         knowledgeGrid.innerHTML = KNOWLEDGE_DB.map(k => `
-            <div class="card glass" onclick="showHeritageDetail(${k.id})">
+            <div class="card glass" onclick="showHeritageDetail(${k.id}, 'knowledge')">
                 <div class="card-img" style="background-image: url('${k.img}')"></div>
                 <div class="card-content">
                     <span class="region">${k.category}</span>
@@ -181,12 +254,29 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    window.showHeritageDetail = (id) => {
-        const item = KNOWLEDGE_DB.find(k => k.id === id);
-        if (!item) return;
-        document.getElementById('modal-title').textContent = item.title;
-        document.getElementById('modal-img').src = item.img;
-        document.getElementById('modal-content').innerHTML = `<p>${item.content}</p>`;
+    window.showHeritageDetail = (id, type) => {
+        let item;
+        if (type === 'craft') {
+            item = CRAFT_LOCATIONS.find(c => c.id === id);
+            if (!item) return;
+            document.getElementById('modal-title').textContent = item.name;
+            document.getElementById('modal-img').src = item.img;
+            document.getElementById('modal-content').innerHTML = `
+                <div class="article-text">
+                    <p><strong>📍 Địa điểm:</strong> ${item.location}</p>
+                    <h4>Sơ lược lịch sử</h4>
+                    <p>${item.history}</p>
+                    <h4>Sản phẩm tiêu biểu</h4>
+                    <p>${item.products}</p>
+                </div>
+            `;
+        } else {
+            item = KNOWLEDGE_DB.find(k => k.id === id);
+            if (!item) return;
+            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-img').src = item.img;
+            document.getElementById('modal-content').innerHTML = `<div class="article-text"><p>${item.content}</p></div>`;
+        }
         heritageModal.classList.remove('hidden');
     };
 
