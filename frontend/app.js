@@ -110,10 +110,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // === MAP LOGIC ===
     function initMap() {
         if (map) return;
-        map = L.map('map').setView([16.0, 106.0], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+        // Set view to Vietnam but allow zoom out to world level (minZoom: 2)
+        map = L.map('map', {
+            minZoom: 2,
+            maxZoom: 18
+        }).setView([16.0, 106.0], 5);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+
 
         CRAFT_LOCATIONS.forEach(loc => {
             L.marker([loc.lat, loc.lng]).addTo(map)
