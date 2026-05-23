@@ -2,10 +2,11 @@ services:
   - type: web
     name: localviet-connect
     env: python
+    plan: free
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
-        sync: false # Giá trị sẽ được nhập thủ công trên Dashboard Render
+        sync: false
       - key: PYTHON_VERSION
         value: 3.10.0
