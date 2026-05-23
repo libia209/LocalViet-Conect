@@ -157,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === STATE ===
     let user = { name: '', email: '', messages: [] };
     let map = null;
+    let mapOverlay = null;
 
     // === NAVIGATION LOGIC ===
     navItems.forEach((item, index) => {
@@ -176,13 +177,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (index === 1) {
                 mapView.classList.remove('hidden');
                 initMap();
-                // Hiệu ứng bay từ tầm nhìn toàn cầu về Việt Nam (Yêu cầu 2)
                 if (map) {
-                    map.setView([20, 0], 2); // Bắt đầu từ góc nhìn toàn cầu
+                    const view = map.getView();
+                    view.setCenter(ol.proj.fromLonLat([0, 20]));
+                    view.setZoom(2);
+                    
                     setTimeout(() => {
-                        map.flyTo([14.0583, 108.2772], 7, {
-                            duration: 2.5,
-                            easeLinearity: 0.25
+                        view.animate({
+                            center: ol.proj.fromLonLat([108.2772, 14.0583]),
+                            zoom: 7,
+                            duration: 2500
                         });
                     }, 500);
                 }
@@ -193,49 +197,113 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // === MAP LOGIC ===
+    // === MAP LOGIC (OpenLayers Migration) ===
     function initMap() {
         if (map) return;
-        
-        // Giới hạn bản đồ (Yêu cầu 3)
-        const southWest = L.latLng(-10, 90);
-        const northEast = L.latLng(40, 140); 
-        const bounds = L.latLngBounds(southWest, northEast);
 
-        map = L.map('map', {
-            minZoom: 2,
-            maxZoom: 14,
-            maxBounds: bounds,
-            maxBoundsViscosity: 1.0
-        }).setView([20, 0], 2);
+        const container = document.getElementById('ol-popup');
+        const content = document.getElementById('ol-popup-content');
+        const closer = document.getElementById('ol-popup-closer');
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Hoàng Sa - Trường Sa là của Việt Nam</b>'
-        }).addTo(map);
+        mapOverlay = new ol.Overlay({
+            element: container,
+            autoPan: { animation: { duration: 250 } },
+        });
+
+        closer.onclick = function () {
+            mapOverlay.setPosition(undefined);
+            closer.blur();
+            return false;
+        };
+
+        const vectorSource = new ol.source.Vector();
+        const vectorLayer = new ol.layer.Vector({
+            source: vectorSource,
+            zIndex: 100
+        });
+
+        map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.XYZ({
+                        url: 'https://{a-c}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                        attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Hoàng Sa - Trường Sa - Việt Nam</b>'
+                    })
+                }),
+                vectorLayer
+            ],
+            overlays: [mapOverlay],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([0, 20]),
+                zoom: 2,
+                minZoom: 2,
+                maxZoom: 18
+            })
+        });
+
+        // Add Sovereignty Banner Overlay
+        const banner = document.createElement('div');
+        banner.className = 'sovereignty-banner-ol';
+        banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
+        document.getElementById('map-container').appendChild(banner);
 
         CRAFT_LOCATIONS.forEach(loc => {
-            if (loc.isSovereign) {
-                const sovereignIcon = L.divIcon({
-                    className: 'sovereign-marker',
-                    html: `<div style="background: #ff0000; color: #ffffff; padding: 4px 8px; border: 2px solid #ffff00; border-radius: 4px; font-weight: bold; white-space: nowrap; box-shadow: 0 0 10px rgba(0,0,0,0.5); font-size: 11px;">📍 ${loc.name}</div>`,
-                    iconSize: [0, 0],
-                    iconAnchor: [0, 0]
-                });
+            const feature = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.fromLonLat([loc.lng, loc.lat])),
+                data: loc
+            });
 
-                L.marker([loc.lat, loc.lng], { icon: sovereignIcon, zIndexOffset: 1000 }).addTo(map)
-                    .bindPopup(`<b>${loc.name}</b><br>${loc.desc}`);
+            if (loc.isSovereign) {
+                feature.setStyle(new ol.style.Style({
+                    text: new ol.style.Text({
+                        text: '📍 ' + loc.name,
+                        font: 'bold 12px Montserrat, sans-serif',
+                        fill: new ol.style.Fill({ color: '#ffffff' }),
+                        backgroundFill: new ol.style.Fill({ color: '#d32f2f' }),
+                        padding: [4, 8, 4, 8],
+                        offsetY: -20
+                    })
+                }));
             } else {
-                const marker = L.marker([loc.lat, loc.lng]).addTo(map);
-                const popupContent = `
-                    <div style="width: 200px;">
+                feature.setStyle(new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 8,
+                        fill: new ol.style.Fill({ color: '#8B0000' }),
+                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 2 })
+                    })
+                }));
+            }
+            vectorSource.addFeature(feature);
+        });
+
+        map.on('singleclick', function (evt) {
+            const feature = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature);
+            if (feature) {
+                const loc = feature.get('data');
+                if (!loc) return;
+                
+                const coordinate = evt.coordinate;
+                content.innerHTML = loc.isSovereign ? 
+                    `<b style="color:#d32f2f">${loc.name}</b><br>${loc.desc}` :
+                    `<div style="width: 200px;">
                         <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px;">
                         <b style="font-size:1.1rem; color:var(--primary);">${loc.name}</b>
                         <p style="font-size:0.85rem; margin:5px 0;">${loc.desc}</p>
                         <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; width:100%; font-weight:600;">🔍 Xem chi tiết</button>
-                    </div>
-                `;
-                marker.bindPopup(popupContent);
+                    </div>`;
+                mapOverlay.setPosition(coordinate);
+                container.style.display = 'block';
+            } else {
+                mapOverlay.setPosition(undefined);
+                container.style.display = 'none';
             }
+        });
+
+        map.on('pointermove', function (e) {
+            const pixel = map.getEventPixel(e.originalEvent);
+            const hit = map.hasFeatureAtPixel(pixel);
+            map.getTargetElement().style.cursor = hit ? 'pointer' : '';
         });
     }
 

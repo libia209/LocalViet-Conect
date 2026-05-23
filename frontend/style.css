@@ -794,4 +794,70 @@ h1, h2, h3 {
     display: inline-block;
 }
 
+/* OPENLAYERS POPUP */
+.ol-popup {
+    position: absolute;
+    background-color: var(--surface-solid);
+    box-shadow: var(--shadow);
+    padding: 15px;
+    border-radius: 15px;
+    border: 1px solid var(--glass-border);
+    bottom: 52px;
+    left: -50px;
+    min-width: 250px;
+    z-index: 1000;
+}
+
+.ol-popup:after, .ol-popup:before {
+    top: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.ol-popup:after {
+    border-top-color: var(--surface-solid);
+    border-width: 10px;
+    left: 48px;
+    margin-left: -10px;
+}
+
+.ol-popup-closer {
+    text-decoration: none;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+.ol-popup-closer:hover {
+    color: var(--primary);
+}
+
+/* HIGH READABILITY OVERLAYS */
+.sovereignty-banner-ol {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-weight: 800;
+    color: #d32f2f;
+    font-size: 13px;
+    z-index: 500;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    border: 1px solid #d32f2f33;
+}
+
+[data-theme="dark"] .ol-layer canvas {
+    filter: brightness(0.8) grayscale(0.2) contrast(1.1);
+}
+
 

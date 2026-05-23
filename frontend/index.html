@@ -6,9 +6,9 @@
     <title>LocalViet Connect | Trợ lý Văn hóa & Làng nghề</title>
     <link rel="stylesheet" href="/static/style.css?v=1.7">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <!-- Leaflet Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- OpenLayers Map (Superior Readability) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.2.1/ol.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol@v10.2.1/dist/ol.js"></script>
 
 </head>
 <body>
@@ -109,8 +109,13 @@
                     <h2>🗺️ Bản đồ di sản & Làng nghề</h2>
                     <p>Khám phá các địa danh làng nghề truyền thống dọc chiều dài đất nước.</p>
                 </div>
-                <div id="map-container" class="glass">
+                <div id="map-container" class="glass" style="position: relative;">
                     <div id="map" style="height: 500px; width: 100%; border-radius: 15px;"></div>
+                    <!-- Popup overlay for OpenLayers -->
+                    <div id="ol-popup" class="ol-popup glass">
+                        <a href="#" id="ol-popup-closer" class="ol-popup-closer">×</a>
+                        <div id="ol-popup-content"></div>
+                    </div>
                 </div>
             </div>
 
