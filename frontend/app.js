@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const chatForm = document.getElementById('chat-form');
+    const introContainer = document.getElementById('intro-container');
     const loginContainer = document.getElementById('login-container');
     const appContainer = document.getElementById('app-container');
     const chatMessages = document.getElementById('chat-messages');
@@ -9,12 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const termsLink = document.getElementById('terms-link');
     const termsModal = document.getElementById('terms-modal');
     const closeTerms = document.getElementById('close-terms');
+    const startDiscoveryBtn = document.getElementById('start-discovery');
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = themeToggle.querySelector('.sun');
+    const moonIcon = themeToggle.querySelector('.moon');
 
     const navItems = document.querySelectorAll('.nav-item');
     const chatView = document.getElementById('chat-messages');
     const mapView = document.getElementById('map-view');
     const knowledgeView = document.getElementById('knowledge-view');
     const chatInputContainer = document.querySelector('.chat-input-container');
+
+
 
     let user = {
         name: '',
@@ -202,12 +209,57 @@ document.addEventListener('DOMContentLoaded', () => {
         termsModal.classList.add('hidden');
     });
 
-    // Check for existing session
+    // === INTRO TRANSITION ===
+    startDiscoveryBtn.addEventListener('click', () => {
+        introContainer.style.opacity = '0';
+        introContainer.style.transform = 'translateY(-20px)';
+        setTimeout(() => {
+            introContainer.classList.add('hidden');
+            loginContainer.classList.remove('hidden');
+            loginContainer.style.opacity = '0';
+            setTimeout(() => {
+                loginContainer.style.opacity = '1';
+                loginContainer.style.transition = 'opacity 0.5s ease';
+            }, 50);
+        }, 500);
+    });
+
+    // === THEME LOGIC ===
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        if (theme === 'dark') {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        } else {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        }
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(savedTheme);
+
+    // Existing saved user logic...
     const savedUser = localStorage.getItem('localviet_user');
     if (savedUser) {
         const parsed = JSON.parse(savedUser);
         document.getElementById('user-name').value = parsed.name;
         document.getElementById('user-email').value = parsed.email;
-        // Optionally auto-login, but let's keep it safe for now
+        
+        // If user already logged in, skip intro/login
+        introContainer.classList.add('hidden');
+        loginContainer.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+        document.getElementById('display-name').textContent = parsed.name;
+        document.getElementById('display-email').textContent = parsed.email;
+        document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
     }
 });
+

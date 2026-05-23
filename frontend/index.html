@@ -8,7 +8,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="login-container" class="full-page">
+    <button id="theme-toggle" class="theme-toggle" title="Chuyển chế độ Sáng/Tối">
+        <span class="sun">☀️</span>
+        <span class="moon" style="display:none">🌙</span>
+    </button>
+
+    <div id="intro-container" class="full-page">
+        <div class="intro-content">
+            <h1>Chào mừng bạn đến với LocalViet Connect</h1>
+            <p class="intro-text">
+                Khám phá bản sắc Việt qua lăng kính công nghệ hiện đại. 
+                Tìm hiểu về làng nghề truyền thống, phương ngữ vùng miền 
+                và các giá trị di sản tinh hoa của dân tộc.
+            </p>
+            <div class="intro-visual">
+                <div class="visual-node">🎨</div>
+                <div class="visual-node">🏺</div>
+                <div class="visual-node">🎎</div>
+            </div>
+            <button id="start-discovery" class="btn-primary" style="max-width: 280px;">Bắt đầu khám phá ngay 🏛️</button>
+        </div>
+    </div>
+
+    <div id="login-container" class="full-page hidden">
+
         <div class="login-card glass">
             <div class="cultural-pattern top"></div>
             <h1>LocalViet Connect</h1>
