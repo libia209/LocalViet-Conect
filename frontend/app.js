@@ -217,16 +217,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // === THEME & INTRO ===
     startDiscoveryBtn.addEventListener('click', () => {
         introContainer.style.opacity = '0';
+        introContainer.style.transform = 'scale(1.1)';
         setTimeout(() => {
             introContainer.classList.add('hidden');
-            const savedUser = localStorage.getItem('localviet_user');
-            if (savedUser) {
+            if (user.isLoggedIn) {
                 appContainer.classList.remove('hidden');
+                chatView.classList.remove('hidden');
+                chatInputContainer.classList.remove('hidden');
             } else {
                 loginContainer.classList.remove('hidden');
             }
         }, 500);
     });
+
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -265,14 +268,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('display-email').textContent = parsed.email;
         document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
         
-        // Skip intro and login
-        introContainer.classList.add('hidden');
-        loginContainer.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-
-        // Show chat by default
-        chatView.classList.remove('hidden');
-        chatInputContainer.classList.remove('hidden');
+        // Use a flag to skip login later, but keep Intro visible now
+        user.isLoggedIn = true;
+        document.getElementById('user-name').value = parsed.name;
+        document.getElementById('user-email').value = parsed.email;
     }
+
 
 });
