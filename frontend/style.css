@@ -13,7 +13,7 @@
     --radius-lg: 24px;
     --radius-md: 16px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --bubble-bot: #ffffff;
+    --ai-bubble-bg: #ffffff;
 }
 
 
@@ -29,7 +29,7 @@
     --accent: #FFD700; /* Golden Yellow */
     --glass-border: rgba(255, 255, 255, 0.1);
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-    --bubble-bot: #2A2A2A;
+    --ai-bubble-bg: #2A2A2A;
 }
 
 
@@ -475,11 +475,12 @@ h1, h2, h3 {
 }
 
 .message.assistant .bubble {
-    background: var(--bubble-bot);
+    background: var(--ai-bubble-bg) !important;
     border-bottom-left-radius: 4px;
-    color: var(--text-main);
+    color: var(--text-main) !important;
     border: 1px solid var(--glass-border);
 }
+
 
 
 .message.user .bubble {
