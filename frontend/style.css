@@ -435,7 +435,9 @@ h1, h2, h3 {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    height: 0; /* Ensures flex grow works correctly */
 }
+
 
 .message {
     max-width: 80%;
@@ -474,16 +476,20 @@ h1, h2, h3 {
 
 /* CHAT INPUT */
 .chat-input-container {
-    padding: 1.5rem 2rem;
-    margin: 1rem 2rem 2rem;
-    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    margin: 0.5rem 2rem 1.5rem;
+    border-radius: var(--radius-md);
     z-index: 10;
+    display: flex; /* Ensure display is flex */
+    background: var(--surface); /* Fallback */
 }
 
 #chat-form {
     display: flex;
     gap: 15px;
+    width: 100%;
 }
+
 
 #chat-input {
     flex: 1;

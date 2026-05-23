@@ -264,5 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('display-name').textContent = parsed.name;
         document.getElementById('display-email').textContent = parsed.email;
         document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
+        
+        // Skip intro and login
+        introContainer.classList.add('hidden');
+        loginContainer.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+
+        // Show chat by default
+        chatView.classList.remove('hidden');
+        chatInputContainer.classList.remove('hidden');
     }
+
 });
