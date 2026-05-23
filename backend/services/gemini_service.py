@@ -25,7 +25,7 @@ class GeminiService:
         api_key = os.getenv("GEMINI_API_KEY")
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash-lite",
+            model_name="gemini-1.5-flash",
             system_instruction=SYSTEM_PROMPT
         )
 
