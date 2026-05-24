@@ -186,24 +186,45 @@
         </div>
     </div>
 
-    <!-- Artisan AI Floating Chat -->
-    <div id="artisan-chat-trigger" class="artisan-fab glass" title="Hỏi nghệ nhân AI 🏺">
+    <!-- Craft Creator Floating Chat -->
+    <div id="craft-creator-trigger" class="artisan-fab glass hidden" title="🏺 Craft Creator - Đặt làm đồ thủ công">
         <span class="emoji">🏺</span>
     </div>
 
-    <div id="artisan-chat-window" class="artisan-chat-window glass hidden">
+    <div id="craft-creator-window" class="artisan-chat-window glass hidden">
         <div class="artisan-chat-header">
-            <h3>Hỏi nghệ nhân AI 🏺</h3>
-            <button id="close-artisan-chat" class="btn-close-small">×</button>
-        </div>
-        <div id="artisan-messages" class="artisan-messages custom-scroll">
-            <div class="message assistant">
-                <div class="bubble">Xin chào! Tôi có thể giúp gì cho bạn về quy trình chế tác, thời gian hay giá cả của các sản phẩm thủ công?</div>
+            <h3>🏺 Craft Creator - Tạo vật phẩm</h3>
+            <div class="header-actions">
+                <button id="minimize-craft" class="btn-close-small">−</button>
+                <button id="close-craft" class="btn-close-small">×</button>
             </div>
         </div>
-        <form id="artisan-chat-form" class="artisan-input-area">
-            <input type="text" id="artisan-input" placeholder="Hỏi về quy trình, vật liệu..." autocomplete="off">
-            <button type="submit" class="btn-send-small">🚀</button>
+        <div id="craft-messages" class="artisan-messages custom-scroll">
+            <div class="message assistant">
+                <div class="bubble">
+                    💬 <b>Tôi có thể giúp bạn:</b><br>
+                    • Đặt làm đồ gốm, đồ đồng, sơn mài<br>
+                    • Tư vấn giá, thời gian, chất liệu<br>
+                    • Thiết kế sản phẩm theo ý muốn
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-suggestions">
+            <span class="suggestion-label">⚡ Gợi ý nhanh:</span>
+            <div class="suggestion-chips">
+                <button class="chip">Đặt ấm trà Bát Tràng</button>
+                <button class="chip">Làm tượng Phật gỗ mít</button>
+                <button class="chip">Giá chuông đồng Ngũ Xã</button>
+            </div>
+        </div>
+
+        <form id="craft-chat-form" class="artisan-input-area">
+            <div class="input-wrapper">
+                <button type="button" class="btn-attach" title="Gửi lời nhắn kèm ảnh">📎</button>
+                <input type="text" id="craft-input" placeholder="Yêu cầu đặt làm sản phẩm..." autocomplete="off">
+            </div>
+            <button type="submit" class="btn-send-craft">Gửi ➤</button>
         </form>
     </div>
 

@@ -25,12 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHeritage = document.getElementById('close-heritage');
     const guardrailContent = document.getElementById('guardrail-content');
 
-    const artisanTrigger = document.getElementById('artisan-chat-trigger');
-    const artisanWindow = document.getElementById('artisan-chat-window');
-    const closeArtisan = document.getElementById('close-artisan-chat');
-    const artisanForm = document.getElementById('artisan-chat-form');
-    const artisanInput = document.getElementById('artisan-input');
-    const artisanMessages = document.getElementById('artisan-messages');
+    const craftTrigger = document.getElementById('craft-creator-trigger');
+    const craftWindow = document.getElementById('craft-creator-window');
+    const closeCraft = document.getElementById('close-craft');
+    const minimizeCraft = document.getElementById('minimize-craft');
+    const craftForm = document.getElementById('craft-chat-form');
+    const craftInput = document.getElementById('craft-input');
+    const craftMessages = document.getElementById('craft-messages');
+    const suggestionChips = document.querySelectorAll('.chip');
 
     // === DATA DATABASES ===
     const DIALECT_DB = {
@@ -329,6 +331,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    const CRAFT_CREATOR_DATA = {
+        pricing: {
+            pottery: {
+                "Ấm trà Bát Tràng": "500.000 - 2.000.000 VND",
+                "Bình gốm trang trí (30cm)": "300.000 - 800.000 VND",
+                "Chén bát bộ 6": "150.000 - 400.000 VND",
+                "Tượng gốm lớn (60cm)": "1.500.000 - 5.000.000 VND"
+            },
+            bronze: {
+                "Chuông đồng nhỏ (20cm)": "800.000 - 1.500.000 VND",
+                "Chuông đồng lớn (1m)": "8.000.000 - 25.000.000 VND",
+                "Tượng đồng (40cm)": "3.000.000 - 10.000.000 VND",
+                "Lư hương đồng": "1.500.000 - 4.000.000 VND"
+            },
+            lacquer: {
+                "Bức sơn mài (40x60cm)": "2.000.000 - 8.000.000 VND",
+                "Bình sơn mài": "1.000.000 - 5.000.000 VND",
+                "Tranh sơn mài mini": "500.000 - 1.500.000 VND"
+            },
+            wood: {
+                "Tượng Phật gỗ mít (30cm)": "1.500.000 - 4.000.000 VND",
+                "Bộ tượng Tam thế": "5.000.000 - 15.000.000 VND",
+                "Hoành phi câu đối (1m)": "2.000.000 - 6.000.000 VND"
+            },
+            silver: {
+                "Vòng tay bạc Mông": "300.000 - 800.000 VND",
+                "Vòng cổ bạc": "800.000 - 2.500.000 VND",
+                "Bộ trang sức cưới": "3.000.000 - 8.000.000 VND"
+            }
+        },
+        leadTime: {
+            pottery: "7 - 20 ngày",
+            bronze: "15 ngày - 6 tháng (tùy kích thước)",
+            lacquer: "4 - 8 tháng",
+            wood: "1 - 4 tháng",
+            silver: "5 - 15 ngày"
+        },
+        customizations: {
+            pottery: ["khắc tên", "vẽ logo", "thay đổi kích thước", "chọn màu men"],
+            bronze: ["dát vàng 24k", "mạ bạc", "khắc chữ", "tạo màu giả cổ"],
+            lacquer: ["chọn đề tài", "thay đổi kích thước", "phối màu riêng"],
+            wood: ["chọn loại gỗ", "sơn son thếp vàng", "khắc họa tiết riêng"]
+        }
+    };
+
     // === STATE ===
     let user = { name: '', email: '', messages: [], lang: 'vi' };
     let map = null;
@@ -392,8 +439,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index === 0) {
             chatView.classList.remove('hidden');
             chatInputContainer.classList.remove('hidden');
+            // Hide Craft Creator on main chat tab
+            craftTrigger.classList.add('hidden');
+            craftWindow.classList.add('hidden');
         } else if (index === 1) {
             mapView.classList.remove('hidden');
+            craftTrigger.classList.remove('hidden');
             initMap();
             if (map) {
                 const view = map.getView();
@@ -408,6 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (index === 2) {
             knowledgeView.classList.remove('hidden');
+            craftTrigger.classList.remove('hidden');
             renderKnowledge();
         }
     }
@@ -697,89 +749,95 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.remove();
     }
 
-    // === ARTISAN AI LOGIC ===
-    artisanTrigger.addEventListener('click', () => artisanWindow.classList.toggle('hidden'));
-    closeArtisan.addEventListener('click', () => artisanWindow.classList.add('hidden'));
+    // === CRAFT CREATOR LOGIC ===
+    craftTrigger.addEventListener('click', () => craftWindow.classList.toggle('hidden'));
+    closeCraft.addEventListener('click', () => craftWindow.classList.add('hidden'));
+    minimizeCraft.addEventListener('click', () => craftWindow.classList.add('hidden'));
 
-    artisanForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = artisanInput.value.trim();
-        if (!text) return;
-
-        addArtisanMessage('user', text);
-        artisanInput.value = '';
-
-        detectAndSwitchLanguage(text);
-
-        setTimeout(() => {
-            const response = getArtisanResponse(text);
-            addArtisanMessage('assistant', response);
-        }, 500);
+    suggestionChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            craftInput.value = chip.textContent;
+            craftForm.dispatchEvent(new Event('submit'));
+        });
     });
 
-    function addArtisanMessage(role, content) {
+    craftForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = craftInput.value.trim();
+        if (!text) return;
+
+        addCraftMessage('user', text);
+        craftInput.value = '';
+
+        setTimeout(() => {
+            const response = getCraftCreatorResponse(text);
+            addCraftMessage('assistant', response);
+        }, 600);
+    });
+
+    function addCraftMessage(role, content) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${role}`;
         msgDiv.innerHTML = `<div class="bubble">${content.replace(/\n/g, '<br>')}</div>`;
-        artisanMessages.appendChild(msgDiv);
-        artisanMessages.scrollTop = artisanMessages.scrollHeight;
+        craftMessages.appendChild(msgDiv);
+        craftMessages.scrollTop = craftMessages.scrollHeight;
     }
 
-    function getArtisanResponse(input) {
-        const isEnglish = user.lang === 'en' || (/^[a-zA-Z0-9\s?.,!]*$/.test(input) && input.split(' ').length > 1);
+    function getCraftCreatorResponse(input) {
         const lowerInput = input.toLowerCase();
-        const lang = isEnglish ? 'en' : 'vi';
-
-        // NEW: Craft Process & Don'ts Logic
-        const processKeywords = isEnglish ? ['how to', 'process', 'steps', 'make'] : ['cách làm', 'quy trình', 'các bước', 'làm thế nào'];
-        const dontsKeywords = isEnglish ? ["don't", "forbidden", "prohibited", "rules"] : ['không nên', 'cấm', 'quy tắc', 'lưu ý'];
         
-        let targetCategory = null;
-        for (const key in GUARDRAILS_DB) {
-            const cat = GUARDRAILS_DB[key];
-            if (lowerInput.includes(cat.name.vi.toLowerCase()) || lowerInput.includes(cat.name.en.toLowerCase()) || lowerInput.includes(key)) {
-                targetCategory = key;
+        // Define Categories
+        const categories = {
+            pottery: ['gốm', 'ấm trà', 'bát tràng', 'pottery', 'ceramic'],
+            bronze: ['đồng', 'chuông', 'tượng đồng', 'lư hương', 'bronze'],
+            lacquer: ['sơn mài', 'tranh sơn mài', 'lacquer'],
+            wood: ['gỗ', 'tượng phật', 'hoành phi', 'wood'],
+            silver: ['bạc', 'trang sức', 'vòng tay', 'silver']
+        };
+
+        let selectedCat = null;
+        for (const cat in categories) {
+            if (categories[cat].some(kw => lowerInput.includes(kw))) {
+                selectedCat = cat;
                 break;
             }
         }
 
-        if (processKeywords.some(kw => lowerInput.includes(kw)) || dontsKeywords.some(kw => lowerInput.includes(kw))) {
-            if (!targetCategory) {
-                return isEnglish 
-                    ? "Which craft category are you interested in (Bronze, Ceramics, Lacquer, Textiles, Sculpture, Jewelry)?"
-                    : "Bạn đang quan tâm đến nhóm nghề nào (Đúc đồng, Gốm sứ, Sơn mài, Dệt, Điêu khắc, Trang sức bạc)?";
-            }
-
-            const guard = GUARDRAILS_DB[targetCategory];
-            const steps = guard.steps[lang].slice(0, 3);
-            const donts = guard.donts[lang].slice(0, 2);
-
-            if (isEnglish) {
-                return `The process for **${guard.name.en}** has these main steps:\n\n` +
-                       steps.map((s, i) => `${i + 1}️⃣ **${s}**`).join('\n') +
-                       `\n\n🚫 **Don'ts**:\n` +
-                       donts.map(d => `- ${d}`).join('\n') +
-                       `\n\nWould you like me to explain any specific step in detail?`;
-            } else {
-                return `Quy trình làm **${guard.name.vi}** gồm các bước chính:\n\n` +
-                       steps.map((s, i) => `${i + 1}️⃣ **${s}**`).join('\n') +
-                       `\n\n🚫 **Điều không nên làm**:\n` +
-                       donts.map(d => `- ${d}`).join('\n') +
-                       `\n\nBạn muốn tôi giải thích kỹ hơn về bước nào không?`;
+        // Pricing check
+        if (lowerInput.includes('giá') || lowerInput.includes('bao nhiêu') || lowerInput.includes('price')) {
+            if (selectedCat) {
+                const items = CRAFT_CREATOR_DATA.pricing[selectedCat];
+                let resp = `Bảng giá tham khảo cho dòng **${selectedCat}**:\n`;
+                for (const item in items) resp += `• ${item}: ${items[item]}\n`;
+                return resp + "\nBạn muốn đặt làm mẫu nào trong số này không?";
             }
         }
 
-        if (isEnglish) {
-            if (lowerInput.includes('buy') || lowerInput.includes('purchase') || lowerInput.includes('workshop')) {
-                return "I'd love to help you find a workshop or make a purchase! Could you please share your current city or province so I can find the nearest authentic artisan for you?";
+        // leadTime check
+        if (lowerInput.includes('bao lâu') || lowerInput.includes('thời gian') || lowerInput.includes('time')) {
+            if (selectedCat) {
+                return `Thời gian hoàn thiện sản phẩm **${selectedCat}** thường mất khoảng **${CRAFT_CREATOR_DATA.leadTime[selectedCat]}**.\nBạn có cần nhận hàng gấp vào ngày cụ thể nào không?`;
             }
-            return "Hello! I am your Artisan AI. I can guide you through traditional processes, lead times, and authentic craft standards. How can I help you today?";
-        } else {
-            if (lowerInput.includes('mua') || lowerInput.includes('đặt hàng') || lowerInput.includes('xưởng')) {
-                return "Chào bạn! Tôi rất sẵn lòng hỗ trợ bạn tìm xưởng hoặc đặt hàng. Để tôi có thể gợi ý nơi gần bạn nhất, vui lòng cho tôi biết bạn đang ở tỉnh/thành phố nào nhé?";
-            }
-            return "Chào bạn, tôi là Nghệ nhân AI. Tôi có thể giải đáp về các quy tắc bản sắc (Guardrails), thời gian và giá cả của các làng nghề thủ công. Bạn muốn hỏi gì ạ?";
         }
+
+        // Customization check
+        if (lowerInput.includes('tùy chỉnh') || lowerInput.includes('thiết kế') || lowerInput.includes('khắc') || lowerInput.includes('custom')) {
+            if (selectedCat) {
+                return `Với dòng ${selectedCat}, chúng tôi có thể: **${CRAFT_CREATOR_DATA.customizations[selectedCat].join(', ')}**.\nBạn muốn cá nhân hóa vật phẩm của mình như thế nào?`;
+            }
+        }
+
+        // Comparison
+        if (lowerInput.includes('so sánh') || lowerInput.includes('khác gì')) {
+            return "Sự khác biệt chính nằm ở chất liệu và quy trình: Gốm mang vẻ đẹp mộc mạc từ đất, Sơn mài đòi hỏi sự kiên nhẫn với nhiều lớp sơn ủ ẩm, còn Đồ đồng mang giá trị tâm linh vĩnh cửu. Bạn ưu tiên yếu tố nào hơn?";
+        }
+
+        // Default Ordering Response
+        if (selectedCat) {
+            return `Tôi đã ghi nhận yêu cầu về sản phẩm **${selectedCat}** của bạn. Để báo giá chính xác nhất, bạn có thể cho tôi biết thêm về kích thước hoặc yêu cầu đặc biệt nào không?`;
+        }
+
+        return "Chào bạn! Tôi là Craft Creator. Tôi có thể giúp bạn:\n• Tư vấn giá & thời gian đặt làm đồ thủ công\n• Thiết kế vật phẩm theo yêu cầu\n• So sánh các loại chất liệu di sản\n\nBạn đang quan tâm đến món đồ nào ạ?";
     }
 
     // === THEME & INTRO ===
