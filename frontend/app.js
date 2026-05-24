@@ -47,35 +47,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const KNOWLEDGE_DB = [
         {
             id: 1,
-            title: "Gốm Bát Tràng - Tinh hoa từ đất",
-            summary: "Làng gốm lâu đời nhất Việt Nam với những kỹ thuật men rạn độc đáo.",
-            content: "Nằm bên bờ sông Hồng, làng gốm Bát Tràng đã có lịch sử hơn 700 năm. Các sản phẩm gốm ở đây nổi tiếng với cốt đầy, chắc và lớp men trắng thường ngả màu ngà, đục. Đặc biệt là các dòng men rạn, men ngọc quý hiếm chỉ có tại đây.",
-            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800",
-            category: "Làng nghề"
+            category: { vi: "Làng nghề", en: "Craft Village" },
+            title: { vi: "Gốm Bát Tràng - Tinh hoa từ đất", en: "Bat Trang Ceramics - Essence of Earth" },
+            summary: { vi: "Làng gốm lâu đời nhất Việt Nam với kỹ thuật men rạn.", en: "Vietnam's oldest pottery village with unique crackle glazes." },
+            content: { 
+                vi: "Nằm bên bờ sông Hồng, làng gốm Bát Tràng có lịch sử hơn 700 năm. Nổi tiếng với các dòng men rạn, men ngọc quý hiếm.",
+                en: "Located on the Red River bank, Bat Trang has a 700-year history. Famous for rare crackle and celadon glazes."
+            },
+            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800"
         },
         {
             id: 2,
-            title: "Lụa Vạn Phúc - Mịn màng như mây",
-            summary: "Làng lụa nức tiếng Hà Đông với dòng lụa vân đặc sản.",
-            content: "Lụa Vạn Phúc có đặc điểm là ấm áp vào mùa đông và mát mẻ vào mùa hè. Hoa văn trên lụa rất đa dạng, trang nhã, tinh xảo. Sản phẩm tiêu biểu nhất là lụa Vân - loại lụa mà hoa văn nổi trên mặt vải mịn màng.",
-            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800",
-            category: "Làng nghề"
+            category: { vi: "Làng nghề", en: "Craft Village" },
+            title: { vi: "Lụa Vạn Phúc - Mịn màng như mây", en: "Van Phuc Silk - Smooth as Clouds" },
+            summary: { vi: "Làng lụa nức tiếng Hà Đông với dòng lụa vân đặc sản.", en: "Famous silk village in Ha Dong known for premium Van silk." },
+            content: { 
+                vi: "Lụa Vạn Phúc ấm vào mùa đông, mát vào mùa hè. Hoa văn trang nhã, tinh xảo, đặc biệt là lụa Vân.",
+                en: "Van Phuc silk is warm in winter and cool in summer. Elegant, intricate patterns, especially Van silk."
+            },
+            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800"
         },
         {
             id: 3,
-            title: "Nón lá Huế - Nét duyên xứ Kinh kỳ",
-            summary: "Biểu tượng của vẻ đẹp dịu dàng của người phụ nữ cố đô.",
-            content: "Nón lá Huế không chỉ là vật che mưa nắng mà còn là một tác phẩm nghệ thuật. Nổi tiếng nhất là nón bài thơ, khi soi lên ánh sáng ta có thể thấy những hình ảnh phong cảnh hoặc câu thơ được cắt khéo léo kẹp giữa hai lớp lá.",
-            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
-            category: "Phong tục"
-        },
-        {
-            id: 4,
-            title: "Ẩm thực miền Tây - Vị quê dân dã",
-            summary: "Nơi sông nước hữu tình với những món ăn đậm chất Nam Bộ.",
-            content: "Miền Tây nổi tiếng với các món cá lóc nướng trui, lẩu mắm, bánh xèo... Đặc trưng ẩm thực ở đây là sự kết hợp hài hòa giữa vị ngọt của đường thốt nốt, vị mặn của mắm và tươi ngon của rau trái miệt vườn.",
-            img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800",
-            category: "Ẩm thực"
+            category: { vi: "Phong tục", en: "Customs" },
+            title: { vi: "Nón lá Huế - Nét duyên Kinh kỳ", en: "Hue Conical Hat - Royal Grace" },
+            summary: { vi: "Biểu tượng của vẻ đẹp phụ nữ cố đô.", en: "A symbol of the gentle beauty of Hue women." },
+            content: { 
+                vi: "Nón lá Huế là tác phẩm nghệ thuật. Nổi tiếng nhất là nón bài thơ với hình ảnh phong cảnh ẩn hiện.",
+                en: "Hue conical hats are masterpieces. The 'poem hat' reveals scenery when held to the light."
+            },
+            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800"
         }
     ];
 
@@ -187,93 +188,138 @@ document.addEventListener('DOMContentLoaded', () => {
     const CRAFT_LOCATIONS = [
         {
             id: 101,
-            name: "Làng Ngũ Xã",
-            location: "Ba Đình, Hà Nội",
+            name: { vi: "Làng Ngũ Xã", en: "Ngu Xa Village" },
+            location: { vi: "Ba Đình, Hà Nội", en: "Ba Dinh, Hanoi" },
             lat: 21.0333,
             lng: 105.8333,
-            desc: "Tinh hoa đúc đồng Thăng Long thế kỷ XVII.",
+            desc: { vi: "Tinh hoa đúc đồng Thăng Long thế kỷ XVII.", en: "The essence of 17th-century Thang Long bronze casting." },
             img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'bronze'
         },
         {
             id: 1,
-            name: "Làng gốm Bát Tràng",
-            location: "Gia Lâm, Hà Nội",
+            name: { vi: "Làng gốm Bát Tràng", en: "Bat Trang Pottery Village" },
+            location: { vi: "Gia Lâm, Hà Nội", en: "Gia Lam, Hanoi" },
             lat: 20.9800,
             lng: 105.9200,
-            desc: "Làng gốm di sản ven sông Hồng với kỹ thuật men rạn cổ truyền.",
+            desc: { vi: "Làng gốm di sản ven sông Hồng.", en: "Heritage pottery village along the Red River." },
             img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'ceramics'
         },
         {
             id: 2,
-            name: "Làng lụa Vạn Phúc",
-            location: "Hà Đông, Hà Nội",
+            name: { vi: "Làng lụa Vạn Phúc", en: "Van Phuc Silk Village" },
+            location: { vi: "Hà Đông, Hà Nội", en: "Ha Dong, Hanoi" },
             lat: 20.9500,
             lng: 105.7667,
-            desc: "Nơi dệt nên dòng lụa vân mịn màng, tinh tế.",
+            desc: { vi: "Nơi dệt nên dòng lụa vân mịn màng.", en: "Where smooth and exquisite Van silk is woven." },
             img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
         },
         {
             id: 102,
-            name: "Làng gốm Bàu Trúc",
-            location: "Ninh Phước, Ninh Thuận",
+            name: { vi: "Làng gốm Bàu Trúc", en: "Bau Truc Pottery" },
+            location: { vi: "Ninh Thuận", en: "Ninh Thuan" },
             lat: 11.5667,
             lng: 108.9833,
-            desc: "Gốm cổ người Chăm, nung lộ thiên, không dùng bàn xoay.",
+            desc: { vi: "Gốm cổ người Chăm, nung lộ thiên.", en: "Ancient Cham pottery, open-fired without wheels." },
             img: "https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'ceramics'
         },
         {
             id: 103,
-            name: "Sơn mài Tương Bình Hiệp",
-            location: "Thủ Dầu Một, Bình Dương",
+            name: { vi: "Sơn mài Tương Bình Hiệp", en: "Tuong Binh Hiep Lacquer" },
+            location: { vi: "Bình Dương", en: "Binh Duong" },
             lat: 10.9500,
             lng: 106.6667,
-            desc: "Cái nôi sơn mài nổi tiếng nhất miền Nam.",
+            desc: { vi: "Cái nôi sơn mài nổi tiếng nhất miền Nam.", en: "The most famous lacquerware cradle in Southern Vietnam." },
             img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'lacquer'
         },
         {
             id: 104,
-            name: "Làng lụa Tân Châu",
-            location: "Tân Châu, An Giang",
+            name: { vi: "Làng lụa Tân Châu", en: "Tan Chau Silk Village" },
+            location: { vi: "An Giang", en: "An Giang" },
             lat: 10.8000,
             lng: 105.2000,
-            desc: "Lãnh Mỹ A đen bóng huyền thoại từ mặc nưa.",
+            desc: { vi: "Lãnh Mỹ A đen bóng huyền thoại.", en: "The legendary shiny black Lanh My A silk." },
             img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
         },
         {
             id: 3,
-            name: "Làng đúc đồng Đồng Xâm",
-            location: "Kiến Xương, Thái Bình",
+            name: { vi: "Làng đúc đồng Đồng Xâm", en: "Dong Xam Bronze/Silver" },
+            location: { vi: "Thái Bình", en: "Thai Binh" },
             lat: 20.4500,
             lng: 106.3400,
-            desc: "Đỉnh cao chạm bạc và đúc đồng mỹ nghệ.",
+            desc: { vi: "Đỉnh cao chạm bạc và đúc đồng mỹ nghệ.", en: "The peak of silver engraving and artistic bronze casting." },
             img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'bronze'
         },
         {
             id: 5,
-            name: "Làng nón lá Huế",
-            location: "Thừa Thiên Huế",
+            name: { vi: "Làng nón lá Huế", en: "Hue Conical Hat Village" },
+            location: { vi: "Huế", en: "Hue" },
             lat: 16.4670,
             lng: 107.5900,
-            desc: "Biểu tượng vẻ đẹp phụ nữ Cố đô.",
+            desc: { vi: "Biểu tượng vẻ đẹp phụ nữ Cố đô.", en: "The iconic beauty symbol of the ancient capital." },
             img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
         },
         // Sovereignty Markers
-        { name: "Quần đảo Hoàng Sa – Việt Nam", lat: 16.5, lng: 112.5, desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.", isSovereign: true },
-        { name: "Quần đảo Trường Sa – Việt Nam", lat: 10.0, lng: 114.5, desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.", isSovereign: true }
+        { 
+            name: { vi: "Quần đảo Hoàng Sa", en: "Hoang Sa Archipelago" }, 
+            lat: 16.5, lng: 112.5, 
+            desc: { vi: "Chủ quyền Việt Nam.", en: "Vietnam's Sovereignty." }, 
+            isSovereign: true 
+        },
+        { 
+            name: { vi: "Quần đảo Trường Sa", en: "Truong Sa Archipelago" }, 
+            lat: 10.0, lng: 114.5, 
+            desc: { vi: "Chủ quyền Việt Nam.", en: "Vietnam's Sovereignty." }, 
+            isSovereign: true 
+        }
     ];
 
     // === STATE ===
-    let user = { name: '', email: '', messages: [] };
+    let user = { name: '', email: '', messages: [], lang: 'vi' };
     let map = null;
     let mapOverlay = null;
+
+    // === LANGUAGE DETECTION & AUTO-SWITCH ===
+    function detectAndSwitchLanguage(input) {
+        const viKeywords = ["chào", "tôi", "làm thế nào", "giá bao nhiêu", "mua", "ở đâu", "việt nam"];
+        const enKeywords = ["hello", "how much", "what is", "i want", "buy", "process", "where"];
+        const lowerInput = input.toLowerCase();
+        
+        let newLang = user.lang;
+        
+        const isVi = viKeywords.some(key => lowerInput.includes(key)) || /[àáạảãèéẹẻẽìíịỉĩòóọỏõùúụủũưừứựửữỳýỵỷỹđ]/.test(lowerInput);
+        const isEn = enKeywords.some(key => lowerInput.includes(key)) || (/^[a-zA-Z0-9\s?.,!]*$/.test(lowerInput) && lowerInput.split(' ').length > 1);
+
+        if (isVi) newLang = 'vi';
+        else if (isEn) newLang = 'en';
+
+        if (newLang !== user.lang) {
+            user.lang = newLang;
+            updateUILanguage();
+        }
+    }
+
+    function updateUILanguage() {
+        // Re-render Knowledge if visible
+        if (!knowledgeView.classList.contains('hidden')) {
+            knowledgeGrid.innerHTML = '';
+            renderKnowledge();
+        }
+        // Update sovereignty banner
+        const banner = document.querySelector('.sovereignty-banner-ol');
+        if (banner) {
+            banner.innerHTML = user.lang === 'en' 
+                ? '🇻🇳 Hoang Sa & Truong Sa Archipelagos belong to Vietnam'
+                : '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
+        }
+    }
 
     // === NAVIGATION LOGIC ===
     function switchTab(index) {
@@ -412,16 +458,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const loc = feature.get('data');
                 if (!loc) return;
                 
+                const locName = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
+                const locDesc = typeof loc.desc === 'object' ? loc.desc[user.lang] : loc.desc;
+
                 const coordinate = evt.coordinate;
                 content.innerHTML = loc.isSovereign ? 
-                    `<b style="color:#d32f2f">${loc.name}</b><br>${loc.desc}` :
+                    `<b style="color:#d32f2f">${locName}</b><br>${locDesc}` :
                     `<div style="width: 220px;">
                         <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px;">
-                        <b style="font-size:1.1rem; color:var(--primary);">${loc.name}</b>
-                        <p style="font-size:0.85rem; margin:5px 0;">${loc.desc}</p>
+                        <b style="font-size:1.1rem; color:var(--primary);">${locName}</b>
+                        <p style="font-size:0.85rem; margin:5px 0;">${locDesc}</p>
                         <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">🔍 Xem chi tiết</button>
-                            ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">📜 Quy trình chế tác</button>` : ''}
+                            <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '🔍 View Details' : '🔍 Xem chi tiết'}</button>
+                            ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '📜 Craft Process' : '📜 Quy trình chế tác'}</button>` : ''}
                         </div>
                     </div>`;
                 mapOverlay.setPosition(coordinate);
@@ -446,9 +495,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card glass" onclick="showHeritageDetail(${k.id}, 'knowledge')">
                 <div class="card-img" style="background-image: url('${k.img}')"></div>
                 <div class="card-content">
-                    <span class="region">${k.category}</span>
-                    <h3>${k.title}</h3>
-                    <p>${k.summary}</p>
+                    <span class="region">${k.category[user.lang]}</span>
+                    <h3>${k.title[user.lang]}</h3>
+                    <p>${k.summary[user.lang]}</p>
                 </div>
             </div>
         `).join('');
@@ -459,10 +508,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const loc = CRAFT_LOCATIONS.find(c => c.id === locId);
         if (!guard || !loc) return;
 
-        document.getElementById('modal-title').textContent = loc.name;
+        document.getElementById('modal-title').textContent = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
         
-        const isEn = user.lang === 'en'; // Assuming we might track user lang
-        const lang = isEn ? 'en' : 'vi';
+        const lang = user.lang;
 
         guardrailContent.innerHTML = `
             <div class="guardrail-section">
@@ -497,22 +545,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (type === 'craft') {
             item = CRAFT_LOCATIONS.find(c => c.id === id);
             if (!item) return;
-            document.getElementById('modal-title').textContent = item.name;
-            // Clear guardrail specific content if any
+            document.getElementById('modal-title').textContent = typeof item.name === 'object' ? item.name[user.lang] : item.name;
             guardrailContent.innerHTML = `
                 <img id="modal-img" src="${item.img}" class="full-img">
                 <div class="article-text">
-                    <p><strong>📍 Địa điểm:</strong> ${item.location}</p>
-                    <p>${item.desc}</p>
+                    <p><strong>📍 ${user.lang === 'en' ? 'Location' : 'Địa điểm'}:</strong> ${typeof item.location === 'object' ? item.location[user.lang] : item.location}</p>
+                    <p>${typeof item.desc === 'object' ? item.desc[user.lang] : item.desc}</p>
                 </div>
             `;
         } else {
             item = KNOWLEDGE_DB.find(k => k.id === id);
             if (!item) return;
-            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-title').textContent = item.title[user.lang];
             guardrailContent.innerHTML = `
                 <img src="${item.img}" class="full-img">
-                <div class="article-text"><p>${item.content}</p></div>
+                <div class="article-text"><p>${item.content[user.lang]}</p></div>
             `;
         }
         heritageModal.classList.remove('hidden');
@@ -528,6 +575,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addMessage('user', text);
         chatInput.value = '';
+        
+        detectAndSwitchLanguage(text);
         
         const typingId = addTypingIndicator();
         setTimeout(() => {
@@ -552,11 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return responses.join('\n\n--- \n\n');
         }
 
-        // Common interactions
-        if (lowerInput.includes("chào") || lowerInput.includes("hi")) {
-            return "Xin chào! Tôi là Trợ lý LocalViet. Bạn muốn hỏi về phương ngữ hay làng nghề nào không?";
+        if (user.lang === 'en') {
+            return "Hello! I am your LocalViet Assistant. Would you like to ask about dialects, heritage sites, or travel tips?";
         }
-
         return "Tôi chưa học từ này hoặc thông tin này. Bạn dạy tôi nhé! Hoặc hãy thử hỏi tôi về các từ như: mô, răng, rứa, chi, hén...";
     }
 
@@ -598,6 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addArtisanMessage('user', text);
         artisanInput.value = '';
+
+        detectAndSwitchLanguage(text);
 
         setTimeout(() => {
             const response = getArtisanResponse(text);
