@@ -95,6 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 vi: "Tuyệt đối không thay thế kỹ thuật chạm khắc tay bằng máy dập công nghiệp cho các vật phẩm tâm linh vì sẽ làm mất đi 'thần thái'.",
                 en: "Strictly Forbidden to replace hand-carving with industrial machine stamping for spiritual artifacts. Preserves the 'aura'."
             },
+            steps: {
+                vi: ["Tạo khuôn đất sét", "Nấu chảy đồng ~1200°C", "Rót đồng và để nguội tự nhiên", "Dỡ khuôn và làm sạch", "Chạm khắc họa tiết thủ công"],
+                en: ["Create clay molds", "Melt bronze ~1200°C", "Pour and cool naturally", "De-mold and clean", "Hand-carve patterns"]
+            },
+            donts: {
+                vi: ["Không làm nguội bằng nước", "Không dùng đồng tạp chất", "Không mặc cả quá sâu"],
+                en: ["Don't cool with water", "Don't use impure metals", "Don't bargain excessively"]
+            },
             leadTime: { vi: "15 ngày - 6 tháng", en: "15 days - 6 months" },
             impact: { vi: "Rất cao", en: "Very High" }
         },
@@ -111,6 +119,14 @@ document.addEventListener('DOMContentLoaded', () => {
             warning: {
                 vi: "Dùng men công nghiệp trên gốm Bàu Trúc hoặc làm xương gốm Bát Tràng quá mỏng sẽ làm mất giá trị di sản.",
                 en: "Industrial glazes on Bàu Trúc or thin Bát Tràng bodies invalidate core heritage value."
+            },
+            steps: {
+                vi: ["Nhào đất và ủ ẩm 3-5 ngày", "Tạo hình trên bàn xoay/khuôn", "Phơi khô tự nhiên 2-3 ngày", "Sửa chi tiết, gọt chân", "Phủ men + Vẽ họa tiết", "Nung 1200-1300°C trong 8-12h"],
+                en: ["Knead and cure clay 3-5 days", "Shape on wheel or mold", "Dry naturally 2-3 days", "Refine and trim", "Glaze and paint", "Fire at 1200-1300°C for 8-12h"]
+            },
+            donts: {
+                vi: ["Không yêu cầu xong trong 2-3 ngày", "Không dùng máy sấy nhiệt", "Không dùng men công nghiệp"],
+                en: ["Don't ask for 2-3 day delivery", "Don't use heat dryers", "Don't use industrial glazes"]
             },
             leadTime: { vi: "7 - 20 ngày", en: "7 - 20 days" },
             impact: { vi: "Cao", en: "High" }
@@ -129,6 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 vi: "Tuyệt đối không dùng máy sấy nhiệt hoặc sơn PU công nghiệp; quy trình ủ ẩm tự nhiên là bắt buộc.",
                 en: "Strictly Forbidden to use heat dryers or industrial PU paint. Natural curing is mandatory."
             },
+            steps: {
+                vi: ["Làm cốt và sơn lót", "Dán vải, phủ sơn then", "Mài thô và phủ sơn cánh gián", "Trang trí (vàng/bạc/vỏ trứng)", "Ủ ẩm mỗi lớp 7-10 ngày", "Mài mòn lộ hình và đánh bóng"],
+                en: ["Prep base and primer", "Apply cloth and sap", "Sanding and amber lacquer", "Decorate (gold/silver/eggshell)", "Cure each layer 7-10 days", "Wet-sanding and polishing"]
+            },
+            donts: {
+                vi: ["Không dùng sơn PU", "Không dùng máy sấy nhiệt", "Không yêu cầu làm dưới 6 tháng"],
+                en: ["Don't use industrial PU", "Don't use heat dryers", "Don't ask for < 6 months"]
+            },
             leadTime: { vi: "Trung bình 6 tháng", en: "Average 6 months" },
             impact: { vi: "Đặc biệt cao", en: "Critically High" }
         },
@@ -145,6 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
             warning: {
                 vi: "Không dùng thuốc nhuộm hóa học; không biến tấu sai lệch các họa tiết tâm linh.",
                 en: "No chemical dyes allowed. Sacred motifs must not be altered."
+            },
+            steps: {
+                vi: ["Trồng dâu nuôi tằm/Trồng lanh", "Quay tơ, mắc cửi", "Nhuộm màu tự nhiên", "Dệt hoa văn trên khung", "Hấp nhuộm cầm màu"],
+                en: ["Sericulture/Hemp growing", "Spinning and warping", "Natural dyeing", "Weaving patterns", "Steaming to set dye"]
+            },
+            donts: {
+                vi: ["Không nhuộm hóa học", "Không ép dệt sai khổ vải", "Không giặt xà phòng mạnh"],
+                en: ["Don't use chemical dyes", "Don't force non-traditional widths", "Don't use harsh detergents"]
             },
             leadTime: { vi: "10 - 30 ngày", en: "10 - 30 days" },
             impact: { vi: "Trung bình đến Cao", en: "Medium to High" }
@@ -163,6 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 vi: "Tuyệt đối không dùng nhựa composite giả đá/gỗ vì sẽ triệt tiêu sự kết nối tâm linh.",
                 en: "Strictly Forbidden to use composite resins. Severs the spiritual connection."
             },
+            steps: {
+                vi: ["Tìm gỗ/đá nguyên khối", "Phác thảo tỷ lệ", "Đục thô định hình", "Chạm tinh xảo", "Sơn son thếp vàng"],
+                en: ["Find solid wood/stone", "Sketch proportions", "Rough carving", "Fine detailing", "Lacquer and gold leaf"]
+            },
+            donts: {
+                vi: ["Không dùng nhựa composite", "Không bỏ qua tẩy uế vật liệu", "Không dùng vàng giả"],
+                en: ["Don't use resins", "Don't skip purification rituals", "Don't use fake gold leaf"]
+            },
             leadTime: { vi: "1 - 4 tháng", en: "1 - 4 months" },
             impact: { vi: "Cao", en: "High" }
         },
@@ -179,6 +219,14 @@ document.addEventListener('DOMContentLoaded', () => {
             warning: {
                 vi: "Không pha trộn kim loại tạp chất vào bạc vì bạc là 'vệ sĩ' bảo vệ hồn vía.",
                 en: "Do Not mix impure metals into silver. Guardian of health and soul."
+            },
+            steps: {
+                vi: ["Luyện bạc nõn", "Cán mỏng/kéo sợi", "Uốn họa tiết xoắn ốc", "Hàn chi tiết thủ công", "Đánh bóng bằng thảo mộc"],
+                en: ["Smelt pure silver", "Roll or draw filaments", "Twist ethnic patterns", "Manual welding", "Polish with herbs"]
+            },
+            donts: {
+                vi: ["Không pha đồng/kẽm", "Không dập máy công nghiệp", "Không tẩy rửa hóa chất mạnh"],
+                en: ["Don't mix with alloys", "Don't use industrial stamps", "Don't use harsh chemicals"]
             },
             leadTime: { vi: "5 - 15 ngày", en: "5 - 15 days" },
             impact: { vi: "Trung bình", en: "Medium" }
@@ -525,6 +573,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 <strong>⚠️ ${isEn ? "ARTISAN'S WARNING" : 'CẢNH BÁO TỪ NGHỆ NHÂN'}:</strong>
                 <p>${guard.warning[lang]}</p>
             </div>
+
+            <div class="guardrail-section" style="background: rgba(var(--primary-glow), 0.1);">
+                <div class="guardrail-title">🔧 ${isEn ? 'CRAFTING PROCESS' : 'QUY TRÌNH CHẾ TÁC'}</div>
+                <ul style="padding-left: 20px; line-height: 1.6;">
+                    ${guard.steps[lang].map(step => `<li>${step}</li>`).join('')}
+                </ul>
+            </div>
+
+            <div class="guardrail-section" style="background: rgba(255, 82, 82, 0.05); border-color: rgba(255, 82, 82, 0.2);">
+                <div class="guardrail-title" style="color: #ff5252;">🚫 ${isEn ? "DOS & DON'TS" : 'ĐIỀU KHÔNG NÊN LÀM'}</div>
+                <ul style="padding-left: 20px; line-height: 1.6;">
+                    ${guard.donts[lang].map(dont => `<li>${dont}</li>`).join('')}
+                </ul>
+            </div>
+
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <div class="guardrail-section">
                     <div class="guardrail-title">⏱️ ${isEn ? 'LEAD TIME' : 'THỜI GIAN CHẾ TÁC'}</div>
@@ -663,24 +726,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getArtisanResponse(input) {
-        const isEnglish = /^[a-zA-Z0-9\s?.,!]*$/.test(input) && input.split(' ').length > 1;
+        const isEnglish = user.lang === 'en' || (/^[a-zA-Z0-9\s?.,!]*$/.test(input) && input.split(' ').length > 1);
         const lowerInput = input.toLowerCase();
+        const lang = isEnglish ? 'en' : 'vi';
+
+        // NEW: Craft Process & Don'ts Logic
+        const processKeywords = isEnglish ? ['how to', 'process', 'steps', 'make'] : ['cách làm', 'quy trình', 'các bước', 'làm thế nào'];
+        const dontsKeywords = isEnglish ? ["don't", "forbidden", "prohibited", "rules"] : ['không nên', 'cấm', 'quy tắc', 'lưu ý'];
         
+        let targetCategory = null;
+        for (const key in GUARDRAILS_DB) {
+            const cat = GUARDRAILS_DB[key];
+            if (lowerInput.includes(cat.name.vi.toLowerCase()) || lowerInput.includes(cat.name.en.toLowerCase()) || lowerInput.includes(key)) {
+                targetCategory = key;
+                break;
+            }
+        }
+
+        if (processKeywords.some(kw => lowerInput.includes(kw)) || dontsKeywords.some(kw => lowerInput.includes(kw))) {
+            if (!targetCategory) {
+                return isEnglish 
+                    ? "Which craft category are you interested in (Bronze, Ceramics, Lacquer, Textiles, Sculpture, Jewelry)?"
+                    : "Bạn đang quan tâm đến nhóm nghề nào (Đúc đồng, Gốm sứ, Sơn mài, Dệt, Điêu khắc, Trang sức bạc)?";
+            }
+
+            const guard = GUARDRAILS_DB[targetCategory];
+            const steps = guard.steps[lang].slice(0, 3);
+            const donts = guard.donts[lang].slice(0, 2);
+
+            if (isEnglish) {
+                return `The process for **${guard.name.en}** has these main steps:\n\n` +
+                       steps.map((s, i) => `${i + 1}️⃣ **${s}**`).join('\n') +
+                       `\n\n🚫 **Don'ts**:\n` +
+                       donts.map(d => `- ${d}`).join('\n') +
+                       `\n\nWould you like me to explain any specific step in detail?`;
+            } else {
+                return `Quy trình làm **${guard.name.vi}** gồm các bước chính:\n\n` +
+                       steps.map((s, i) => `${i + 1}️⃣ **${s}**`).join('\n') +
+                       `\n\n🚫 **Điều không nên làm**:\n` +
+                       donts.map(d => `- ${d}`).join('\n') +
+                       `\n\nBạn muốn tôi giải thích kỹ hơn về bước nào không?`;
+            }
+        }
+
         if (isEnglish) {
             if (lowerInput.includes('buy') || lowerInput.includes('purchase') || lowerInput.includes('workshop')) {
                 return "I'd love to help you find a workshop or make a purchase! Could you please share your current city or province so I can find the nearest authentic artisan for you?";
             }
-            if (lowerInput.includes('process') || lowerInput.includes('how to')) {
-                return "Our traditional crafts follow strict 'Guardrails' to preserve heritage. For example, Lacquerware requires natural sap and months of humidity curing. Bronze casting must use traditional alloy ratios. Which specific craft are you interested in?";
-            }
             return "Hello! I am your Artisan AI. I can guide you through traditional processes, lead times, and authentic craft standards. How can I help you today?";
         } else {
-            // Vietnamese Logic
             if (lowerInput.includes('mua') || lowerInput.includes('đặt hàng') || lowerInput.includes('xưởng')) {
                 return "Chào bạn! Tôi rất sẵn lòng hỗ trợ bạn tìm xưởng hoặc đặt hàng. Để tôi có thể gợi ý nơi gần bạn nhất, vui lòng cho tôi biết bạn đang ở tỉnh/thành phố nào nhé?";
-            }
-            if (lowerInput.includes('quy trình') || lowerInput.includes('lâu không')) {
-                return "Mỗi ngành nghề có quy trình khắt khe: Gốm Bàu Trúc không dùng bàn xoay, Sơn mài cần tới 6 tháng ủ ẩm. Bạn đang quan tâm đến nhóm nghề nào (Đúc đồng, Gốm, Dệt...)?";
             }
             return "Chào bạn, tôi là Nghệ nhân AI. Tôi có thể giải đáp về các quy tắc bản sắc (Guardrails), thời gian và giá cả của các làng nghề thủ công. Bạn muốn hỏi gì ạ?";
         }
