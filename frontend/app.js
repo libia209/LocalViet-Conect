@@ -49,36 +49,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const KNOWLEDGE_DB = [
         {
             id: 1,
-            category: { vi: "Làng nghề", en: "Craft Village" },
-            title: { vi: "Gốm Bát Tràng - Tinh hoa từ đất", en: "Bat Trang Ceramics - Essence of Earth" },
-            summary: { vi: "Làng gốm lâu đời nhất Việt Nam với kỹ thuật men rạn.", en: "Vietnam's oldest pottery village with unique crackle glazes." },
+            category: { vi: "Hành trình di sản", en: "Heritage Itinerary" },
+            title: { vi: "Gốm Bát Tràng - Tinh hoa ngàn năm", en: "Bat Trang Pottery - Millennial Essence" },
+            summary: { vi: "Khám phá mê cung ngõ nhỏ và quy trình vuốt men ngọc di sản.", en: "Explore narrow alleys and the heritage celadon glazing process." },
             content: { 
-                vi: "Nằm bên bờ sông Hồng, làng gốm Bát Tràng có lịch sử hơn 700 năm. Nổi tiếng với các dòng men rạn, men ngọc quý hiếm.",
-                en: "Located on the Red River bank, Bat Trang has a 700-year history. Famous for rare crackle and celadon glazes."
+                vi: "<b>Mô tả:</b> Nằm bên bờ sông Hồng, ngôi làng 1.000 năm tuổi này sở hữu Bảo tàng đương đại ấn tượng. Du khách sẽ trải nghiệm nặn gốm trên bàn xoay thủ công.<br><br><b>Quy tắc ứng xử:</b> Nên hỏi về 'Câu chuyện Tổ nghề' trước khi quay phim. Không chạm vào sản phẩm chờ nung lần hai.<br><br><b>Chi phí tham khảo:</b> Xe Grab từ trung tâm: 200k. Trải nghiệm nặn gốm: 50k. Bình gốm cao cấp: 2.5tr - 15tr VND.",
+                en: "<b>Description:</b> A 1,000-year-old village on the Red River with a stunning contemporary Museum. Experience manual potter's wheels.<br><br><b>Etiquette:</b> Ask for the 'Ancestral Story' before filming. Do not touch pieces waiting for the 'Second Firing'.<br><br><b>Costs:</b> Grab ride: $10. DIY pottery: $2. High-end vases: $100 - $600."
             },
             img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800"
         },
         {
             id: 2,
-            category: { vi: "Làng nghề", en: "Craft Village" },
-            title: { vi: "Lụa Vạn Phúc - Mịn màng như mây", en: "Van Phuc Silk - Smooth as Clouds" },
-            summary: { vi: "Làng lụa nức tiếng Hà Đông với dòng lụa vân đặc sản.", en: "Famous silk village in Ha Dong known for premium Van silk." },
+            category: { vi: "Hành trình di sản", en: "Heritage Itinerary" },
+            title: { vi: "Lụa Vạn Phúc - Con đường tơ lụa Hà Đông", en: "Van Phuc Silk - Ha Dong Silk Road" },
+            summary: { vi: "Kỹ thuật dệt lụa Vân ẩn hiện và con đường ô rực rỡ.", en: "Van silk weaving technique and vibrant umbrella streets." },
             content: { 
-                vi: "Lụa Vạn Phúc ấm vào mùa đông, mát vào mùa hè. Hoa văn trang nhã, tinh xảo, đặc biệt là lụa Vân.",
-                en: "Van Phuc silk is warm in winter and cool in summer. Elegant, intricate patterns, especially Van silk."
+                vi: "<b>Mô tả:</b> Làng lụa nổi tiếng with lụa vân mịn màng. Du khách nghe tiếng 'lách cách' của khung cửi cổ và ngắm hoa văn ẩn hiện theo ánh sáng.<br><br><b>Quy tắc ứng xử:</b> Dùng mu bàn tay cảm nhận lụa. Tránh đeo phụ kiện sắc nhọn làm xước lụa thô.<br><br><b>Chi phí tham khảo:</b> Bún chả: 50k. Khăn lụa: 300k - 800k. Lụa vân nguyên chất: 1.5tr/mét.",
+                en: "<b>Description:</b> Famous for smooth Van silk. Witness 'Cloud Pattern Weaving' where patterns appear/disappear with light.<br><br><b>Etiquette:</b> Feel silk with the back of your hand. Avoid sharp accessories that might snag fabric.<br><br><b>Costs:</b> Lunch: $2. Silk scarves: $12 - $32. Pure Van Silk: $60/meter."
             },
             img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800"
         },
         {
             id: 3,
-            category: { vi: "Phong tục", en: "Customs" },
-            title: { vi: "Nón lá Huế - Nét duyên Kinh kỳ", en: "Hue Conical Hat - Royal Grace" },
-            summary: { vi: "Biểu tượng của vẻ đẹp phụ nữ cố đô.", en: "A symbol of the gentle beauty of Hue women." },
+            category: { vi: "Hành trình di sản", en: "Heritage Itinerary" },
+            title: { vi: "Tranh Đông Hồ - Hồn dân tộc trên giấy Điệp", en: "Dong Ho Paintings - Folk Spirit" },
+            summary: { vi: "Tìm hiểu quy trình làm giấy Điệp lấp lánh và in màu tự nhiên.", en: "Learn the sparkling Diep paper process and natural color printing." },
             content: { 
-                vi: "Nón lá Huế là tác phẩm nghệ thuật. Nổi tiếng nhất là nón bài thơ với hình ảnh phong cảnh ẩn hiện.",
-                en: "Hue conical hats are masterpieces. The 'poem hat' reveals scenery when held to the light."
+                vi: "<b>Mô tả:</b> Du khách chứng kiến quy trình làm giấy Điệp từ vỏ sò điệp sông. Trải nghiệm dùng bản khắc gỗ dập màu tự nhiên lên hình ảnh biểu tượng như 'Lợn ăn cây ráy'.<br><br><b>Quy tắc ứng xử:</b> Không chạm vào tranh vừa in còn ướt. Tìm hiểu ý nghĩa biểu tượng của các con vật.<br><br><b>Chi phí tham khảo:</b> Xe khứ hồi từ HN: 500k. Tranh đơn: 50k. Tranh đóng khung cao cấp: 1tr - 3.5tr VND.",
+                en: "<b>Description:</b> Witness Diep paper creation from oyster shells. Use hand-carved woodblocks to press natural colors onto folk images.<br><br><b>Etiquette:</b> Never touch a wet print. Ask about the symbolism of the animals.<br><br><b>Costs:</b> Private round trip: $25. Simple prints: $2. Framed masterpieces: $40 - $140."
             },
             img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 4,
+            category: { vi: "Hành trình di sản", en: "Heritage Itinerary" },
+            title: { vi: "Hương Thủy Xuân - Bản giao hưởng màu sắc", en: "Thuy Xuan Incense - Color Symphony" },
+            summary: { vi: "Rực rỡ những bó hương xòe hoa dưới chân đồi Vọng Cảnh.", en: "Vibrant incense bouquets blooming at the foot of Vong Canh hill." },
+            content: { 
+                vi: "<b>Mô tả:</b> Ngôi làng rực rỡ with những bó tăm hương đa sắc. Du khách xem quy trình trộn bột quế và se hương thủ công.<br><br><b>Quy tắc ứng xử:</b> Mua ủng hộ quà lưu niệm nếu chụp ảnh nhiều. Tôn trọng giá trị tâm linh của hương.<br><br><b>Chi phí tham khảo:</b> Bún bò Huế: 35k. Bó hương: 40k. Nón bài thơ: 150k - 300k VND.",
+                en: "<b>Description:</b> A village characterized by multi-colored incense 'bouquets'. Watch cinnamon powder mixing and manual rolling.<br><br><b>Etiquette:</b> Buy a souvenir if you take many photos. Respect the sacred role of incense.<br><br><b>Costs:</b> Bun Bo Hue: $1.5. Incense bundles: $1.6. Special poem conical hats: $6 - $12."
+            },
+            img: "https://images.unsplash.com/photo-1549429451-9128f7311749?auto=format&fit=crop&q=80&w=800"
+        },
+        {
+            id: 5,
+            category: { vi: "Hành trình di sản", en: "Heritage Itinerary" },
+            title: { vi: "Lụa Tân Châu - Nữ hoàng tơ tằm phương Nam", en: "Tan Chau Silk - Southern Queen" },
+            summary: { vi: "Di sản Lãnh Mỹ A nhuộm từ trái mặc nưa 100 lần công phu.", en: "Legendary Lanh My A silk dyed 100 times with Mac Nua fruit." },
+            content: { 
+                vi: "<b>Mô tả:</b> Đỉnh cao dệt may Mekong. Lụa đen bóng được phơi trên bãi cỏ bạt ngàn và đập bằng búa gỗ để tạo độ bóng da thuộc.<br><br><b>Quy tắc ứng xử:</b> Tuyệt đối không giẫm lên lụa đang phơi trên cỏ. Không mặc cả cho hàng xa xỉ.<br><br><b>Chi phí tham khảo:</b> Bún cá Châu Đốc: 40k. Khăn Lãnh Mỹ A: 1.2tr - 2.5tr. Vải lụa mộc: 1.5tr/mét VND.",
+                en: "<b>Description:</b> The pinnacle of Mekong textiles. Black silk dyed 100 times, spread on vast grass fields and hammered for metallic sheen.<br><br><b>Etiquette:</b> Never walk across silk drying on grass. No bargaining for luxury items.<br><br><b>Costs:</b> Fish noodles: $1.6. Lanh My A scarves: $48 - $100. Fabric: $60/meter."
+            },
+            img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800"
         }
     ];
 
@@ -86,11 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
         bronze: {
             name: { vi: "Đúc đồng", en: "Bronze Casting" },
             fixed: {
-                vi: "Sản phẩm phải đảm bảo tỉ lệ hợp kim đồng truyền thống để duy trì độ vang (chuông, chiêng) và độ bền cơ học. Tuân thủ nghiêm ngặt điển tích và tỷ lệ nhân trắc học truyền thống.",
-                en: "Must adhere to traditional alloy ratios for resonance and durability. Strictly follow traditional iconography and anatomical proportions."
+                vi: "Sản phẩm phải đảm bảo tỉ lệ hợp kim đồng truyền thống để duy trì độ vang (chuông, chiêng) và độ bền cơ học. Các quy chuẩn về hình dáng bộ Tam sự, Ngũ sự và diện mạo tượng Phật, danh nhân phải tuân thủ nghiêm ngặt điển tích và tỷ lệ nhân trắc học truyền thống.",
+                en: "Must adhere to traditional alloy ratios for resonance and durability. Strictly follow traditional iconography and anatomical proportions for ritual sets and statues."
             },
             variable: {
-                vi: "Kích thước tùy chỉnh, lớp hoàn thiện (dát vàng 24k, mạ bạc, màu giả cổ). Khắc thêm tên gia tộc hoặc lời chúc.",
+                vi: "Kích thước tùy chỉnh để phù hợp không gian trưng bày, lựa chọn lớp hoàn thiện (dát vàng 24k, mạ bạc, màu giả cổ). Hỗ trợ khắc thêm tên gia tộc hoặc lời chúc.",
                 en: "Custom dimensions, finishes (24k gold, silver plating, antique patinas). Engraving family names or blessings."
             },
             warning: {
@@ -134,18 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
             impact: { vi: "Cao", en: "High" }
         },
         lacquer: {
-            name: { vi: "Sơn mài", en: "Traditional Lacquerware" },
+            name: { vi: "Sơn mài", en: "Lacquerware" },
             fixed: {
-                vi: "Sử dụng mủ cây sơn tự nhiên, kỹ thuật 'ủ ẩm - mài mòn'. Các nguyên liệu quý như vàng/bạc thếp, vỏ trứng, vỏ trai.",
+                vi: "Sử dụng mủ cây sơn tự nhiên (sơn then, sơn cánh gián), kỹ thuật 'ủ ẩm - mài mòn'. Các nguyên liệu quý như vàng/bạc thếp, vỏ trứng, vỏ trai.",
                 en: "Use natural lacquer sap, 'humidity-curing & sanding' technique. Gold/silver leaf, eggshells, mother-of-pearl."
             },
             variable: {
-                vi: "Cốt vật liệu (gỗ, mây tre, gốm), đề tài hội họa tùy chỉnh.",
-                en: "Base materials (wood, bamboo, ceramic), custom artistic themes."
+                vi: "Cốt vật liệu (gỗ, mây tre, gốm), đề tài hội họa tùy chỉnh (từ chân dung đến phong cảnh).",
+                en: "Base materials (wood, bamboo, ceramic), custom themes (portraits to landscapes)."
             },
             warning: {
-                vi: "Tuyệt đối không dùng máy sấy nhiệt hoặc sơn PU công nghiệp; quy trình ủ ẩm tự nhiên là bắt buộc.",
-                en: "Strictly Forbidden to use heat dryers or industrial PU paint. Natural curing is mandatory."
+                vi: "Tuyệt đối không dùng máy sấy nhiệt hoặc sơn PU công nghiệp; quy trình ủ ẩm tự nhiên là bắt buộc để đạt độ bền 50-200 năm.",
+                en: "Strictly Forbidden to use heat dryers or industrial PU paint. Natural curing ensures 50-200 years durability."
             },
             steps: {
                 vi: ["Làm cốt và sơn lót", "Dán vải, phủ sơn then", "Mài thô và phủ sơn cánh gián", "Trang trí (vàng/bạc/vỏ trứng)", "Ủ ẩm mỗi lớp 7-10 ngày", "Mài mòn lộ hình và đánh bóng"],
@@ -159,17 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
             impact: { vi: "Đặc biệt cao", en: "Critically High" }
         },
         textiles: {
-            name: { vi: "Dệt thủ công", en: "Hand-Woven Textiles" },
+            name: { vi: "Dệt thủ công", en: "Textiles" },
             fixed: {
-                vi: "Tơ tằm tự nhiên hoặc sợi lanh. Họa tiết xoắn ốc (người Mông) hoặc hoa văn móng tay (người Chăm) giữ đúng cấu trúc.",
+                vi: "Tơ tằm tự nhiên hoặc sợi lanh. Họa tiết xoắn ốc (người Mông) hoặc hoa văn móng tay (người Chăm) giữ đúng cấu trúc tâm linh.",
                 en: "Natural silk or linen. Sacred motifs (spiral, fingernails) must preserve spiritual structure."
             },
             variable: {
-                vi: "Màu sắc nhuộm thực vật, thiết kế kiểu dáng hiện đại (áo dài, túi xách) trên khổ vải truyền thống.",
+                vi: "Màu sắc nhuộm từ thực vật, thiết kế kiểu dáng hiện đại (áo dài, túi xách) trên khổ vải truyền thống.",
                 en: "Natural dye colors, modern fashion designs on traditional fabric widths."
             },
             warning: {
-                vi: "Không dùng thuốc nhuộm hóa học; không biến tấu sai lệch các họa tiết tâm linh.",
+                vi: "Không dùng thuốc nhuộm hóa học; không biến tấu sai lệch các họa tiết tâm linh gắn với vòng đời.",
                 en: "No chemical dyes allowed. Sacred motifs must not be altered."
             },
             steps: {
@@ -186,12 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
         sculpture: {
             name: { vi: "Điêu khắc", en: "Sculpture & Carving" },
             fixed: {
-                vi: "Vật liệu tự nhiên (gỗ mít, đá nguyên khối). Sơn son thếp vàng/bạc thủ công.",
-                en: "Natural materials (jackfruit wood, solid stone). Manual gold/silver leafing."
+                vi: "Vật liệu tự nhiên (gỗ mít, đá nguyên khối). Sơn son thếp vàng/bạc thủ công đảm bảo độ rực rỡ và trang nghiêm.",
+                en: "Natural materials (jackfruit wood, solid stone). Manual gold/silver leafing for solemnity."
             },
             variable: {
-                vi: "Tùy chỉnh kích thước cho không gian thờ tự; lựa chọn vân gỗ hoặc màu đá.",
-                en: "Custom sizes for worship spaces, wood grain or stone color selection."
+                vi: "Tùy chỉnh kích thước cho không gian thờ tự hoặc tiểu cảnh; lựa chọn vân gỗ hoặc màu đá.",
+                en: "Custom sizes for worship or gardens, wood grain or stone selection."
             },
             warning: {
                 vi: "Tuyệt đối không dùng nhựa composite giả đá/gỗ vì sẽ triệt tiêu sự kết nối tâm linh.",
@@ -209,17 +231,17 @@ document.addEventListener('DOMContentLoaded', () => {
             impact: { vi: "Cao", en: "High" }
         },
         jewelry: {
-            name: { vi: "Trang sức bạc", en: "Ethnic Silver Jewelry" },
+            name: { vi: "Trang sức bạc", en: "Ethnic Silver" },
             fixed: {
-                vi: "Bạc nõn nguyên chất, kỹ thuật cán, kéo sợi và chạm khắc thủ công. Họa tiết xoắn ốc và tua bạc tạo âm thanh.",
+                vi: "Bạc nõn nguyên chất, kỹ thuật cán, kéo sợi và chạm khắc thủ công. Họa tiết xoắn ốc và tua bạc tạo âm thanh leng keng.",
                 en: "Pure Silver (bạc nõn), manual wire-drawing and engraving. Spiral motifs and tinkling tassels."
             },
             variable: {
-                vi: "Tùy chỉnh công năng (vòng thành nhẫn/phụ kiện), số lượng tua bạc để đổi âm thanh.",
+                vi: "Tùy chỉnh công năng (vòng thành nhẫn/phụ kiện), điều chỉnh số lượng tua để thay đổi âm thanh.",
                 en: "Modified functions (neck ring to brooch), adjustable tassels for sound profile."
             },
             warning: {
-                vi: "Không pha trộn kim loại tạp chất vào bạc vì bạc là 'vệ sĩ' bảo vệ hồn vía.",
+                vi: "Không pha trộn kim loại tạp chất vào bạc vì bạc là 'vệ sĩ' bảo vệ hồn vía và sức khỏe.",
                 en: "Do Not mix impure metals into silver. Guardian of health and soul."
             },
             steps: {
@@ -236,53 +258,176 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const CRAFT_LOCATIONS = [
+        // --- MIỀN BẮC ---
         {
             id: 101,
             name: { vi: "Làng Ngũ Xã", en: "Ngu Xa Village" },
             location: { vi: "Ba Đình, Hà Nội", en: "Ba Dinh, Hanoi" },
-            lat: 21.0333,
-            lng: 105.8333,
-            desc: { vi: "Tinh hoa đúc đồng Thăng Long thế kỷ XVII.", en: "The essence of 17th-century Thang Long bronze casting." },
+            lat: 21.0400, lng: 105.8380,
+            desc: { 
+                vi: "Hình thành từ thế kỷ XVII, tinh hoa đúc đồng bậc nhất Kinh thành Thăng Long. Showroom: 178 Phố Trấn Vũ.", 
+                en: "Established in the 17th century, one of the elite crafts of ancient Thang Long. Showroom: 178 Tran Vu St." 
+            },
             img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'bronze'
+        },
+        {
+            id: 110,
+            name: { vi: "Làng Tống Xá", en: "Tong Xa Village" },
+            location: { vi: "Ý Yên, Nam Định", en: "Y Yen, Nam Dinh" },
+            lat: 20.3500, lng: 105.9500,
+            desc: { 
+                vi: "Cái nôi 900 năm nghề đúc đồng. Showroom: 66 Nguyễn Xiển, Hà Nội.", 
+                en: "The 900-year cradle of bronze casting. Showroom: 66 Nguyen Xien, Hanoi." 
+            },
+            img: "https://images.unsplash.com/photo-1599508704512-2f19fe912037?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'bronze'
         },
         {
             id: 1,
             name: { vi: "Làng gốm Bát Tràng", en: "Bat Trang Pottery Village" },
             location: { vi: "Gia Lâm, Hà Nội", en: "Gia Lam, Hanoi" },
-            lat: 20.9800,
-            lng: 105.9200,
-            desc: { vi: "Làng gốm di sản ven sông Hồng.", en: "Heritage pottery village along the Red River." },
+            lat: 20.9800, lng: 105.9200,
+            desc: { 
+                vi: "Di sản 1.000 năm ven sông Hồng. Nghệ nhân tiêu biểu: Phạm Đạt, Trần Độ. Bảo tàng Gốm: Xóm 7.", 
+                en: "1,000-year heritage on the Red River. Famous artisans: Pham Dat, Tran Do. Ceramic Museum: Commune 7." 
+            },
             img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'ceramics'
+        },
+        {
+            id: 111,
+            name: { vi: "Làng gốm Chu Đậu", en: "Chu Dau Ceramics" },
+            location: { vi: "Nam Sách, Hải Dương", en: "Nam Sach, Hai Duong" },
+            lat: 20.9833, lng: 106.3333,
+            desc: { 
+                vi: "Gốm di sản thế kỷ XIII-XIV. Sử dụng đất sét trắng Trúc Thôn, men trắng trong họa tiết xanh chàm.", 
+                en: "13th-14th century heritage. Features bamboo-white clay and cobalt blue patterns." 
+            },
+            img: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'ceramics'
         },
         {
             id: 2,
             name: { vi: "Làng lụa Vạn Phúc", en: "Van Phuc Silk Village" },
             location: { vi: "Hà Đông, Hà Nội", en: "Ha Dong, Hanoi" },
-            lat: 20.9500,
-            lng: 105.7667,
-            desc: { vi: "Nơi dệt nên dòng lụa vân mịn màng.", en: "Where smooth and exquisite Van silk is woven." },
+            lat: 20.9500, lng: 105.7667,
+            desc: { 
+                vi: "Nổi tiếng với lụa Vân ẩn hiện. Con đường ô rực rỡ và tiếng khung cửi lách cách.", 
+                en: "Famous for exquisite Van silk. Known for vibrant umbrella streets and ancient loams." 
+            },
             img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
+        },
+        {
+            id: 112,
+            name: { vi: "Làng Sơn Đồng", en: "Son Dong Village" },
+            location: { vi: "Hoài Đức, Hà Nội", en: "Hoai Duc, Hanoi" },
+            lat: 21.0167, lng: 105.7167,
+            desc: { 
+                vi: "Thủ phủ điêu khắc tượng gỗ tâm linh. Sử dụng gỗ mít chất lượng cao, thếp vàng bạc thủ công.", 
+                en: "Capital of spiritual wood carving. Specialized in high-quality jackfruit wood and manual gold leafing." 
+            },
+            img: "https://images.unsplash.com/photo-1518331318466-281ca04df77a?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'sculpture'
+        },
+        {
+            id: 113,
+            name: { vi: "Sơn mài Hạ Thái", en: "Ha Thai Lacquer" },
+            location: { vi: "Thường Tín, Hà Nội", en: "Thuong Tin, Hanoi" },
+            lat: 20.8833, lng: 105.8667,
+            desc: { 
+                vi: "Làng sơn mài di sản. Bắt buộc ủ ẩm tự nhiên, không dùng máy sấy nhiệt hay sơn PU.", 
+                en: "Heritage lacquer village. Mandatory natural curing without heat dryers or PU paint." 
+            },
+            img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'lacquer'
+        },
+        {
+            id: 114,
+            name: { vi: "Trang sức bạc Mông", en: "H'Mong Silver Jewelry" },
+            location: { vi: "Lào Cai / Hà Giang", en: "Lao Cai / Ha Giang" },
+            lat: 22.4833, lng: 103.9667,
+            desc: { 
+                vi: "Bạc nõn bảo vệ hồn vía. Họa tiết xoắn ốc và tua bạc leng keng đặc trưng.", 
+                en: "Pure silver protectors. Features sacred spirals and distinctive tinkling tassels." 
+            },
+            img: "https://images.unsplash.com/photo-1621600411666-ac748c080486?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'jewelry'
+        },
+
+        // --- MIỀN TRUNG ---
+        {
+            id: 201,
+            name: { vi: "Làng Phường Đúc", en: "Phuong Duc Village" },
+            location: { vi: "Huế", en: "Hue" },
+            lat: 16.4500, lng: 107.5667,
+            desc: { 
+                vi: "Đúc đồng cung đình Huế với kỹ thuật tinh xảo cho đại hồng chung.", 
+                en: "Royal Hue bronze casting, specialized in intricate temple bells." 
+            },
+            img: "https://images.unsplash.com/photo-1599508704512-2f19fe912037?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'bronze'
         },
         {
             id: 102,
             name: { vi: "Làng gốm Bàu Trúc", en: "Bau Truc Pottery" },
             location: { vi: "Ninh Thuận", en: "Ninh Thuan" },
-            lat: 11.5667,
-            lng: 108.9833,
-            desc: { vi: "Gốm cổ người Chăm, nung lộ thiên.", en: "Ancient Cham pottery, open-fired without wheels." },
+            lat: 11.5333, lng: 108.9667,
+            desc: { 
+                vi: "Gốm cổ Chăm nung lộ thiên, không bàn xoay, không phủ men. Kỹ thuật 'vừa đi vừa nặn'.", 
+                en: "Ancient Champa pottery. Hand-molded and open-fired without glazes or wheels." 
+            },
             img: "https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'ceramics'
         },
         {
+            id: 202,
+            name: { vi: "Làng gốm Thanh Hà", en: "Thanh Ha Pottery" },
+            location: { vi: "Hội An, Quảng Nam", en: "Hoi An, Quang Nam" },
+            lat: 15.8833, lng: 108.3000,
+            desc: { 
+                vi: "Kỹ thuật 'đôi chân vàng': một người đạp bàn xoay, một người vuốt đất. Vé: 35.000đ.", 
+                en: "The 'Golden Feet' technique: one kicks the wheel, one shapes the clay. Fee: 35,000 VND." 
+            },
+            img: "https://images.unsplash.com/photo-1512413316925-fd450ddbec12?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'ceramics'
+        },
+        {
+            id: 203,
+            name: { vi: "Đá mỹ nghệ Non Nước", en: "Non Nuoc Stone Carving" },
+            location: { vi: "Ngũ Hành Sơn, Đà Nẵng", en: "Da Nang" },
+            lat: 16.0333, lng: 108.2500,
+            desc: { 
+                vi: "Sử dụng đá nguyên khối tự nhiên. Cấm tuyệt đối nhựa composite giả đá.", 
+                en: "Uses solid natural stone. Strictly forbidden to use composite resin imitations." 
+            },
+            img: "https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'sculpture'
+        },
+        {
+            id: 5,
+            name: { vi: "Làng hương Thủy Xuân", en: "Thuy Xuan Incense" },
+            location: { vi: "Huế", en: "Hue" },
+            lat: 16.4450, lng: 107.5600,
+            desc: { 
+                vi: "Rực rỡ những 'bó hoa' hương. Du khách xem quy trình trộn bột quế và se tăm hương.", 
+                en: "Vibrant 'bouquets' of incense. Watch the cinnamon powder mixing and manual rolling." 
+            },
+            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'textiles'
+        },
+
+        // --- MIỀN NAM ---
+        {
             id: 103,
             name: { vi: "Sơn mài Tương Bình Hiệp", en: "Tuong Binh Hiep Lacquer" },
             location: { vi: "Bình Dương", en: "Binh Duong" },
-            lat: 10.9500,
-            lng: 106.6667,
-            desc: { vi: "Cái nôi sơn mài nổi tiếng nhất miền Nam.", en: "The most famous lacquerware cradle in Southern Vietnam." },
+            lat: 10.9833, lng: 106.6500,
+            desc: { 
+                vi: "Tinh hoa sơn mài phương Nam. Độ bền tác phẩm từ 50-100 năm nhờ mủ cây sơn tự nhiên.", 
+                en: "Southern lacquer essence. Works last 50-100 years using natural tree sap." 
+            },
             img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'lacquer'
         },
@@ -290,33 +435,28 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 104,
             name: { vi: "Làng lụa Tân Châu", en: "Tan Chau Silk Village" },
             location: { vi: "An Giang", en: "An Giang" },
-            lat: 10.8000,
-            lng: 105.2000,
-            desc: { vi: "Lãnh Mỹ A đen bóng huyền thoại.", en: "The legendary shiny black Lanh My A silk." },
+            lat: 10.8167, lng: 105.2333,
+            desc: { 
+                vi: "Nổi tiếng với Lãnh Mỹ A đen bóng nhuộm từ trái mặc nưa. Không mặc cả cho hàng xa xỉ.", 
+                en: "Home of shiny black Lanh My A silk dyed with Mac Nua fruit. No bargaining for luxury items." 
+            },
             img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
         },
         {
-            id: 3,
-            name: { vi: "Làng đúc đồng Đồng Xâm", en: "Dong Xam Bronze/Silver" },
-            location: { vi: "Thái Bình", en: "Thai Binh" },
-            lat: 20.4500,
-            lng: 106.3400,
-            desc: { vi: "Đỉnh cao chạm bạc và đúc đồng mỹ nghệ.", en: "The peak of silver engraving and artistic bronze casting." },
-            img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
-            guardrailKey: 'bronze'
-        },
-        {
-            id: 5,
-            name: { vi: "Làng nón lá Huế", en: "Hue Conical Hat Village" },
-            location: { vi: "Huế", en: "Hue" },
-            lat: 16.4670,
-            lng: 107.5900,
-            desc: { vi: "Biểu tượng vẻ đẹp phụ nữ Cố đô.", en: "The iconic beauty symbol of the ancient capital." },
-            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
+            id: 301,
+            name: { vi: "Nước mắm Phú Quốc", en: "Phu Quoc Fish Sauce" },
+            location: { vi: "Phú Quốc, Kiên Giang", en: "Phu Quoc Island" },
+            lat: 10.2167, lng: 103.9667,
+            desc: { 
+                vi: "Di sản nhà thùng khổng lồ. Nước mắm cốt nhĩ 45 độ đạm màu hổ phách.", 
+                en: "Giant barrel-house heritage. Amber-colored, 45N protein premium fish sauce." 
+            },
+            img: "https://images.unsplash.com/photo-1596484552979-3d7143d24029?auto=format&fit=crop&q=80&w=800",
             guardrailKey: 'textiles'
         },
-        // Sovereignty Markers
+
+        // --- SOVEREIGNTY ---
         { 
             name: { vi: "Quần đảo Hoàng Sa", en: "Hoang Sa Archipelago" }, 
             lat: 16.5, lng: 112.5, 
