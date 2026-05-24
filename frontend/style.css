@@ -1145,3 +1145,149 @@ h1, h2, h3 {
         margin-bottom: 1rem;
     }
 }
+
+/* ARTISAN AI FLOATING CHAT */
+.artisan-fab {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 8px 25px rgba(139, 0, 0, 0.3);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.artisan-chat-window {
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    width: 350px;
+    height: 500px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2000;
+    overflow: hidden;
+    animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.artisan-chat-header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.artisan-chat-header h3 {
+    font-size: 1rem;
+}
+
+.artisan-messages {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.artisan-input-area {
+    padding: 1rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 10px;
+}
+
+.artisan-input-area input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text-main);
+    font-size: 0.9rem;
+}
+
+.btn-send-small {
+    background: var(--primary);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.btn-close-small {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* GUARDRAIL MODAL STYLING */
+.guardrail-section {
+    margin-bottom: 2rem;
+    padding: 1.2rem;
+    border-radius: 15px;
+    background: rgba(var(--primary-glow), 0.05);
+    border: 1px solid var(--glass-border);
+}
+
+.guardrail-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+
+.guardrail-warning {
+    background: rgba(255, 82, 82, 0.1);
+    border-left: 4px solid #ff5252;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-main);
+}
+
+.guardrail-warning strong {
+    color: #ff5252;
+}
+
+.guardrail-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--accent);
+    color: var(--primary);
+    margin-left: 10px;
+}
+
+@media (max-width: 480px) {
+    .artisan-chat-window {
+        width: 90vw;
+        height: 70vh;
+        right: 5vw;
+    }
+}

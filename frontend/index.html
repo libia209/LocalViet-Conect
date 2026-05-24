@@ -173,23 +173,41 @@
         </div>
     </div>
 
-    <!-- Heritage Detail Modal -->
+    <!-- Heritage Detail Modal (Expanded for Guardrails) -->
     <div id="heritage-modal" class="modal hidden">
         <div class="modal-content glass large">
             <div class="modal-header">
                 <h2 id="modal-title">Tiêu đề bài viết</h2>
                 <button id="close-heritage" class="btn-close">×</button>
             </div>
-            <div class="modal-body custom-scroll">
-                <img id="modal-img" src="" alt="Heritage Image" class="full-img">
-                <div id="modal-content" class="article-text">
-                    <!-- Content will be injected here -->
-                </div>
+            <div id="guardrail-content" class="modal-body custom-scroll">
+                <!-- Detailed Guardrail Info or Heritage Content will be injected here -->
             </div>
         </div>
     </div>
 
-    <script src="/static/app.js?v=1.7"></script>
+    <!-- Artisan AI Floating Chat -->
+    <div id="artisan-chat-trigger" class="artisan-fab glass" title="Hỏi nghệ nhân AI 🏺">
+        <span class="emoji">🏺</span>
+    </div>
+
+    <div id="artisan-chat-window" class="artisan-chat-window glass hidden">
+        <div class="artisan-chat-header">
+            <h3>Hỏi nghệ nhân AI 🏺</h3>
+            <button id="close-artisan-chat" class="btn-close-small">×</button>
+        </div>
+        <div id="artisan-messages" class="artisan-messages custom-scroll">
+            <div class="message assistant">
+                <div class="bubble">Xin chào! Tôi có thể giúp gì cho bạn về quy trình chế tác, thời gian hay giá cả của các sản phẩm thủ công?</div>
+            </div>
+        </div>
+        <form id="artisan-chat-form" class="artisan-input-area">
+            <input type="text" id="artisan-input" placeholder="Hỏi về quy trình, vật liệu..." autocomplete="off">
+            <button type="submit" class="btn-send-small">🚀</button>
+        </form>
+    </div>
+
+    <script src="/static/app.js?v=1.8"></script>
 
 </body>
 </html>

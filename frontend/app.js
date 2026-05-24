@@ -23,6 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const heritageModal = document.getElementById('heritage-modal');
     const closeHeritage = document.getElementById('close-heritage');
+    const guardrailContent = document.getElementById('guardrail-content');
+
+    const artisanTrigger = document.getElementById('artisan-chat-trigger');
+    const artisanWindow = document.getElementById('artisan-chat-window');
+    const closeArtisan = document.getElementById('close-artisan-chat');
+    const artisanForm = document.getElementById('artisan-chat-form');
+    const artisanInput = document.getElementById('artisan-input');
+    const artisanMessages = document.getElementById('artisan-messages');
 
     // === DATA DATABASES ===
     const DIALECT_DB = {
@@ -71,7 +79,122 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    const GUARDRAILS_DB = {
+        bronze: {
+            name: { vi: "Đúc đồng", en: "Bronze Casting" },
+            fixed: {
+                vi: "Sản phẩm phải đảm bảo tỉ lệ hợp kim đồng truyền thống để duy trì độ vang (chuông, chiêng) và độ bền cơ học. Tuân thủ nghiêm ngặt điển tích và tỷ lệ nhân trắc học truyền thống.",
+                en: "Must adhere to traditional alloy ratios for resonance and durability. Strictly follow traditional iconography and anatomical proportions."
+            },
+            variable: {
+                vi: "Kích thước tùy chỉnh, lớp hoàn thiện (dát vàng 24k, mạ bạc, màu giả cổ). Khắc thêm tên gia tộc hoặc lời chúc.",
+                en: "Custom dimensions, finishes (24k gold, silver plating, antique patinas). Engraving family names or blessings."
+            },
+            warning: {
+                vi: "Tuyệt đối không thay thế kỹ thuật chạm khắc tay bằng máy dập công nghiệp cho các vật phẩm tâm linh vì sẽ làm mất đi 'thần thái'.",
+                en: "Strictly Forbidden to replace hand-carving with industrial machine stamping for spiritual artifacts. Preserves the 'aura'."
+            },
+            leadTime: { vi: "15 ngày - 6 tháng", en: "15 days - 6 months" },
+            impact: { vi: "Rất cao", en: "Very High" }
+        },
+        ceramics: {
+            name: { vi: "Gốm sứ", en: "Ceramics & Pottery" },
+            fixed: {
+                vi: "Bát Tràng: Xương gốm chắc chắn, men rạn/ngọc. Chu Đậu: Đất sét Trúc Thôn, men trắng trong, họa tiết xanh chàm. Bàu Trúc: Không bàn xoay, nung lộ thiên.",
+                en: "Bát Tràng: Sturdy body, Crackle/Jade glazes. Chu Đậu: White clay, cobalt patterns. Bàu Trúc: No potter's wheel, open-fired."
+            },
+            variable: {
+                vi: "Thay đổi công năng (chum thành bình trang trí), in logo, vẽ họa tiết cá nhân.",
+                en: "Functional modifications (jar to vase), custom logos, hand-painted patterns."
+            },
+            warning: {
+                vi: "Dùng men công nghiệp trên gốm Bàu Trúc hoặc làm xương gốm Bát Tràng quá mỏng sẽ làm mất giá trị di sản.",
+                en: "Industrial glazes on Bàu Trúc or thin Bát Tràng bodies invalidate core heritage value."
+            },
+            leadTime: { vi: "7 - 20 ngày", en: "7 - 20 days" },
+            impact: { vi: "Cao", en: "High" }
+        },
+        lacquer: {
+            name: { vi: "Sơn mài", en: "Traditional Lacquerware" },
+            fixed: {
+                vi: "Sử dụng mủ cây sơn tự nhiên, kỹ thuật 'ủ ẩm - mài mòn'. Các nguyên liệu quý như vàng/bạc thếp, vỏ trứng, vỏ trai.",
+                en: "Use natural lacquer sap, 'humidity-curing & sanding' technique. Gold/silver leaf, eggshells, mother-of-pearl."
+            },
+            variable: {
+                vi: "Cốt vật liệu (gỗ, mây tre, gốm), đề tài hội họa tùy chỉnh.",
+                en: "Base materials (wood, bamboo, ceramic), custom artistic themes."
+            },
+            warning: {
+                vi: "Tuyệt đối không dùng máy sấy nhiệt hoặc sơn PU công nghiệp; quy trình ủ ẩm tự nhiên là bắt buộc.",
+                en: "Strictly Forbidden to use heat dryers or industrial PU paint. Natural curing is mandatory."
+            },
+            leadTime: { vi: "Trung bình 6 tháng", en: "Average 6 months" },
+            impact: { vi: "Đặc biệt cao", en: "Critically High" }
+        },
+        textiles: {
+            name: { vi: "Dệt thủ công", en: "Hand-Woven Textiles" },
+            fixed: {
+                vi: "Tơ tằm tự nhiên hoặc sợi lanh. Họa tiết xoắn ốc (người Mông) hoặc hoa văn móng tay (người Chăm) giữ đúng cấu trúc.",
+                en: "Natural silk or linen. Sacred motifs (spiral, fingernails) must preserve spiritual structure."
+            },
+            variable: {
+                vi: "Màu sắc nhuộm thực vật, thiết kế kiểu dáng hiện đại (áo dài, túi xách) trên khổ vải truyền thống.",
+                en: "Natural dye colors, modern fashion designs on traditional fabric widths."
+            },
+            warning: {
+                vi: "Không dùng thuốc nhuộm hóa học; không biến tấu sai lệch các họa tiết tâm linh.",
+                en: "No chemical dyes allowed. Sacred motifs must not be altered."
+            },
+            leadTime: { vi: "10 - 30 ngày", en: "10 - 30 days" },
+            impact: { vi: "Trung bình đến Cao", en: "Medium to High" }
+        },
+        sculpture: {
+            name: { vi: "Điêu khắc", en: "Sculpture & Carving" },
+            fixed: {
+                vi: "Vật liệu tự nhiên (gỗ mít, đá nguyên khối). Sơn son thếp vàng/bạc thủ công.",
+                en: "Natural materials (jackfruit wood, solid stone). Manual gold/silver leafing."
+            },
+            variable: {
+                vi: "Tùy chỉnh kích thước cho không gian thờ tự; lựa chọn vân gỗ hoặc màu đá.",
+                en: "Custom sizes for worship spaces, wood grain or stone color selection."
+            },
+            warning: {
+                vi: "Tuyệt đối không dùng nhựa composite giả đá/gỗ vì sẽ triệt tiêu sự kết nối tâm linh.",
+                en: "Strictly Forbidden to use composite resins. Severs the spiritual connection."
+            },
+            leadTime: { vi: "1 - 4 tháng", en: "1 - 4 months" },
+            impact: { vi: "Cao", en: "High" }
+        },
+        jewelry: {
+            name: { vi: "Trang sức bạc", en: "Ethnic Silver Jewelry" },
+            fixed: {
+                vi: "Bạc nõn nguyên chất, kỹ thuật cán, kéo sợi và chạm khắc thủ công. Họa tiết xoắn ốc và tua bạc tạo âm thanh.",
+                en: "Pure Silver (bạc nõn), manual wire-drawing and engraving. Spiral motifs and tinkling tassels."
+            },
+            variable: {
+                vi: "Tùy chỉnh công năng (vòng thành nhẫn/phụ kiện), số lượng tua bạc để đổi âm thanh.",
+                en: "Modified functions (neck ring to brooch), adjustable tassels for sound profile."
+            },
+            warning: {
+                vi: "Không pha trộn kim loại tạp chất vào bạc vì bạc là 'vệ sĩ' bảo vệ hồn vía.",
+                en: "Do Not mix impure metals into silver. Guardian of health and soul."
+            },
+            leadTime: { vi: "5 - 15 ngày", en: "5 - 15 days" },
+            impact: { vi: "Trung bình", en: "Medium" }
+        }
+    };
+
     const CRAFT_LOCATIONS = [
+        {
+            id: 101,
+            name: "Làng Ngũ Xã",
+            location: "Ba Đình, Hà Nội",
+            lat: 21.0333,
+            lng: 105.8333,
+            desc: "Tinh hoa đúc đồng Thăng Long thế kỷ XVII.",
+            img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'bronze'
+        },
         {
             id: 1,
             name: "Làng gốm Bát Tràng",
@@ -79,20 +202,48 @@ document.addEventListener('DOMContentLoaded', () => {
             lat: 20.9800,
             lng: 105.9200,
             desc: "Làng gốm di sản ven sông Hồng với kỹ thuật men rạn cổ truyền.",
-            history: "Hình thành từ thời nhà Lý (thế kỷ 11), khi các nghệ nhân từ Thanh Hóa theo triều đình ra Thăng Long lập nghiệp.",
-            products: "Gốm gia dụng, đồ thờ cúng, gốm trang trí nghệ thuật với các loại men cổ như men rạn, men lam.",
-            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800"
+            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'ceramics'
         },
         {
             id: 2,
             name: "Làng lụa Vạn Phúc",
             location: "Hà Đông, Hà Nội",
             lat: 20.9500,
-            lng: 105.7600,
-            desc: "Nổi tiếng với dòng lụa vân mịn màng, ấm vào mùa đông, mát vào mùa hè.",
-            history: "Có lịch sử hơn 1000 năm. Tương truyền bà A Lã Thị Nương đã truyền nghề dệt cho dân làng.",
-            products: "Lụa vân, gấm, satin với hoa văn tinh xảo như mây trời, hoa cúc.",
-            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800"
+            lng: 105.7667,
+            desc: "Nơi dệt nên dòng lụa vân mịn màng, tinh tế.",
+            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'textiles'
+        },
+        {
+            id: 102,
+            name: "Làng gốm Bàu Trúc",
+            location: "Ninh Phước, Ninh Thuận",
+            lat: 11.5667,
+            lng: 108.9833,
+            desc: "Gốm cổ người Chăm, nung lộ thiên, không dùng bàn xoay.",
+            img: "https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'ceramics'
+        },
+        {
+            id: 103,
+            name: "Sơn mài Tương Bình Hiệp",
+            location: "Thủ Dầu Một, Bình Dương",
+            lat: 10.9500,
+            lng: 106.6667,
+            desc: "Cái nôi sơn mài nổi tiếng nhất miền Nam.",
+            img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'lacquer'
+        },
+        {
+            id: 104,
+            name: "Làng lụa Tân Châu",
+            location: "Tân Châu, An Giang",
+            lat: 10.8000,
+            lng: 105.2000,
+            desc: "Lãnh Mỹ A đen bóng huyền thoại từ mặc nưa.",
+            img: "https://images.unsplash.com/photo-1541512416146-3cf58d6b27cc?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'textiles'
         },
         {
             id: 3,
@@ -100,21 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
             location: "Kiến Xương, Thái Bình",
             lat: 20.4500,
             lng: 106.3400,
-            desc: "Đỉnh cao nghệ thuật chạm bạc và đúc đồng mỹ nghệ.",
-            history: "Hình thành từ thời Hậu Lê. Nghệ nhân Nguyễn Kim Lâu được coi là tổ nghề của vùng đất này.",
-            products: "Tranh đồng, lư hương, bộ đồ sành sứ bao bạc, trang sức bạc.",
-            img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800"
-        },
-        {
-            id: 4,
-            name: "Làng mộc Đồng Kỵ",
-            location: "Từ Sơn, Bắc Ninh",
-            lat: 21.0800,
-            lng: 105.9900,
-            desc: "Thủ phủ đồ gỗ mỹ nghệ tinh xảo từ các loại gỗ quý.",
-            history: "Nổi danh từ nhiều thế kỷ trước nhờ kỹ thuật mộc chạm khắc tinh vi không nơi nào sánh kịp.",
-            products: "Bàn ghế bát tiên, tủ chè, sập gụ khảm trai truyền thống.",
-            img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800"
+            desc: "Đỉnh cao chạm bạc và đúc đồng mỹ nghệ.",
+            img: "https://images.unsplash.com/photo-1617957718614-8c23f060c2d0?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'bronze'
         },
         {
             id: 5,
@@ -122,37 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
             location: "Thừa Thiên Huế",
             lat: 16.4670,
             lng: 107.5900,
-            desc: "Biểu tượng của vẻ đẹp dịu dàng và tinh tế của phụ nữ Cố đô.",
-            history: "Nghề chằm nón tại Huế phát triển mạnh dưới thời Nguyễn, nổi tiếng nhất là nón bài thơ.",
-            products: "Nón bài thơ, nón lá cỏ, nón thêu phong cảnh cung đình Huế.",
-            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800"
+            desc: "Biểu tượng vẻ đẹp phụ nữ Cố đô.",
+            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
+            guardrailKey: 'textiles'
         },
-        {
-            id: 6,
-            name: "Làng gốm Thanh Hà",
-            location: "Hội An, Quảng Nam",
-            lat: 15.8800,
-            lng: 108.3300,
-            desc: "Dòng gốm mộc không dùng men, mang hơi thở đất nung Hội An.",
-            history: "Phát triển cùng thời với phố cổ Hội An (thế kỷ 16-17), chuyên cung cấp gạch ngói cho các ngôi nhà cổ.",
-            products: "Chậu hoa, tượng gốm mộc, các vật dụng nhà bếp bằng đất nung đỏ.",
-            img: "https://images.unsplash.com/photo-1525498128493-380d1990a112?auto=format&fit=crop&q=80&w=800"
-        },
-        // Sovereignty Markers (Hoàng Sa & Trường Sa)
-        { 
-            name: "Quần đảo Hoàng Sa – Việt Nam", 
-            lat: 16.5, 
-            lng: 112.5, 
-            desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
-            isSovereign: true 
-        },
-        { 
-            name: "Quần đảo Trường Sa – Việt Nam", 
-            lat: 10.0, 
-            lng: 114.5, 
-            desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.",
-            isSovereign: true
-        }
+        // Sovereignty Markers
+        { name: "Quần đảo Hoàng Sa – Việt Nam", lat: 16.5, lng: 112.5, desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.", isSovereign: true },
+        { name: "Quần đảo Trường Sa – Việt Nam", lat: 10.0, lng: 114.5, desc: "Lãnh thổ thuộc chủ quyền không thể chối cãi của Việt Nam.", isSovereign: true }
     ];
 
     // === STATE ===
@@ -300,11 +415,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const coordinate = evt.coordinate;
                 content.innerHTML = loc.isSovereign ? 
                     `<b style="color:#d32f2f">${loc.name}</b><br>${loc.desc}` :
-                    `<div style="width: 200px;">
+                    `<div style="width: 220px;">
                         <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px;">
                         <b style="font-size:1.1rem; color:var(--primary);">${loc.name}</b>
                         <p style="font-size:0.85rem; margin:5px 0;">${loc.desc}</p>
-                        <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; width:100%; font-weight:600;">🔍 Xem chi tiết</button>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">🔍 Xem chi tiết</button>
+                            ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">📜 Quy trình chế tác</button>` : ''}
+                        </div>
                     </div>`;
                 mapOverlay.setPosition(coordinate);
                 container.style.display = 'block';
@@ -336,28 +454,66 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    window.showGuardrailDetail = (key, locId) => {
+        const guard = GUARDRAILS_DB[key];
+        const loc = CRAFT_LOCATIONS.find(c => c.id === locId);
+        if (!guard || !loc) return;
+
+        document.getElementById('modal-title').textContent = loc.name;
+        
+        const isEn = user.lang === 'en'; // Assuming we might track user lang
+        const lang = isEn ? 'en' : 'vi';
+
+        guardrailContent.innerHTML = `
+            <div class="guardrail-section">
+                <div class="guardrail-title">🏛️ ${isEn ? 'CORE IDENTITY' : 'BẢN SẮC CỐ ĐỊNH'} <span class="guardrail-badge">${guard.name[lang]}</span></div>
+                <p>${guard.fixed[lang]}</p>
+            </div>
+            <div class="guardrail-section">
+                <div class="guardrail-title">🎨 ${isEn ? 'PERSONALIZATION' : 'THÔNG SỐ BIẾN THIÊN'}</div>
+                <p>${guard.variable[lang]}</p>
+            </div>
+            <div class="guardrail-warning">
+                <strong>⚠️ ${isEn ? "ARTISAN'S WARNING" : 'CẢNH BÁO TỪ NGHỆ NHÂN'}:</strong>
+                <p>${guard.warning[lang]}</p>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="guardrail-section">
+                    <div class="guardrail-title">⏱️ ${isEn ? 'LEAD TIME' : 'THỜI GIAN CHẾ TÁC'}</div>
+                    <p>${guard.leadTime[lang]}</p>
+                </div>
+                <div class="guardrail-section">
+                    <div class="guardrail-title">📊 ${isEn ? 'IMPACT' : 'MỨC ĐỘ TÁC ĐỘNG'}</div>
+                    <p>${guard.impact[lang]}</p>
+                </div>
+            </div>
+            <img src="${loc.img}" class="full-img" style="margin-top:20px;">
+        `;
+        heritageModal.classList.remove('hidden');
+    };
+
     window.showHeritageDetail = (id, type) => {
         let item;
         if (type === 'craft') {
             item = CRAFT_LOCATIONS.find(c => c.id === id);
             if (!item) return;
             document.getElementById('modal-title').textContent = item.name;
-            document.getElementById('modal-img').src = item.img;
-            document.getElementById('modal-content').innerHTML = `
+            // Clear guardrail specific content if any
+            guardrailContent.innerHTML = `
+                <img id="modal-img" src="${item.img}" class="full-img">
                 <div class="article-text">
                     <p><strong>📍 Địa điểm:</strong> ${item.location}</p>
-                    <h4>Sơ lược lịch sử</h4>
-                    <p>${item.history}</p>
-                    <h4>Sản phẩm tiêu biểu</h4>
-                    <p>${item.products}</p>
+                    <p>${item.desc}</p>
                 </div>
             `;
         } else {
             item = KNOWLEDGE_DB.find(k => k.id === id);
             if (!item) return;
             document.getElementById('modal-title').textContent = item.title;
-            document.getElementById('modal-img').src = item.img;
-            document.getElementById('modal-content').innerHTML = `<div class="article-text"><p>${item.content}</p></div>`;
+            guardrailContent.innerHTML = `
+                <img src="${item.img}" class="full-img">
+                <div class="article-text"><p>${item.content}</p></div>
+            `;
         }
         heritageModal.classList.remove('hidden');
     };
@@ -429,6 +585,56 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeTypingIndicator(id) {
         const el = document.getElementById(id);
         if (el) el.remove();
+    }
+
+    // === ARTISAN AI LOGIC ===
+    artisanTrigger.addEventListener('click', () => artisanWindow.classList.toggle('hidden'));
+    closeArtisan.addEventListener('click', () => artisanWindow.classList.add('hidden'));
+
+    artisanForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = artisanInput.value.trim();
+        if (!text) return;
+
+        addArtisanMessage('user', text);
+        artisanInput.value = '';
+
+        setTimeout(() => {
+            const response = getArtisanResponse(text);
+            addArtisanMessage('assistant', response);
+        }, 500);
+    });
+
+    function addArtisanMessage(role, content) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role}`;
+        msgDiv.innerHTML = `<div class="bubble">${content.replace(/\n/g, '<br>')}</div>`;
+        artisanMessages.appendChild(msgDiv);
+        artisanMessages.scrollTop = artisanMessages.scrollHeight;
+    }
+
+    function getArtisanResponse(input) {
+        const isEnglish = /^[a-zA-Z0-9\s?.,!]*$/.test(input) && input.split(' ').length > 1;
+        const lowerInput = input.toLowerCase();
+        
+        if (isEnglish) {
+            if (lowerInput.includes('buy') || lowerInput.includes('purchase') || lowerInput.includes('workshop')) {
+                return "I'd love to help you find a workshop or make a purchase! Could you please share your current city or province so I can find the nearest authentic artisan for you?";
+            }
+            if (lowerInput.includes('process') || lowerInput.includes('how to')) {
+                return "Our traditional crafts follow strict 'Guardrails' to preserve heritage. For example, Lacquerware requires natural sap and months of humidity curing. Bronze casting must use traditional alloy ratios. Which specific craft are you interested in?";
+            }
+            return "Hello! I am your Artisan AI. I can guide you through traditional processes, lead times, and authentic craft standards. How can I help you today?";
+        } else {
+            // Vietnamese Logic
+            if (lowerInput.includes('mua') || lowerInput.includes('đặt hàng') || lowerInput.includes('xưởng')) {
+                return "Chào bạn! Tôi rất sẵn lòng hỗ trợ bạn tìm xưởng hoặc đặt hàng. Để tôi có thể gợi ý nơi gần bạn nhất, vui lòng cho tôi biết bạn đang ở tỉnh/thành phố nào nhé?";
+            }
+            if (lowerInput.includes('quy trình') || lowerInput.includes('lâu không')) {
+                return "Mỗi ngành nghề có quy trình khắt khe: Gốm Bàu Trúc không dùng bàn xoay, Sơn mài cần tới 6 tháng ủ ẩm. Bạn đang quan tâm đến nhóm nghề nào (Đúc đồng, Gốm, Dệt...)?";
+            }
+            return "Chào bạn, tôi là Nghệ nhân AI. Tôi có thể giải đáp về các quy tắc bản sắc (Guardrails), thời gian và giá cả của các làng nghề thủ công. Bạn muốn hỏi gì ạ?";
+        }
     }
 
     // === THEME & INTRO ===
