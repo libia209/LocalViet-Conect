@@ -1001,3 +1001,147 @@ h1, h2, h3 {
 }
 
 
+
+/* RESPONSIVE DESIGN */
+
+/* Small screen navigation */
+.mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--surface);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border);
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    padding: 0 10px;
+}
+
+.mobile-nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 10px;
+    flex: 1;
+}
+
+.mobile-nav-item.active {
+    color: var(--primary);
+}
+
+.mobile-nav-item .emoji {
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow: auto; /* Allow scrolling on body if needed, but app-container handles most */
+    }
+
+    #app-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        display: none; /* Hide desktop sidebar */
+    }
+
+    .mobile-nav {
+        display: flex; /* Show mobile bar */
+    }
+
+    .main-content {
+        padding-bottom: 70px; /* Space for mobile nav */
+        height: 100vh;
+    }
+
+    .main-content-header {
+        padding: 1rem;
+    }
+
+    .main-content-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .chat-messages, .view-container {
+        padding: 1rem;
+    }
+
+    .chat-input-container {
+        margin: 0.5rem 1rem 1rem;
+        padding: 0.8rem 1rem;
+    }
+
+    .message {
+        max-width: 90%;
+    }
+
+    .intro-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .intro-text {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .item-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+
+    .modal-content.large {
+        max-height: 95vh;
+    }
+
+    #map {
+        height: 400px !important;
+    }
+
+    #theme-toggle {
+        top: 1rem;
+        right: 1rem;
+        width: 38px;
+        height: 38px;
+    }
+}
+
+/* Tablet/iPad specific tweaks */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .sidebar {
+        width: 260px;
+    }
+}
+
+/* Height specific fixes */
+@media (max-height: 600px) {
+    .intro-visual {
+        display: none;
+    }
+    .intro-text {
+        margin-bottom: 1rem;
+    }
+}

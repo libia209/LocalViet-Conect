@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const moonIcon = themeToggle.querySelector('.moon');
 
     const navItems = document.querySelectorAll('.nav-item');
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
     const chatView = document.getElementById('chat-messages');
     const mapView = document.getElementById('map-view');
     const knowledgeView = document.getElementById('knowledge-view');
@@ -160,41 +161,54 @@ document.addEventListener('DOMContentLoaded', () => {
     let mapOverlay = null;
 
     // === NAVIGATION LOGIC ===
-    navItems.forEach((item, index) => {
-        item.addEventListener('click', () => {
-            navItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
-
-            // Hide all
-            chatView.classList.add('hidden');
-            mapView.classList.add('hidden');
-            knowledgeView.classList.add('hidden');
-            chatInputContainer.classList.add('hidden');
-
-            if (index === 0) {
-                chatView.classList.remove('hidden');
-                chatInputContainer.classList.remove('hidden');
-            } else if (index === 1) {
-                mapView.classList.remove('hidden');
-                initMap();
-                if (map) {
-                    const view = map.getView();
-                    view.setCenter(ol.proj.fromLonLat([0, 20]));
-                    view.setZoom(2);
-                    
-                    setTimeout(() => {
-                        view.animate({
-                            center: ol.proj.fromLonLat([108.2772, 14.0583]),
-                            zoom: 7,
-                            duration: 2500
-                        });
-                    }, 500);
-                }
-            } else if (index === 2) {
-                knowledgeView.classList.remove('hidden');
-                renderKnowledge();
-            }
+    function switchTab(index) {
+        // Desktop updates
+        navItems.forEach((item, idx) => {
+            if (idx === index) item.classList.add('active');
+            else item.classList.remove('active');
         });
+
+        // Mobile updates
+        mobileNavItems.forEach((item, idx) => {
+            if (idx === index) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+
+        // Hide all
+        chatView.classList.add('hidden');
+        mapView.classList.add('hidden');
+        knowledgeView.classList.add('hidden');
+        chatInputContainer.classList.add('hidden');
+
+        if (index === 0) {
+            chatView.classList.remove('hidden');
+            chatInputContainer.classList.remove('hidden');
+        } else if (index === 1) {
+            mapView.classList.remove('hidden');
+            initMap();
+            if (map) {
+                const view = map.getView();
+                const zoom = window.innerWidth < 768 ? 6 : 7;
+                setTimeout(() => {
+                    view.animate({
+                        center: ol.proj.fromLonLat([108.2772, 14.0583]),
+                        zoom: zoom,
+                        duration: 1500
+                    });
+                }, 100);
+            }
+        } else if (index === 2) {
+            knowledgeView.classList.remove('hidden');
+            renderKnowledge();
+        }
+    }
+
+    navItems.forEach((item, index) => {
+        item.addEventListener('click', () => switchTab(index));
+    });
+
+    mobileNavItems.forEach((item, index) => {
+        item.addEventListener('click', () => switchTab(index));
     });
 
     // === MAP LOGIC (OpenLayers Migration) ===
