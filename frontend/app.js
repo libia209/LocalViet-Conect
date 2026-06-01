@@ -1174,7 +1174,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuVoice) menuVoice.addEventListener('click', toggleVoiceRecording);
 
     async function transcribeAudio(blob) {
+        // Create form data
         const formData = new FormData();
+        // Use a generic name, the backend will determine the type via tempfile suffix
         formData.append('file', blob, 'recording.wav');
 
         try {
@@ -1183,20 +1185,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: formData
             });
 
-            const data = await response.json();
-            
-            if (data.transcription) {
-                // If dialect is detected, we could show a small toast/hint, 
-                // but for now let's just return the text as requested.
-                return data.transcription;
-            } else if (data.response && !data.error) {
-                // Fallback if transcription field is missing but response has text
-                return data.response;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Server error');
             }
-            return "";
+
+            const data = await response.json();
+            console.log("Transcription response:", data);
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (data.transcription) {
+                return data.transcription;
+            } else if (data.response) {
+                // If transcription is empty but response has text, use response
+                // This happens if Gemini puts the transcription in the main text
+                return data.response.replace(/\{.*\}/s, '').trim(); 
+            }
+            
+            throw new Error("Không tìm thấy văn bản trong phản hồi từ AI.");
         } catch (err) {
-            console.error("Transcription error:", err);
-            alert("Dạ, không thể chuyển đổi giọng nói. Bạn vui lòng thử lại nhé!");
+            console.error("Transcription full error:", err);
+            alert(`Lỗi chuyển đổi: ${err.message}`);
             return "";
         }
     }

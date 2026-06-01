@@ -41,36 +41,57 @@ class GeminiService:
     async def generate_response_from_audio(self, audio_path: str):
         try:
             # Upload the file to Gemini's file service
+            # Gemini 1.5 supports most audio formats (wav, mp3, ogg, etc.)
             sample_file = genai.upload_file(path=audio_path, display_name="user_voice_message")
             
-            prompt = """Analyze this audio:
-1. Transcribe it accurately into Vietnamese.
-2. Identify the regional dialect (North, Central, South, or specific province if detectable).
-3. Identify any specific dialect words or slang.
-4. Respond naturally to the user's content as 'LocalViet Connect'.
+            prompt = """TASK: YOU ARE A TRANSCRIBER. 
+1. LISTEN carefully to the audio.
+2. TRANSCRIBE the full Vietnamese text.
+3. IDENTIFY the regional dialect (e.g., Miền Bắc, Miền Trung, Miền Nam).
+4. RESPOND briefly to what they said in a friendly cultural assistant way.
 
-Format your response as a JSON object with:
+CRITICAL: You MUST output a valid JSON object only.
+
+Format:
 {
-  "transcription": "...",
-  "dialect": "...",
-  "detected_features": ["word1", "word2"],
-  "response": "..."
+  "transcription": "chuỗi văn bản đã dịch",
+  "dialect": "tên vùng miền",
+  "detected_features": [],
+  "response": "câu trả lời của bạn"
 }"""
             
             response = self.model.generate_content([sample_file, prompt])
             
-            # Extract JSON from response (Gemini sometimes adds markdown blocks)
+            # Clean up: the file is stored in Gemini's temporary storage, 
+            # we don't need to delete it manually here as it auto-expires.
+            
+            text = response.text.strip()
+            # Handle potential markdown blocks in Gemini's output
+            if text.startswith("```json"):
+                text = text.replace("```json", "").replace("```", "").strip()
+            elif text.startswith("```"):
+                text = text.replace("```", "").strip()
+
             import json
             import re
-            text = response.text
+            
+            # Try to extract anything between curly braces
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
             if json_match:
-                return json.loads(json_match.group())
+                try:
+                    return json.loads(json_match.group())
+                except:
+                    return {
+                        "response": text,
+                        "dialect": "Không xác định",
+                        "transcription": text[:100] + "..."
+                    }
             else:
                 return {
                     "response": text,
                     "dialect": "Không xác định",
-                    "transcription": ""
+                    "transcription": text
                 }
         except Exception as e:
-            return {"error": str(e), "response": "Xin lỗi, tôi gặp sự cố khi nghe giọng của bạn."}
+            print(f"Gemini Service Error: {str(e)}")
+            return {"error": str(e), "response": "Xin lỗi, tôi gặp sự cố kỹ thuật khi nghe giọng của bạn."}
