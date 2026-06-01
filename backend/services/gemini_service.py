@@ -37,3 +37,40 @@ class GeminiService:
             return response.text
         except Exception as e:
             return f"Error: {str(e)}"
+
+    async def generate_response_from_audio(self, audio_path: str):
+        try:
+            # Upload the file to Gemini's file service
+            sample_file = genai.upload_file(path=audio_path, display_name="user_voice_message")
+            
+            prompt = """Analyze this audio:
+1. Transcribe it accurately into Vietnamese.
+2. Identify the regional dialect (North, Central, South, or specific province if detectable).
+3. Identify any specific dialect words or slang.
+4. Respond naturally to the user's content as 'LocalViet Connect'.
+
+Format your response as a JSON object with:
+{
+  "transcription": "...",
+  "dialect": "...",
+  "detected_features": ["word1", "word2"],
+  "response": "..."
+}"""
+            
+            response = self.model.generate_content([sample_file, prompt])
+            
+            # Extract JSON from response (Gemini sometimes adds markdown blocks)
+            import json
+            import re
+            text = response.text
+            json_match = re.search(r'\{.*\}', text, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+            else:
+                return {
+                    "response": text,
+                    "dialect": "Không xác định",
+                    "transcription": ""
+                }
+        except Exception as e:
+            return {"error": str(e), "response": "Xin lỗi, tôi gặp sự cố khi nghe giọng của bạn."}

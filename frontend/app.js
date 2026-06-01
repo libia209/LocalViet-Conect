@@ -35,16 +35,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const suggestionChips = document.querySelectorAll('.chip');
 
     // === DATA DATABASES ===
-    const DIALECT_DB = {
-        "mô": { mean: "đâu / ở đâu", region: "Miền Trung", ex: "Anh đi mô rứa? (Anh đi đâu thế?)" },
-        "răng": { mean: "sao / làm sao", region: "Miền Trung", ex: "Răng mà lạ rứa? (Sao mà lạ thế?)" },
-        "chi": { mean: "gì / cái gì", region: "Miền Trung", ex: "Cái chi tề? (Cái gì kia?)" },
-        "rứa": { mean: "thế / như vậy", region: "Miền Trung", ex: "Đúng rứa! (Đúng thế!)" },
-        "tề": { mean: "kìa / đằng kia", region: "Miền Trung", ex: "Con chi tề? (Con gì kìa?)" },
-        "hén": { mean: "nhỉ / đúng không", region: "Miền Nam/Trung", ex: "Đẹp hén? (Đẹp nhỉ?)" },
-        "u": { mean: "mẹ", region: "Miền Bắc (cổ)", ex: "U con mới về. (Mẹ con mới về.)" },
-        "mần": { mean: "làm", region: "Miền Trung/Nam", ex: "Đang mần chi đó? (Đang làm gì đấy?)" }
-    };
+    let DIALECT_DB = {};
+    let PHONOLOGY_RULES = [];
+
+    async function fetchData() {
+        try {
+            const response = await fetch('/api/dialects');
+            const data = await response.json();
+            
+            if (data.phonology) PHONOLOGY_RULES = data.phonology;
+            
+            if (data.categories) {
+                for (const cat in data.categories) {
+                    data.categories[cat].forEach(item => {
+                        DIALECT_DB[item.word.toLowerCase()] = {
+                            mean: item.meaning,
+                            region: item.region,
+                            ex: item.example,
+                            nuance: item.nuance
+                        };
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("Failed to load dialect data:", err);
+            // Fallback
+            DIALECT_DB = {
+                "mô": { mean: "đâu", region: "Miền Trung", ex: "Mi đi mô rứa?" },
+                "răng": { mean: "sao", region: "Miền Trung", ex: "Răng mà khóc?" }
+            };
+        }
+    }
+    fetchData();
 
     const KNOWLEDGE_DB = [
         {
@@ -845,10 +867,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowerInput = input.toLowerCase();
         let responses = [];
 
+        // 1. Check Phonology patterns (The "Ngăn 1" rules)
+        PHONOLOGY_RULES.forEach(rule => {
+            const variations = rule.variation.split(' hoặc ');
+            variations.forEach(v => {
+                const words = lowerInput.split(/\max\s+/);
+                // Simple heuristic: if input contains a variation word mentioned in example
+                if (rule.example.toLowerCase().includes(lowerInput) || (lowerInput.length > 3 && rule.example.toLowerCase().includes(lowerInput))) {
+                     // This is tricky, let's keep it simple: just inform about the rule if relevant
+                }
+            });
+        });
+
+        // 2. Check Dictionary words
         for (const word in DIALECT_DB) {
-            if (lowerInput.includes(word)) {
+            // Use word boundary to avoid partial matches (e.g., "mô" in "môn")
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            if (regex.test(lowerInput)) {
                 const info = DIALECT_DB[word];
-                responses.push(`Từ "<strong>${word}</strong>" là một phương ngữ phổ biến ở <b>${info.region}</b>.\n- Nghĩa là: ${info.mean}.\n- Ví dụ: <em>${info.ex}</em>`);
+                let resp = `✨ Từ "<strong>${word}</strong>" (${info.mean}) là một đặc trưng của <b>${info.region}</b>.\n`;
+                if (info.nuance) resp += `💡 <i>Sắc thái:</i> ${info.nuance}\n`;
+                resp += `📝 <i>Ví dụ:</i> "<em>${info.ex}</em>"`;
+                responses.push(resp);
             }
         }
 
@@ -1021,6 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
         moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
     }
 
+
     themeToggle.addEventListener('click', () => {
         setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
@@ -1034,11 +1075,114 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('display-email').textContent = parsed.email;
         document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
         
-        // Use a flag to skip login later, but keep Intro visible now
         user.isLoggedIn = true;
         document.getElementById('user-name').value = parsed.name;
         document.getElementById('user-email').value = parsed.email;
     }
 
+    // === VOICE RECORDING IMPLEMENTATION ===
+    let mediaRecorder;
+    let audioChunks = [];
+    const btnRecord = document.getElementById('btn-record');
+    const btnRecordCraft = document.getElementById('btn-record-craft');
+
+    async function startRecording(btn) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // Determine which context we are in
+                const isCraft = btn.id.includes('craft');
+                
+                // Add audio message to UI
+                if (isCraft) {
+                    addCraftMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
+                } else {
+                    addMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
+                }
+
+                // Send to backend
+                await sendAudioToBackend(audioBlob, isCraft);
+            };
+
+            mediaRecorder.start();
+            btn.classList.add('recording');
+            btn.innerHTML = '⏹️';
+        } catch (err) {
+            console.error("Error accessing microphone:", err);
+            alert("Không thể truy cập microphone. Vui lòng kiểm tra quyền trình duyệt.");
+        }
+    }
+
+    function stopRecording(btn) {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            btn.classList.remove('recording');
+            btn.innerHTML = '🎤';
+        }
+    }
+
+    async function sendAudioToBackend(blob, isCraft) {
+        const formData = new FormData();
+        formData.append('file', blob, 'recording.wav');
+
+        const typingId = isCraft ? null : addTypingIndicator();
+        
+        try {
+            const response = await fetch('/api/chat-audio', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            
+            if (typingId) removeTypingIndicator(typingId);
+
+            if (data.response) {
+                let content = data.response;
+                if (data.dialect) {
+                    content = `<span class="dialect-badge">📍 Phát hiện: ${data.dialect}</span><br>${content}`;
+                }
+                
+                if (isCraft) {
+                    addCraftMessage('assistant', content);
+                } else {
+                    addMessage('assistant', content);
+                }
+            }
+        } catch (err) {
+            console.error("Error sending audio:", err);
+            if (typingId) removeTypingIndicator(typingId);
+            const errMsg = "Dạ, có lỗi khi xử lý giọng nói của bạn. Bạn vui lòng thử lại hoặc gõ văn bản nhé!";
+            if (isCraft) addCraftMessage('assistant', errMsg);
+            else addMessage('assistant', errMsg);
+        }
+    }
+
+    if (btnRecord) {
+        btnRecord.addEventListener('mousedown', () => startRecording(btnRecord));
+        btnRecord.addEventListener('mouseup', () => stopRecording(btnRecord));
+        // Also support tap for mobile
+        btnRecord.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(btnRecord); });
+        btnRecord.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(btnRecord); });
+    }
+
+    if (btnRecordCraft) {
+        btnRecordCraft.addEventListener('mousedown', () => startRecording(btnRecordCraft));
+        btnRecordCraft.addEventListener('mouseup', () => stopRecording(btnRecordCraft));
+        btnRecordCraft.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(btnRecordCraft); });
+        btnRecordCraft.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(btnRecordCraft); });
+    }
 
 });
+

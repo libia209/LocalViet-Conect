@@ -133,6 +133,7 @@
             <div class="chat-input-container glass">
                 <form id="chat-form">
                     <input type="text" id="chat-input" placeholder="Hỏi tôi về nón lá, gốm Chu Đậu, hay tiếng Huế..." autocomplete="off">
+                    <button type="button" id="btn-record" class="btn-record" title="Thu âm giọng nói">🎤</button>
                     <button type="submit" class="btn-send">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>
@@ -192,11 +193,11 @@
     </div>
 
     <div id="craft-creator-window" class="artisan-chat-window glass hidden">
-        <div class="artisan-chat-header">
+        <div class="artisan-header">
             <h3>🏺 Craft Creator - Tạo vật phẩm</h3>
             <div class="header-actions">
-                <button id="minimize-craft" class="btn-close-small">−</button>
-                <button id="close-craft" class="btn-close-small">×</button>
+                <button id="minimize-craft" title="Thu nhỏ">−</button>
+                <button id="close-craft" title="Đóng">×</button>
             </div>
         </div>
         <div id="craft-messages" class="artisan-messages custom-scroll">
@@ -223,8 +224,9 @@
             <div class="input-wrapper">
                 <button type="button" class="btn-attach" title="Gửi lời nhắn kèm ảnh">📎</button>
                 <input type="text" id="craft-input" placeholder="Yêu cầu đặt làm sản phẩm..." autocomplete="off">
+                <button type="button" id="btn-record-craft" class="btn-record-craft" title="Thu âm giọng nói">🎤</button>
+                <button type="submit" class="btn-send-craft" title="Gửi yêu cầu">➤</button>
             </div>
-            <button type="submit" class="btn-send-craft">Gửi ➤</button>
         </form>
     </div>
 

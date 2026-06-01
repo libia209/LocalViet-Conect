@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -6,6 +6,8 @@ from fastapi.staticfiles import StaticFiles
 from services.gemini_service import GeminiService
 from services.authenticity_service import AuthenticityService
 import os
+import shutil
+import tempfile
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
 
@@ -62,6 +64,26 @@ async def chat(request: ChatRequest):
         "response": response_text,
         "violations": violations
     }
+
+@app.post("/api/chat-audio")
+async def chat_audio(file: UploadFile = File(...)):
+    # Save uploaded file to a temporary location
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+        shutil.copyfileobj(file.file, temp_audio)
+        temp_path = temp_audio.name
+
+    try:
+        # Process audio with Gemini
+        result = await gemini.generate_response_from_audio(temp_path)
+        
+        # Clean up
+        os.remove(temp_path)
+        
+        return result
+    except Exception as e:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/crafts")
 async def get_crafts():
