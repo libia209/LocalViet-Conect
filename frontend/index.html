@@ -132,8 +132,20 @@
 
             <div class="chat-input-container glass">
                 <form id="chat-form">
+                    <div class="input-actions-wrapper">
+                        <button type="button" id="btn-chat-options" class="btn-chat-options" title="Thêm công cụ">＋</button>
+                        <div id="chat-options-menu" class="chat-options-menu glass hidden">
+                            <button type="button" class="menu-item" id="menu-voice">
+                                <span class="icon">🎙️</span>
+                                <span class="label">Thu âm (Voice)</span>
+                            </button>
+                            <button type="button" class="menu-item disabled">
+                                <span class="icon">🖼️</span>
+                                <span class="label">Tải ảnh lên</span>
+                            </button>
+                        </div>
+                    </div>
                     <input type="text" id="chat-input" placeholder="Hỏi tôi về nón lá, gốm Chu Đậu, hay tiếng Huế..." autocomplete="off">
-                    <button type="button" id="btn-record" class="btn-record" title="Thu âm giọng nói">🎤</button>
                     <button type="submit" class="btn-send">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </button>

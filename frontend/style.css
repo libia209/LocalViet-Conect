@@ -1466,40 +1466,124 @@ h1, h2, h3 {
     }
 }
 
-/* RECORDING FEATURE STYLES */
-.btn-record, .btn-record-craft {
+/* IMPROVED CHAT OPTIONS MENU */
+.input-actions-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.btn-chat-options {
     background: var(--surface-solid);
-    color: var(--primary);
+    color: var(--text-main);
     border: 1px solid var(--glass-border);
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: var(--transition);
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    font-weight: 300;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.btn-record:hover, .btn-record-craft:hover {
-    transform: scale(1.1);
+.btn-chat-options:hover {
     background: var(--primary-glow);
+    transform: rotate(90deg);
     border-color: var(--primary);
 }
 
-.btn-record.recording, .btn-record-craft.recording {
-    background: #ff4757 !important;
-    color: white !important;
-    border-color: #ff4757 !important;
-    animation: pulse-red 1.5s infinite;
+.chat-options-menu {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    width: 220px;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: menuSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.4); }
-    70% { box-shadow: 0 0 0 12px rgba(255, 71, 87, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+@keyframes menuSlideUp {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.menu-item:hover:not(.disabled) {
+    background: var(--primary-glow);
+    color: var(--primary);
+}
+
+.menu-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.menu-item .icon {
+    font-size: 1.2rem;
+}
+
+.menu-item .label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* RECORDING INDICATOR (OVERLAY) */
+.recording-overlay {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4757;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.recording-dot {
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes bounceIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.8); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 
 /* Audio Message Bubble Adjustment */

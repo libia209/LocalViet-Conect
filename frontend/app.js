@@ -1080,57 +1080,94 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-email').value = parsed.email;
     }
 
-    // === VOICE RECORDING IMPLEMENTATION ===
+    // === VOICE RECORDING IMPLEMENTATION (UPGRADED) ===
     let mediaRecorder;
     let audioChunks = [];
-    const btnRecord = document.getElementById('btn-record');
-    const btnRecordCraft = document.getElementById('btn-record-craft');
+    let isRecording = false;
+    const btnPlus = document.getElementById('btn-chat-options');
+    const optionsMenu = document.getElementById('chat-options-menu');
+    const menuVoice = document.getElementById('menu-voice');
+    const chatInputWrapper = document.querySelector('.input-actions-wrapper');
 
-    async function startRecording(btn) {
+    // Toggle menu
+    btnPlus.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsMenu.classList.toggle('hidden');
+        btnPlus.innerHTML = optionsMenu.classList.contains('hidden') ? '＋' : '×';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', () => {
+        optionsMenu.classList.add('hidden');
+        btnPlus.innerHTML = '＋';
+    });
+
+    optionsMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    async function toggleVoiceRecording() {
+        if (!isRecording) {
+            await startVoiceRecording();
+        } else {
+            stopVoiceRecording();
+        }
+    }
+
+    async function startVoiceRecording() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
 
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.push(event.data);
-            };
+            // Add recording indicator overlay
+            const indicator = document.createElement('div');
+            indicator.className = 'recording-overlay';
+            indicator.id = 'recording-indicator';
+            indicator.innerHTML = '<div class="recording-dot"></div> Đang thu âm... (Nhấn để dừng)';
+            chatInputWrapper.appendChild(indicator);
 
+            // Listener to stop by clicking the indicator
+            indicator.onclick = stopVoiceRecording;
+
+            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                 const audioUrl = URL.createObjectURL(audioBlob);
                 
-                // Determine which context we are in
-                const isCraft = btn.id.includes('craft');
+                // Keep the audio message in UI
+                addMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
                 
-                // Add audio message to UI
-                if (isCraft) {
-                    addCraftMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
-                } else {
-                    addMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
-                }
+                // Show "Transcribing..." in input
+                const originalPlaceholder = chatInput.placeholder;
+                chatInput.placeholder = "Đang chuyển giọng nói thành văn bản...";
+                chatInput.disabled = true;
 
-                // Send to backend
-                await sendAudioToBackend(audioBlob, isCraft);
+                await sendAudioToBackend(audioBlob, false);
+                
+                chatInput.placeholder = originalPlaceholder;
+                chatInput.disabled = false;
             };
 
             mediaRecorder.start();
-            btn.classList.add('recording');
-            btn.innerHTML = '⏹️';
+            isRecording = true;
+            optionsMenu.classList.add('hidden');
+            btnPlus.innerHTML = '＋';
         } catch (err) {
-            console.error("Error accessing microphone:", err);
-            alert("Không thể truy cập microphone. Vui lòng kiểm tra quyền trình duyệt.");
+            console.error("Mic error:", err);
+            alert("Vui lòng cấp quyền truy cập microphone!");
         }
     }
 
-    function stopRecording(btn) {
+    function stopVoiceRecording() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            btn.classList.remove('recording');
-            btn.innerHTML = '🎤';
+            isRecording = false;
+            const indicator = document.getElementById('recording-indicator');
+            if (indicator) indicator.remove();
         }
     }
+
+    menuVoice.addEventListener('click', toggleVoiceRecording);
 
     async function sendAudioToBackend(blob, isCraft) {
         const formData = new FormData();
@@ -1150,38 +1187,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.response) {
                 let content = data.response;
+                
+                // If we got a transcription, show it as a "Voice-to-Text" result
+                if (data.transcription) {
+                    content = `<i>📝 Bản dịch giọng nói: "${data.transcription}"</i><br><br>${content}`;
+                }
+
                 if (data.dialect) {
                     content = `<span class="dialect-badge">📍 Phát hiện: ${data.dialect}</span><br>${content}`;
                 }
                 
-                if (isCraft) {
-                    addCraftMessage('assistant', content);
-                } else {
-                    addMessage('assistant', content);
-                }
+                if (isCraft) addCraftMessage('assistant', content);
+                else addMessage('assistant', content);
             }
         } catch (err) {
-            console.error("Error sending audio:", err);
+            console.error("Audio API error:", err);
             if (typingId) removeTypingIndicator(typingId);
-            const errMsg = "Dạ, có lỗi khi xử lý giọng nói của bạn. Bạn vui lòng thử lại hoặc gõ văn bản nhé!";
+            const errMsg = "Dạ, hệ thống chưa nghe rõ giọng bạn. Bạn thử lại nhé!";
             if (isCraft) addCraftMessage('assistant', errMsg);
             else addMessage('assistant', errMsg);
         }
-    }
-
-    if (btnRecord) {
-        btnRecord.addEventListener('mousedown', () => startRecording(btnRecord));
-        btnRecord.addEventListener('mouseup', () => stopRecording(btnRecord));
-        // Also support tap for mobile
-        btnRecord.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(btnRecord); });
-        btnRecord.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(btnRecord); });
-    }
-
-    if (btnRecordCraft) {
-        btnRecordCraft.addEventListener('mousedown', () => startRecording(btnRecordCraft));
-        btnRecordCraft.addEventListener('mouseup', () => stopRecording(btnRecordCraft));
-        btnRecordCraft.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(btnRecordCraft); });
-        btnRecordCraft.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(btnRecordCraft); });
     }
 
 });
