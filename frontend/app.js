@@ -1130,7 +1130,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                // Use the MIME type produced by the recorder (e.g., audio/webm or audio/ogg)
+                const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
                 
                 // Show "Transcribing..." state
                 const originalPlaceholder = chatInput.placeholder;
