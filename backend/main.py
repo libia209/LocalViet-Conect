@@ -67,14 +67,27 @@ async def chat(request: ChatRequest):
 
 @app.post("/api/chat-audio")
 async def chat_audio(file: UploadFile = File(...)):
-    # Save uploaded file to a temporary location
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+    # Determine extension based on content type
+    ext = ".wav"
+    if "webm" in file.content_type:
+        ext = ".webm"
+    elif "ogg" in file.content_type:
+        ext = ".ogg"
+    elif "mp4" in file.content_type:
+        ext = ".m4a"
+    elif "mpeg" in file.content_type:
+        ext = ".mp3"
+
+    # Save uploaded file to a temporary location with correct suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as temp_audio:
         shutil.copyfileobj(file.file, temp_audio)
         temp_path = temp_audio.name
 
     try:
         # Process audio with Gemini
-        result = await gemini.generate_response_from_audio(temp_path)
+        # We pass the mime_type explicitly to the service if needed, 
+        # but upload_file usually detects it from suffix.
+        result = await gemini.generate_response_from_audio(temp_path, mime_type=file.content_type)
         
         # Clean up
         os.remove(temp_path)
@@ -83,6 +96,7 @@ async def chat_audio(file: UploadFile = File(...)):
     except Exception as e:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+        print(f"Backend Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/crafts")

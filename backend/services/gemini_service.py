@@ -38,11 +38,11 @@ class GeminiService:
         except Exception as e:
             return f"Error: {str(e)}"
 
-    async def generate_response_from_audio(self, audio_path: str):
+    async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
         try:
             # Upload the file to Gemini's file service
-            # Gemini 1.5 supports most audio formats (wav, mp3, ogg, etc.)
-            sample_file = genai.upload_file(path=audio_path, display_name="user_voice_message")
+            # Explicitly provide mime_type to avoid "Illegal metadata" errors
+            sample_file = genai.upload_file(path=audio_path, mime_type=mime_type, display_name="user_voice_message")
             
             prompt = """TASK: YOU ARE A TRANSCRIBER. 
 1. LISTEN carefully to the audio.
