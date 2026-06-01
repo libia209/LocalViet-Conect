@@ -1131,17 +1131,21 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
                 
-                // Keep the audio message in UI
-                addMessage('user', `<div class="voice-note"><span class="play-icon">🔊</span> Voice Message <audio src="${audioUrl}" controls style="display:none"></audio></div>`);
-                
-                // Show "Transcribing..." in input
+                // Show "Transcribing..." state
                 const originalPlaceholder = chatInput.placeholder;
-                chatInput.placeholder = "Đang chuyển giọng nói thành văn bản...";
+                chatInput.value = "";
+                chatInput.placeholder = "⌛ Đang chuyển giọng nói thành văn bản...";
                 chatInput.disabled = true;
 
-                await sendAudioToBackend(audioBlob, false);
+                // Send to backend for transcription
+                const transcription = await transcribeAudio(audioBlob);
+                
+                // Set the transcribed text into input box
+                if (transcription) {
+                    chatInput.value = transcription;
+                    chatInput.focus();
+                }
                 
                 chatInput.placeholder = originalPlaceholder;
                 chatInput.disabled = false;
@@ -1150,7 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.start();
             isRecording = true;
             optionsMenu.classList.add('hidden');
-            btnPlus.innerHTML = '＋';
+            if (btnPlus) btnPlus.innerHTML = '＋';
         } catch (err) {
             console.error("Mic error:", err);
             alert("Vui lòng cấp quyền truy cập microphone!");
@@ -1167,14 +1171,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    menuVoice.addEventListener('click', toggleVoiceRecording);
+    if (menuVoice) menuVoice.addEventListener('click', toggleVoiceRecording);
 
-    async function sendAudioToBackend(blob, isCraft) {
+    async function transcribeAudio(blob) {
         const formData = new FormData();
         formData.append('file', blob, 'recording.wav');
 
-        const typingId = isCraft ? null : addTypingIndicator();
-        
         try {
             const response = await fetch('/api/chat-audio', {
                 method: 'POST',
@@ -1183,29 +1185,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            if (typingId) removeTypingIndicator(typingId);
-
-            if (data.response) {
-                let content = data.response;
-                
-                // If we got a transcription, show it as a "Voice-to-Text" result
-                if (data.transcription) {
-                    content = `<i>📝 Bản dịch giọng nói: "${data.transcription}"</i><br><br>${content}`;
-                }
-
-                if (data.dialect) {
-                    content = `<span class="dialect-badge">📍 Phát hiện: ${data.dialect}</span><br>${content}`;
-                }
-                
-                if (isCraft) addCraftMessage('assistant', content);
-                else addMessage('assistant', content);
+            if (data.transcription) {
+                // If dialect is detected, we could show a small toast/hint, 
+                // but for now let's just return the text as requested.
+                return data.transcription;
+            } else if (data.response && !data.error) {
+                // Fallback if transcription field is missing but response has text
+                return data.response;
             }
+            return "";
         } catch (err) {
-            console.error("Audio API error:", err);
-            if (typingId) removeTypingIndicator(typingId);
-            const errMsg = "Dạ, hệ thống chưa nghe rõ giọng bạn. Bạn thử lại nhé!";
-            if (isCraft) addCraftMessage('assistant', errMsg);
-            else addMessage('assistant', errMsg);
+            console.error("Transcription error:", err);
+            alert("Dạ, không thể chuyển đổi giọng nói. Bạn vui lòng thử lại nhé!");
+            return "";
         }
     }
 
