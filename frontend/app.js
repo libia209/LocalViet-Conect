@@ -1177,8 +1177,13 @@ document.addEventListener('DOMContentLoaded', () => {
     async function transcribeAudio(blob) {
         // Create form data
         const formData = new FormData();
+        
+        // Clean MIME type (remove codecs=... if present)
+        let cleanMimeType = blob.type.split(';')[0];
+        
         // Use a generic name, the backend will determine the type via tempfile suffix
-        formData.append('file', blob, 'recording.wav');
+        formData.append('file', blob, 'recording');
+        formData.append('mime_type', cleanMimeType);
 
         try {
             const response = await fetch('/api/chat-audio', {

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -66,16 +66,19 @@ async def chat(request: ChatRequest):
     }
 
 @app.post("/api/chat-audio")
-async def chat_audio(file: UploadFile = File(...)):
+async def chat_audio(file: UploadFile = File(...), mime_type: str = Form(None)):
+    # Use the mime_type from form if provided, else from file header
+    actual_mime = mime_type or file.content_type
+    
     # Determine extension based on content type
     ext = ".wav"
-    if "webm" in file.content_type:
+    if "webm" in actual_mime:
         ext = ".webm"
-    elif "ogg" in file.content_type:
+    elif "ogg" in actual_mime:
         ext = ".ogg"
-    elif "mp4" in file.content_type:
+    elif "mp4" in actual_mime:
         ext = ".m4a"
-    elif "mpeg" in file.content_type:
+    elif "mpeg" in actual_mime:
         ext = ".mp3"
 
     # Save uploaded file to a temporary location with correct suffix
