@@ -28,20 +28,24 @@ class GeminiService:
        self.api_key = api_key.strip()
        # Use REST transport to bypass gRPC issues on some hosting environments
        genai.configure(api_key=self.api_key, transport='rest')
+       # Khởi tạo model một lần với system_instruction
+       self.model = genai.GenerativeModel(
+           model_name="gemini-2.5-flash-lite",
+           system_instruction=SYSTEM_PROMPT
+       )
 
     def get_model(self):
-        # Just-in-time initialization
-        return genai.GenerativeModel(model_name="gemini-1.5-flash")
+        return self.model
 
     async def generate_response(self, prompt: str, history=None):
         try:
             model = self.get_model()
-            full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}"
-            response = model.generate_content(full_prompt)
+            # Không cần nhúng SYSTEM_PROMPT vào prompt nữa vì đã có system_instruction
+            response = model.generate_content(prompt)
             return response.text
         except Exception as e:
             print(f"Text Error: {str(e)}")
-            return f"Dạ, trợ lý đang gặp chút lỗi kết nối (404/503). Bạn thử lại nhé!"
+            return f"Dạ, trợ lý đang gặp chút lỗi kết nối. Bạn thử lại nhé!"
 
     async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
         try:
