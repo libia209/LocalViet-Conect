@@ -25,33 +25,27 @@ class GeminiService:
        api_key = os.getenv("GEMINI_API_KEY")
        if not api_key:
            raise RuntimeError("GEMINI_API_KEY is not set")
-       api_key = api_key.strip()
-       genai.configure(api_key=api_key)
-       
-       # Print available models to backend logs for debugging
-       try:
-           print("--- AVAILABLE MODELS AS PER YOUR API KEY ---")
-           for m in genai.list_models():
-               if 'generateContent' in m.supported_generation_methods:
-                   print(m.name)
-       except:
-           pass
+       self.api_key = api_key.strip()
+       # Use REST transport to bypass gRPC issues on some hosting environments
+       genai.configure(api_key=self.api_key, transport='rest')
 
-       # Initialize with the most reliable model name
-       self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    def get_model(self):
+        # Just-in-time initialization
+        return genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     async def generate_response(self, prompt: str, history=None):
         try:
-            # Shift SYSTEM_PROMPT here for maximum compatibility
+            model = self.get_model()
             full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}"
-            response = self.model.generate_content(full_prompt)
+            response = model.generate_content(full_prompt)
             return response.text
         except Exception as e:
-            return f"Error: {str(e)}"
+            print(f"Text Error: {str(e)}")
+            return f"Dạ, trợ lý đang gặp chút lỗi kết nối (404/503). Bạn thử lại nhé!"
 
     async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
         try:
-            # Read the audio bytes directly
+            model = self.get_model()
             with open(audio_path, 'rb') as f:
                 audio_data = f.read()
 
@@ -60,28 +54,21 @@ class GeminiService:
                 "data": audio_data
             }
 
-            # Combine system prompt and task for audio processing
-            full_prompt = f"{SYSTEM_PROMPT}\n\nTASK: YOU ARE A TRANSCRIBER. \n1. LISTEN carefully to the audio.\n2. TRANSCRIBE the full Vietnamese text.\n3. IDENTIFY the regional dialect.\n4. RESPOND briefly.\n\nOutput valid JSON object only."
+            task_prompt = "TRANSCRIBE this audio into Vietnamese and identify the regional dialect. Format as JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
             
-            response = self.model.generate_content([audio_part, full_prompt])
+            # Direct generation call
+            response = model.generate_content([audio_part, task_prompt])
             
             text = response.text.strip()
-            # Handle potential markdown
-            if text.startswith("```json"):
-                text = text.replace("```json", "").replace("```", "").strip()
-            elif text.startswith("```"):
-                text = text.replace("```", "").strip()
-
+            if "```json" in text:
+                text = text.split("```json")[-1].split("```")[0].strip()
+            
             import json
             import re
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
             if json_match:
-                try:
-                    return json.loads(json_match.group())
-                except:
-                    return {"response": text, "dialect": "Không xác định", "transcription": text[:50]}
-            else:
-                return {"response": text, "dialect": "Không xác định", "transcription": text}
+                return json.loads(json_match.group())
+            return {"response": text, "dialect": "Không xác định", "transcription": ""}
         except Exception as e:
-            print(f"Gemini Service Error: {str(e)}")
-            return {"error": str(e), "response": "Dạ, hệ thống đang gặp chút sự cố kết nối AI. Bạn thử lại nhé!"}
+            print(f"Audio Error: {str(e)}")
+            return {"error": str(e), "response": "AI không thể nghe rõ lúc này. Vui lòng kiểm tra API Key."}
