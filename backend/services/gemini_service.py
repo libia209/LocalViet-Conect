@@ -44,10 +44,16 @@ class GeminiService:
 
     async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
         try:
-            # Upload the file to Gemini's file service
-            # Explicitly provide mime_type to avoid "Illegal metadata" errors
-            sample_file = genai.upload_file(path=audio_path, mime_type=mime_type, display_name="user_voice_message")
-            
+            # Read the audio bytes directly from the temporary file
+            with open(audio_path, 'rb') as f:
+                audio_data = f.read()
+
+            # Prepare the audio part for Gemini
+            audio_part = {
+                "mime_type": mime_type or "audio/webm",
+                "data": audio_data
+            }
+
             prompt = """TASK: YOU ARE A TRANSCRIBER. 
 1. LISTEN carefully to the audio.
 2. TRANSCRIBE the full Vietnamese text.
@@ -64,10 +70,8 @@ Format:
   "response": "câu trả lời của bạn"
 }"""
             
-            response = self.model.generate_content([sample_file, prompt])
-            
-            # Clean up: the file is stored in Gemini's temporary storage, 
-            # we don't need to delete it manually here as it auto-expires.
+            # Send both the audio data and the prompt in one request
+            response = self.model.generate_content([audio_part, prompt])
             
             text = response.text.strip()
             # Handle potential markdown blocks in Gemini's output
@@ -97,5 +101,5 @@ Format:
                     "transcription": text
                 }
         except Exception as e:
-            print(f"Gemini Service Error: {str(e)}")
+            print(f"Gemini Service Error (Direct Bytes): {str(e)}")
             return {"error": str(e), "response": "Xin lỗi, tôi gặp sự cố kỹ thuật khi nghe giọng của bạn."}
