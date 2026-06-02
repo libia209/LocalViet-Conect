@@ -22,12 +22,16 @@ CORE RULES:
 
 class GeminiService:
     def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=SYSTEM_PROMPT
-        )
+       api_key = os.getenv("GEMINI_API_KEY")
+       if not api_key:
+           raise RuntimeError("GEMINI_API_KEY is not set")
+       api_key = api_key.strip()
+       genai.configure(api_key=api_key)
+       self.model = genai.GenerativeModel(
+           model_name="gemini-1.5-flash",
+           system_instruction=SYSTEM_PROMPT
+       )
+
 
     async def generate_response(self, prompt: str, history=None):
         # We can implement history management here if needed, 
