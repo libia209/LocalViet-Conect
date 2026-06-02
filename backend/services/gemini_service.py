@@ -26,13 +26,22 @@ class GeminiService:
        if not api_key:
            raise RuntimeError("GEMINI_API_KEY is not set")
        self.api_key = api_key.strip()
-       # Use REST transport to bypass gRPC issues on some hosting environments
-       genai.configure(api_key=self.api_key, transport='rest')
-       # Quay lại model 1.5-flash vì nó hỗ trợ multimodal (âm thanh) ổn định nhất
-       self.model = genai.GenerativeModel(
-           model_name="gemini-1.5-flash",
-           system_instruction=SYSTEM_PROMPT
-       )
+       # Thử ép sử dụng transport và cấu hình cơ bản nhất
+       genai.configure(api_key=self.api_key)
+       
+       # Danh sách model thử nghiệm theo thứ tự ưu tiên
+       self.models_to_try = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-latest"]
+       self.current_model_name = "gemini-1.5-flash"
+       
+       try:
+           self.model = genai.GenerativeModel(
+               model_name=self.current_model_name,
+               system_instruction=SYSTEM_PROMPT
+           )
+       except:
+           # Fallback ngay lập tức nếu khởi tạo lỗi
+           self.current_model_name = "gemini-1.5-pro"
+           self.model = genai.GenerativeModel(model_name=self.current_model_name)
 
     def get_model(self):
         return self.model
@@ -48,32 +57,40 @@ class GeminiService:
             return f"Dạ, trợ lý đang gặp chút lỗi kết nối. Bạn thử lại nhé!"
 
     async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
-        try:
-            model = self.get_model()
-            with open(audio_path, 'rb') as f:
-                audio_data = f.read()
+        last_error = ""
+        # Thử lần lượt các model trong danh sách để tránh lỗi 404
+        for model_name in self.models_to_try:
+            try:
+                # Read the audio bytes directly
+                with open(audio_path, 'rb') as f:
+                    audio_data = f.read()
 
-            audio_part = {
-                "mime_type": mime_type or "audio/webm",
-                "data": audio_data
-            }
+                audio_part = {
+                    "mime_type": mime_type or "audio/webm",
+                    "data": audio_data
+                }
 
-            task_prompt = "Hãy NGHE và DỊCH âm thanh này sang tiếng Việt. Xác định phương ngữ. Trả về JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
-            
-            # Đảm bảo gửi cả phần âm thanh và phần text rõ ràng
-            response = model.generate_content([audio_part, task_prompt])
-            
-            
-            text = response.text.strip()
-            if "```json" in text:
-                text = text.split("```json")[-1].split("```")[0].strip()
-            
-            import json
-            import re
-            json_match = re.search(r'\{.*\}', text, re.DOTALL)
-            if json_match:
-                return json.loads(json_match.group())
-            return {"response": text, "dialect": "Không xác định", "transcription": ""}
-        except Exception as e:
-            print(f"Audio Error: {str(e)}")
-            return {"error": str(e), "response": "AI không thể nghe rõ lúc này. Vui lòng kiểm tra API Key."}
+                task_prompt = "Hãy NGHE và DỊCH âm thanh này sang tiếng Việt. Xác định phương ngữ. Trả về JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
+                
+                # Khởi tạo model tạm thời để thử nghiệm
+                temp_model = genai.GenerativeModel(model_name=model_name)
+                response = temp_model.generate_content([audio_part, task_prompt])
+                
+                text = response.text.strip()
+                if "```json" in text:
+                    text = text.split("```json")[-1].split("```")[0].strip()
+                
+                import json
+                import re
+                json_match = re.search(r'\{.*\}', text, re.DOTALL)
+                if json_match:
+                    return json.loads(json_match.group())
+                return {"response": text, "dialect": "Không xác định", "transcription": ""}
+                
+            except Exception as e:
+                last_error = str(e)
+                print(f"Trial with {model_name} failed: {last_error}")
+                continue # Thử model tiếp theo
+                
+        return {"error": last_error, "response": "AI hiện không tìm thấy Model phù hợp trên server. Bạn hãy thử tạo lại API Key mới nhé!"}
+Line 75: 
