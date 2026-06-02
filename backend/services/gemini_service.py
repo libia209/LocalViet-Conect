@@ -28,9 +28,9 @@ class GeminiService:
        self.api_key = api_key.strip()
        # Use REST transport to bypass gRPC issues on some hosting environments
        genai.configure(api_key=self.api_key, transport='rest')
-       # Khởi tạo model một lần với system_instruction
+       # Quay lại model 1.5-flash vì nó hỗ trợ multimodal (âm thanh) ổn định nhất
        self.model = genai.GenerativeModel(
-           model_name="gemini-2.5-flash-lite",
+           model_name="gemini-1.5-flash",
            system_instruction=SYSTEM_PROMPT
        )
 
@@ -58,10 +58,11 @@ class GeminiService:
                 "data": audio_data
             }
 
-            task_prompt = "TRANSCRIBE this audio into Vietnamese and identify the regional dialect. Format as JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
+            task_prompt = "Hãy NGHE và DỊCH âm thanh này sang tiếng Việt. Xác định phương ngữ. Trả về JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
             
-            # Direct generation call
+            # Đảm bảo gửi cả phần âm thanh và phần text rõ ràng
             response = model.generate_content([audio_part, task_prompt])
+            
             
             text = response.text.strip()
             if "```json" in text:
