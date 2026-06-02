@@ -27,55 +27,46 @@ class GeminiService:
            raise RuntimeError("GEMINI_API_KEY is not set")
        api_key = api_key.strip()
        genai.configure(api_key=api_key)
-       # Use the fully qualified model name
-       self.model = genai.GenerativeModel(
-           model_name="models/gemini-1.5-flash",
-           system_instruction=SYSTEM_PROMPT
-       )
+       
+       # Print available models to backend logs for debugging
+       try:
+           print("--- AVAILABLE MODELS AS PER YOUR API KEY ---")
+           for m in genai.list_models():
+               if 'generateContent' in m.supported_generation_methods:
+                   print(m.name)
+       except:
+           pass
 
+       # Initialize with the most reliable model name
+       self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     async def generate_response(self, prompt: str, history=None):
-        # We can implement history management here if needed, 
-        # but for now we'll pass the full prompt.
         try:
-            response = self.model.generate_content(prompt)
+            # Shift SYSTEM_PROMPT here for maximum compatibility
+            full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}"
+            response = self.model.generate_content(full_prompt)
             return response.text
         except Exception as e:
             return f"Error: {str(e)}"
 
     async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
         try:
-            # Read the audio bytes directly from the temporary file
+            # Read the audio bytes directly
             with open(audio_path, 'rb') as f:
                 audio_data = f.read()
 
-            # Prepare the audio part for Gemini
             audio_part = {
                 "mime_type": mime_type or "audio/webm",
                 "data": audio_data
             }
 
-            prompt = """TASK: YOU ARE A TRANSCRIBER. 
-1. LISTEN carefully to the audio.
-2. TRANSCRIBE the full Vietnamese text.
-3. IDENTIFY the regional dialect (e.g., Miền Bắc, Miền Trung, Miền Nam).
-4. RESPOND briefly to what they said in a friendly cultural assistant way.
-
-CRITICAL: You MUST output a valid JSON object only.
-
-Format:
-{
-  "transcription": "chuỗi văn bản đã dịch",
-  "dialect": "tên vùng miền",
-  "detected_features": [],
-  "response": "câu trả lời của bạn"
-}"""
+            # Combine system prompt and task for audio processing
+            full_prompt = f"{SYSTEM_PROMPT}\n\nTASK: YOU ARE A TRANSCRIBER. \n1. LISTEN carefully to the audio.\n2. TRANSCRIBE the full Vietnamese text.\n3. IDENTIFY the regional dialect.\n4. RESPOND briefly.\n\nOutput valid JSON object only."
             
-            # Send both the audio data and the prompt in one request
-            response = self.model.generate_content([audio_part, prompt])
+            response = self.model.generate_content([audio_part, full_prompt])
             
             text = response.text.strip()
-            # Handle potential markdown blocks in Gemini's output
+            # Handle potential markdown
             if text.startswith("```json"):
                 text = text.replace("```json", "").replace("```", "").strip()
             elif text.startswith("```"):
@@ -83,24 +74,14 @@ Format:
 
             import json
             import re
-            
-            # Try to extract anything between curly braces
             json_match = re.search(r'\{.*\}', text, re.DOTALL)
             if json_match:
                 try:
                     return json.loads(json_match.group())
                 except:
-                    return {
-                        "response": text,
-                        "dialect": "Không xác định",
-                        "transcription": text[:100] + "..."
-                    }
+                    return {"response": text, "dialect": "Không xác định", "transcription": text[:50]}
             else:
-                return {
-                    "response": text,
-                    "dialect": "Không xác định",
-                    "transcription": text
-                }
+                return {"response": text, "dialect": "Không xác định", "transcription": text}
         except Exception as e:
-            print(f"Gemini Service Error (Direct Bytes): {str(e)}")
-            return {"error": str(e), "response": "Xin lỗi, tôi gặp sự cố kỹ thuật khi nghe giọng của bạn."}
+            print(f"Gemini Service Error: {str(e)}")
+            return {"error": str(e), "response": "Dạ, hệ thống đang gặp chút sự cố kết nối AI. Bạn thử lại nhé!"}
