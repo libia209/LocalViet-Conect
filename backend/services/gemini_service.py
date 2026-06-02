@@ -27,9 +27,9 @@ class GeminiService:
            raise RuntimeError("GEMINI_API_KEY is not set")
        api_key = api_key.strip()
        genai.configure(api_key=api_key)
-       # Use the standard flash model
+       # Use the fully qualified model name
        self.model = genai.GenerativeModel(
-           model_name="gemini-1.5-flash",
+           model_name="models/gemini-1.5-flash",
            system_instruction=SYSTEM_PROMPT
        )
 
