@@ -24,7 +24,11 @@ class GeminiService:
     def __init__(self):
        api_key = os.getenv("GEMINI_API_KEY")
        if not api_key:
-           raise RuntimeError("GEMINI_API_KEY is not set")
+           print("WARNING: GEMINI_API_KEY is not set. AI features will not work.")
+           self.api_key = None
+           self.model = None
+           return
+       
        self.api_key = api_key.strip()
        # Thử ép sử dụng transport và cấu hình cơ bản nhất
        genai.configure(api_key=self.api_key)
