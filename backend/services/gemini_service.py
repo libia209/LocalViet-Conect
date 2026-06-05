@@ -29,9 +29,16 @@ class GeminiService:
        # Thử ép sử dụng transport và cấu hình cơ bản nhất
        genai.configure(api_key=self.api_key)
        
-       # Danh sách model thử nghiệm theo thứ tự ưu tiên
-       self.models_to_try = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.5-flash-latest"]
+       # Danh sách model hiện đại và ổn định nhất của Google (1.5 Flash là bản mạnh nhất hiện tại)
+       self.models_to_try = [
+           "gemini-1.5-flash", 
+           "gemini-1.5-flash-8b", 
+           "gemini-1.5-flash-latest"
+       ]
        self.current_model_name = "gemini-1.5-flash"
+       
+       # Cấu hình lại để đảm bảo dùng REST cho ổn định
+       genai.configure(api_key=self.api_key, transport='rest')
        
        try:
            self.model = genai.GenerativeModel(
@@ -39,9 +46,7 @@ class GeminiService:
                system_instruction=SYSTEM_PROMPT
            )
        except:
-           # Fallback ngay lập tức nếu khởi tạo lỗi
-           self.current_model_name = "gemini-1.5-pro"
-           self.model = genai.GenerativeModel(model_name=self.current_model_name)
+           self.model = genai.GenerativeModel(model_name="gemini-1.5-flash-8b")
 
     def get_model(self):
         return self.model
