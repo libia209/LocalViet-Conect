@@ -70,5 +70,25 @@
       "can_personalize": ["màu sắc", "kiểu dáng", "kích thước"],
       "estimated_time": "10-20 ngày",
       "price_range": "300.000đ - 3.000.000đ/mét"
+    },
+    {
+      "id": "DONG_SON",
+      "name": "Trống đồng Đông Sơn",
+      "region": "NORTH_VNM",
+      "location": "Thanh Hóa / Phú Thọ",
+      "description": "Biểu tượng văn hóa Việt cổ với kỹ thuật đúc đồng tinh xảo.",
+      "red_lines": [
+        {
+          "keyword": "hàn",
+          "warning": "Tuyệt đối không sử dụng mối hàn hiện đại. Trống đồng truyền thống phải được đúc nguyên khối bằng khuôn đất sét."
+        },
+        {
+          "keyword": "máy phay",
+          "warning": "Họa tiết phải được khắc tay trên khuôn đất, không dùng máy phay hay công nghệ CNC để giữ được cái 'hồn' của hoa văn cổ."
+        }
+      ],
+      "can_personalize": ["kích thước", "họa tiết mặt trống", "đế trưng bày"],
+      "estimated_time": "30-60 ngày",
+      "price_range": "20.000.000đ - 500.000.000đ"
     }
   ]
