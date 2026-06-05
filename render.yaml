@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --chdir backend
+    startCommand: python backend/main.py
     envVars:
       - key: GEMINI_API_KEY
         sync: false
