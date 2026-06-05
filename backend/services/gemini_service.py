@@ -29,15 +29,15 @@ class GeminiService:
        # Thử ép sử dụng transport và cấu hình cơ bản nhất
        genai.configure(api_key=self.api_key)
        
-       # Danh sách model hiện đại và ổn định nhất của Google (1.5 Flash là bản mạnh nhất hiện tại)
+       # Nâng cấp lên dòng Model 3.5 mới nhất (Phát hành tháng 5/2026)
        self.models_to_try = [
-           "gemini-1.5-flash", 
-           "gemini-1.5-flash-8b", 
-           "gemini-1.5-flash-latest"
+           "gemini-3.5-flash", 
+           "gemini-3.5-flash-lite",
+           "gemini-1.5-flash"
        ]
-       self.current_model_name = "gemini-1.5-flash"
+       self.current_model_name = "gemini-3.5-flash"
        
-       # Cấu hình lại để đảm bảo dùng REST cho ổn định
+       # Cấu hình để tối ưu hóa cho dòng 3.5
        genai.configure(api_key=self.api_key, transport='rest')
        
        try:
@@ -46,7 +46,8 @@ class GeminiService:
                system_instruction=SYSTEM_PROMPT
            )
        except:
-           self.model = genai.GenerativeModel(model_name="gemini-1.5-flash-8b")
+           # Fallback sang bản 1.5 nếu vùng của bạn chưa cập nhật kịp 3.5
+           self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
     def get_model(self):
         return self.model
