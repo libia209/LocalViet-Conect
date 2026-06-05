@@ -103,4 +103,3 @@ class GeminiService:
                 continue # Thử model tiếp theo
                 
         return {"error": last_error, "response": "AI hiện không tìm thấy Model phù hợp trên server. Bạn hãy thử tạo lại API Key mới nhé!"}
-Line 75: 
