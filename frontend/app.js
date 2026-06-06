@@ -853,14 +853,44 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage('user', text);
         chatInput.value = '';
 
-        detectAndSwitchLanguage(text);
-
         const typingId = addTypingIndicator();
-        setTimeout(() => {
+        try {
+            // Kiểm tra Ngăn dữ liệu dựa trên từ khóa
+            let mode = null;
+            const lowerText = text.toLowerCase();
+            
+            if (lowerText.startsWith('/pn') || lowerText.includes('phương ngữ') || lowerText.includes('tiếng địa phương')) {
+                mode = 'DIALECT';
+            } else if (lowerText.startsWith('/tc') || lowerText.includes('thủ công') || lowerText.includes('sáng tạo') || lowerText.includes('làng nghề')) {
+                mode = 'CRAFT';
+            }
+
+            if (!mode) {
+                removeTypingIndicator(typingId);
+                addMessage('assistant', "🤖 Chào bạn! Để hỗ trợ tốt nhất, vui lòng chọn ngăn dữ liệu bằng cách thêm từ khóa:\n\n1️⃣ **Phương ngữ**: Gõ '/pn' hoặc nhắc đến 'phương ngữ'.\n2️⃣ **Thủ công**: Gõ '/tc' hoặc nhắc đến 'thủ công'.");
+                return;
+            }
+
+            // Gọi AI từ Backend
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    messages: [{ role: 'user', content: `[CHẾ ĐỘ: ${mode}] ${text}` }] 
+                })
+            });
+
+            const data = await response.json();
             removeTypingIndicator(typingId);
-            const response = getBotResponse(text);
-            addMessage('assistant', response);
-        }, 600);
+            
+            // Nếu là chế độ phương ngữ, vẫn kiểm tra từ điển nhanh trước
+            let prefix = mode === 'DIALECT' ? "🏮 [NGĂN PHƯƠNG NGỮ]\n" : "🎨 [NGĂN THỦ CÔNG MỸ NGHỆ]\n";
+            addMessage('assistant', prefix + data.response);
+
+        } catch (error) {
+            removeTypingIndicator(typingId);
+            addMessage('assistant', "Lỗi kết nối bộ não AI. Bạn thử lại nhé!");
+        }
     });
 
     function getBotResponse(input) {
