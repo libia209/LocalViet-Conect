@@ -17,9 +17,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chat-input');
     const logoutBtn = document.getElementById('logout-btn');
     const startDiscoveryBtn = document.getElementById('start-discovery');
+    if (startDiscoveryBtn) {
+        startDiscoveryBtn.addEventListener('click', () => {
+            introContainer.style.opacity = '0';
+            introContainer.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                introContainer.classList.add('hidden');
+                if (user.isLoggedIn) {
+                    appContainer.classList.remove('hidden');
+                    chatView.classList.remove('hidden');
+                    chatInputContainer.classList.remove('hidden');
+                } else {
+                    loginContainer.classList.remove('hidden');
+                }
+            }, 500);
+        });
+    }
     const themeToggle = document.getElementById('theme-toggle');
-    const sunIcon = themeToggle.querySelector('.sun');
-    const moonIcon = themeToggle.querySelector('.moon');
+    const sunIcon = themeToggle ? themeToggle.querySelector('.sun') : null;
+    const moonIcon = themeToggle ? themeToggle.querySelector('.moon') : null;
 
     const navItems = document.querySelectorAll('.nav-item');
     const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
@@ -1057,21 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return "Chào bạn! Tôi là Craft Creator. Tôi có thể giúp bạn:\n• Tư vấn giá & thời gian đặt làm đồ thủ công\n• Thiết kế vật phẩm theo yêu cầu\n• So sánh các loại chất liệu di sản\n\nBạn đang quan tâm đến món đồ nào ạ?";
     }
 
-    // === THEME & INTRO ===
-    startDiscoveryBtn.addEventListener('click', () => {
-        introContainer.style.opacity = '0';
-        introContainer.style.transform = 'scale(1.1)';
-        setTimeout(() => {
-            introContainer.classList.add('hidden');
-            if (user.isLoggedIn) {
-                appContainer.classList.remove('hidden');
-                chatView.classList.remove('hidden');
-                chatInputContainer.classList.remove('hidden');
-            } else {
-                loginContainer.classList.remove('hidden');
-            }
-        }, 500);
-    });
+    // === LOGIN HANDLING ===
 
 
     loginForm.addEventListener('submit', (e) => {
