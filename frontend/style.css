@@ -490,8 +490,6 @@ h1, h2, h3 {
 
 .message.user {
     align-self: flex-end;
-}
-
     border-bottom-left-radius: 4px;
     color: var(--text-main) !important;
     border: 1px solid var(--glass-border);
