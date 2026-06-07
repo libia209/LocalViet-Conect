@@ -1224,9 +1224,8 @@ h1, h2, h3 {
     filter: brightness(1.1);
 }
 
-.artisan-fab .emoji {
-    margin: 0;
-}    z-index: 2000;
+.artisan-fab {
+    z-index: 2000;
     box-shadow: 0 8px 25px rgba(139, 0, 0, 0.3);
     animation: bounce 2s infinite;
 }
@@ -1281,7 +1280,8 @@ h1, h2, h3 {
     border-top: 1px solid var(--glass-border);
     display: flex;
     gap: 10px;
-}
+.quick-suggestions {
+    padding: 0.8rem 1rem;
     border-bottom: 1px solid var(--glass-border);
 }
 
