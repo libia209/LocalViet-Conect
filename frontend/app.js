@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // === CẤP CỨU LỖI ===
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error("LỖI JS:", message, "tại dòng:", lineno);
+        // alert("Phát hiện lỗi JS tại dòng " + lineno + ": " + message);
+        return false;
+    };
+
     // === DOM ELEMENTS ===
     const loginForm = document.getElementById('login-form');
+    let user = { name: '', email: '', messages: [], lang: 'vi', isLoggedIn: false };
     const chatForm = document.getElementById('chat-form');
     const introContainer = document.getElementById('intro-container');
     const loginContainer = document.getElementById('login-container');
@@ -539,7 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // === STATE ===
-    let user = { name: '', email: '', messages: [], lang: 'vi' };
     let map = null;
     let mapOverlay = null;
 
