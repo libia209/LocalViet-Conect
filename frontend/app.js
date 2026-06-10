@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === CẤP CỨU LỖI ===
     window.onerror = function(message, source, lineno, colno, error) {
         console.error("LỖI JS:", message, "tại dòng:", lineno);
-        // alert("Phát hiện lỗi JS tại dòng " + lineno + ": " + message);
+        alert("Phát hiện lỗi JS tại dòng " + lineno + ": " + message);
         return false;
     };
 
@@ -16,6 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const logoutBtn = document.getElementById('logout-btn');
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = themeToggle ? themeToggle.querySelector('.sun') : null;
+    const moonIcon = themeToggle ? themeToggle.querySelector('.moon') : null;
+
+    const navItems = document.querySelectorAll('.nav-item');
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+    const chatView = document.getElementById('chat-messages');
+    const mapView = document.getElementById('map-view');
+    const knowledgeView = document.getElementById('knowledge-view');
+    const knowledgeGrid = document.getElementById('knowledge-grid');
+    const chatInputContainer = document.querySelector('.chat-input-container');
+
+    // === INTRO BUTTON (ưu tiên khởi tạo đầu tiên) ===
     const startDiscoveryBtn = document.getElementById('start-discovery');
     if (startDiscoveryBtn) {
         startDiscoveryBtn.addEventListener('click', () => {
@@ -33,17 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 500);
         });
     }
-    const themeToggle = document.getElementById('theme-toggle');
-    const sunIcon = themeToggle ? themeToggle.querySelector('.sun') : null;
-    const moonIcon = themeToggle ? themeToggle.querySelector('.moon') : null;
-
-    const navItems = document.querySelectorAll('.nav-item');
-    const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
-    const chatView = document.getElementById('chat-messages');
-    const mapView = document.getElementById('map-view');
-    const knowledgeView = document.getElementById('knowledge-view');
-    const knowledgeGrid = document.getElementById('knowledge-grid');
-    const chatInputContainer = document.querySelector('.chat-input-container');
 
     const heritageModal = document.getElementById('heritage-modal');
     const closeHeritage = document.getElementById('close-heritage');
@@ -1096,14 +1098,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
-        sunIcon.style.display = theme === 'dark' ? 'none' : 'block';
-        moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
+        if (sunIcon) sunIcon.style.display = theme === 'dark' ? 'none' : 'block';
+        if (moonIcon) moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
     }
 
-
-    themeToggle.addEventListener('click', () => {
-        setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
+    }
 
     setTheme(localStorage.getItem('theme') || 'light');
 
