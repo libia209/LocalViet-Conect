@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             warning: {
                 vi: "Dùng men công nghiệp trên gốm Bàu Trúc hoặc làm xương gốm Bát Tràng quá mỏng sẽ làm mất giá trị di sản.",
-                ư en: "Industrial glazes on Bàu Trúc or thin Bát Tràng bodies invalidate core heritage value."
+                en: "Industrial glazes on Bàu Trúc or thin Bát Tràng bodies invalidate core heritage value."
             },
             steps: {
                 vi: ["Nhào đất và ủ ẩm 3-5 ngày", "Tạo hình trên bàn xoay/khuôn", "Phơi khô tự nhiên 2-3 ngày", "Sửa chi tiết, gọt chân", "Phủ men + Vẽ họa tiết", "Nung 1200-1300°C trong 8-12h"],
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 en: "Pure silver protectors. Features sacred spirals and distinctive tinkling tassels."
             },
             img: "https://images.unsplash.com/photo-1621600411666-ac748c080486?auto=format&fit=crop&q=80&w=800",
-            guưardrailKey: 'jewelry'
+            guardrailKey: 'jewelry'
         },
 
         // --- MIỀN TRUNG ---
@@ -798,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-title').textContent = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
 
         const lang = user.lang;
+        const isEn = lang === 'en';
 
         guardrailContent.innerHTML = `
             <div class="guardrail-section">
@@ -1112,14 +1113,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const savedUser = localStorage.getItem('localviet_user');
     if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        document.getElementById('display-name').textContent = parsed.name;
-        document.getElementById('display-email').textContent = parsed.email;
-        document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
-
-        user.isLoggedIn = true;
-        document.getElementById('user-name').value = parsed.name;
-        document.getElementById('user-email').value = parsed.email;
+        try {
+            const parsed = JSON.parse(savedUser);
+            if (parsed) {
+                if (parsed.name) {
+                    document.getElementById('display-name').textContent = parsed.name;
+                    document.getElementById('avatar-initial').textContent = parsed.name.charAt(0).toUpperCase();
+                    document.getElementById('user-name').value = parsed.name;
+                }
+                if (parsed.email) {
+                    document.getElementById('display-email').textContent = parsed.email;
+                    document.getElementById('user-email').value = parsed.email;
+                }
+                user.isLoggedIn = !!(parsed.name && parsed.email);
+            }
+        } catch (e) {
+            console.error("Lỗi parse savedUser:", e);
+            localStorage.removeItem('localviet_user');
+        }
     }
 
     // === VOICE RECORDING IMPLEMENTATION (UPGRADED) ===
