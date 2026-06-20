@@ -638,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const zoom = window.innerWidth < 768 ? 5.5 : 6;
                 setTimeout(() => {
                     view.animate({
-                        center: ol.proj.fromLonLat([105.8, 15.75]),
+                        center: ol.proj.fromLonLat([106.125, 15.75]),
                         zoom: zoom,
                         duration: 1500
                     });
@@ -684,8 +684,8 @@ document.addEventListener('DOMContentLoaded', () => {
             zIndex: 100
         });
 
-        const mapMin = ol.proj.fromLonLat([99.0, 7.5]);
-        const mapMax = ol.proj.fromLonLat([111.5, 24.0]);
+        const mapMin = ol.proj.fromLonLat([102.0, 7.5]);
+        const mapMax = ol.proj.fromLonLat([110.25, 24.0]);
         const boardGameExtent = [mapMin[0], mapMin[1], mapMax[0], mapMax[1]];
 
         const boardGameLayer = new ol.layer.Image({
@@ -704,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             overlays: [mapOverlay],
             view: new ol.View({
-                center: ol.proj.fromLonLat([105.8, 15.75]),
+                center: ol.proj.fromLonLat([106.125, 15.75]),
                 zoom: 5.5,
                 minZoom: 5,
                 maxZoom: 8,
