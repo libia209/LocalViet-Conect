@@ -16,3 +16,6 @@ dist/
 
 # Logs
 *.log
+
+# Chrome Profile
+chrome-profile/

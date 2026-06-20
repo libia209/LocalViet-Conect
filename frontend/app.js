@@ -635,10 +635,10 @@ document.addEventListener('DOMContentLoaded', () => {
             initMap();
             if (map) {
                 const view = map.getView();
-                const zoom = window.innerWidth < 768 ? 6 : 7;
+                const zoom = window.innerWidth < 768 ? 5.5 : 6;
                 setTimeout(() => {
                     view.animate({
-                        center: ol.proj.fromLonLat([108.2772, 14.0583]),
+                        center: ol.proj.fromLonLat([105.8, 15.75]),
                         zoom: zoom,
                         duration: 1500
                     });
@@ -684,23 +684,31 @@ document.addEventListener('DOMContentLoaded', () => {
             zIndex: 100
         });
 
+        const mapMin = ol.proj.fromLonLat([99.0, 7.5]);
+        const mapMax = ol.proj.fromLonLat([111.5, 24.0]);
+        const boardGameExtent = [mapMin[0], mapMin[1], mapMax[0], mapMax[1]];
+
+        const boardGameLayer = new ol.layer.Image({
+            source: new ol.source.ImageStatic({
+                url: '/static/assets/vietnam_boardgame_map.png',
+                projection: 'EPSG:3857',
+                imageExtent: boardGameExtent
+            })
+        });
+
         map = new ol.Map({
             target: 'map',
             layers: [
-                new ol.layer.Tile({
-                    source: new ol.source.XYZ({
-                        url: 'https://{a-c}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-                        attributions: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <b>Hoàng Sa - Trường Sa - Việt Nam</b>'
-                    })
-                }),
+                boardGameLayer,
                 vectorLayer
             ],
             overlays: [mapOverlay],
             view: new ol.View({
-                center: ol.proj.fromLonLat([0, 20]),
-                zoom: 2,
-                minZoom: 2,
-                maxZoom: 18
+                center: ol.proj.fromLonLat([105.8, 15.75]),
+                zoom: 5.5,
+                minZoom: 5,
+                maxZoom: 8,
+                extent: boardGameExtent
             })
         });
 
@@ -728,11 +736,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 }));
             } else {
+                let emoji = '🏺';
+                const key = loc.guardrailKey;
+                if (key === 'ceramics') emoji = '🏺';
+                else if (key === 'bronze') emoji = '🔔';
+                else if (key === 'textiles') emoji = '🧵';
+                else if (key === 'sculpture') emoji = '🗿';
+                else if (key === 'lacquer') emoji = '🎨';
+                else if (key === 'jewelry') emoji = '💍';
+
                 feature.setStyle(new ol.style.Style({
                     image: new ol.style.Circle({
-                        radius: 8,
-                        fill: new ol.style.Fill({ color: '#8B0000' }),
-                        stroke: new ol.style.Stroke({ color: '#ffffff', width: 2 })
+                        radius: 14,
+                        fill: new ol.style.Fill({ color: '#ffffff' }),
+                        stroke: new ol.style.Stroke({ color: '#d84315', width: 3 })
+                    }),
+                    text: new ol.style.Text({
+                        text: emoji,
+                        font: '14px Arial',
+                        offsetY: 0
                     })
                 }));
             }
@@ -1142,6 +1164,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuVoice = document.getElementById('menu-voice');
     const chatInputWrapper = document.querySelector('.input-actions-wrapper');
 
+    // Speech recognition variables
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
     // Toggle menu
     btnPlus.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1166,63 +1192,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function startVoiceRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
+        if (SpeechRecognition) {
+            // Real-time speech recognition
+            try {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = user.lang === 'en' ? 'en-US' : 'vi-VN';
 
-            // Add recording indicator overlay
-            const indicator = document.createElement('div');
-            indicator.className = 'recording-overlay';
-            indicator.id = 'recording-indicator';
-            indicator.innerHTML = '<div class="recording-dot"></div> Đang thu âm... (Nhấn để dừng)';
-            chatInputWrapper.appendChild(indicator);
+                // Add recording indicator overlay
+                const indicator = document.createElement('div');
+                indicator.className = 'recording-overlay';
+                indicator.id = 'recording-indicator';
+                indicator.innerHTML = '<div class="recording-dot"></div> Đang nhận diện giọng nói... (Nhấn để hoàn tất)';
+                chatInputWrapper.appendChild(indicator);
 
-            // Listener to stop by clicking the indicator
-            indicator.onclick = stopVoiceRecording;
+                indicator.onclick = stopVoiceRecording;
 
-            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-            mediaRecorder.onstop = async () => {
-                // Use the MIME type produced by the recorder (e.g., audio/webm or audio/ogg)
-                const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+                let finalTranscript = '';
 
-                // Show "Transcribing..." state
-                const originalPlaceholder = chatInput.placeholder;
-                chatInput.value = "";
-                chatInput.placeholder = "⌛ Đang chuyển giọng nói thành văn bản...";
-                chatInput.disabled = true;
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    // Update input box real-time
+                    chatInput.value = finalTranscript + interimTranscript;
+                };
 
-                // Send to backend for transcription
-                const transcription = await transcribeAudio(audioBlob);
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                    stopVoiceRecording();
+                };
 
-                // Set the transcribed text into input box
-                if (transcription) {
-                    chatInput.value = transcription;
+                recognition.onend = () => {
+                    isRecording = false;
+                    const indicator = document.getElementById('recording-indicator');
+                    if (indicator) indicator.remove();
                     chatInput.focus();
-                }
+                };
 
-                chatInput.placeholder = originalPlaceholder;
-                chatInput.disabled = false;
-            };
+                recognition.start();
+                isRecording = true;
+                optionsMenu.classList.add('hidden');
+                if (btnPlus) btnPlus.innerHTML = '＋';
+            } catch (err) {
+                console.error("Speech recognition start error:", err);
+                alert("Không thể khởi động bộ nhận diện giọng nói!");
+            }
+        } else {
+            // Fallback: Batch recording with MediaRecorder + Gemini
+            console.log("Web Speech API không được hỗ trợ. Chuyển sang cơ chế dự phòng MediaRecorder.");
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
 
-            mediaRecorder.start();
-            isRecording = true;
-            optionsMenu.classList.add('hidden');
-            if (btnPlus) btnPlus.innerHTML = '＋';
-        } catch (err) {
-            console.error("Mic error:", err);
-            alert("Vui lòng cấp quyền truy cập microphone!");
+                // Add recording indicator overlay
+                const indicator = document.createElement('div');
+                indicator.className = 'recording-overlay';
+                indicator.id = 'recording-indicator';
+                indicator.innerHTML = '<div class="recording-dot"></div> Đang thu âm... (Nhấn để dừng)';
+                chatInputWrapper.appendChild(indicator);
+
+                // Listener to stop by clicking the indicator
+                indicator.onclick = stopVoiceRecording;
+
+                mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+                mediaRecorder.onstop = async () => {
+                    // Use the MIME type produced by the recorder (e.g., audio/webm or audio/ogg)
+                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+
+                    // Show "Transcribing..." state
+                    const originalPlaceholder = chatInput.placeholder;
+                    chatInput.value = "";
+                    chatInput.placeholder = "⌛ Đang chuyển giọng nói thành văn bản...";
+                    chatInput.disabled = true;
+
+                    // Send to backend for transcription
+                    const transcription = await transcribeAudio(audioBlob);
+
+                    // Set the transcribed text into input box
+                    if (transcription) {
+                        chatInput.value = transcription;
+                        chatInput.focus();
+                    }
+
+                    chatInput.placeholder = originalPlaceholder;
+                    chatInput.disabled = false;
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                optionsMenu.classList.add('hidden');
+                if (btnPlus) btnPlus.innerHTML = '＋';
+            } catch (err) {
+                console.error("Mic error:", err);
+                alert("Vui lòng cấp quyền truy cập microphone!");
+            }
         }
     }
 
     function stopVoiceRecording() {
+        if (SpeechRecognition && recognition) {
+            recognition.stop();
+            recognition = null;
+        }
+
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            isRecording = false;
-            const indicator = document.getElementById('recording-indicator');
-            if (indicator) indicator.remove();
         }
+
+        isRecording = false;
+        const indicator = document.getElementById('recording-indicator');
+        if (indicator) indicator.remove();
     }
 
     if (menuVoice) menuVoice.addEventListener('click', toggleVoiceRecording);
