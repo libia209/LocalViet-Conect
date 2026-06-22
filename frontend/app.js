@@ -903,19 +903,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const typingId = addTypingIndicator();
         try {
-            // Kiểm tra Ngăn dữ liệu dựa trên từ khóa
+            // Kiểm tra Ngăn dữ liệu dựa trên bộ từ khóa toàn diện
             let mode = null;
             const lowerText = text.toLowerCase();
             
-            if (lowerText.startsWith('/pn') || lowerText.includes('phương ngữ') || lowerText.includes('tiếng địa phương')) {
+            // 1. Định nghĩa từ khóa cho ngăn Phương Ngữ (DIALECT)
+            const dialectTriggers = [
+                'phương ngữ', 'tiếng địa phương', 'dịch từ', 'dịch tiếng', 'nghĩa là gì', 
+                'nghĩa là chi', 'tiếng huế', 'tiếng miền', 'tiếng nghệ an', 'tiếng quảng nam', 
+                'tiếng hà tĩnh', 'từ địa phương', 'nói tiếng', 'nói giọng', 'giọng miền', 
+                'giọng huế', 'giọng quảng', 'nghĩa của từ', 'dialect', 'accent', 'nghĩa là thế nào'
+            ];
+
+            let isDialect = dialectTriggers.some(trigger => lowerText.includes(trigger)) || lowerText.startsWith('/pn');
+
+            // Kiểm tra thêm từ điển DIALECT_DB động để tự động bắt các từ cụ thể
+            if (!isDialect && typeof DIALECT_DB === 'object') {
+                for (const word in DIALECT_DB) {
+                    const regex = new RegExp(`(^|[^a-zA-ZÀ-ỹ])(${word})([^a-zA-ZÀ-ỹ]|$)`, 'i');
+                    if (regex.test(lowerText)) {
+                        isDialect = true;
+                        break;
+                    }
+                }
+            }
+
+            // 2. Định nghĩa từ khóa cho ngăn Thủ Công (CRAFT)
+            const craftTriggers = [
+                // Địa danh & Làng nghề (Module A)
+                'bát tràng', 'vạn phúc', 'ngũ xã', 'tống xá', 'sơn đồng', 'chu đậu', 
+                'thủy xuân', 'non nước', 'thanh hà', 'bàu trúc', 'bầu trúc', 'tương bình hiệp', 
+                'tân châu', 'phú quốc', 'hà giang', 'nam định', 'hải dương', 'bình dương', 
+                'an giang', 'đà nẵng', 'quảng nam', 'ninh thuận', 'làng nghề', 'thủ công', 
+                'di sản', 'truyền thống',
+                // Vật phẩm & Chất liệu
+                'gốm', 'sứ', 'lụa', 'đồng', 'tượng', 'chuông', 'điêu khắc', 'gỗ', 
+                'sơn mài', 'bạc', 'trang sức', 'nhang', 'hương', 'đá', 'nước mắm', 
+                'nhà thùng', 'khăn lụa', 'áo lụa', 'vải lụa', 'mỹ nghệ',
+                // Sáng tạo & Trải nghiệm (Module B)
+                'workshop', 'trải nghiệm', 'lớp học', 'diy', 'học làm', 'học dệt', 
+                'học vẽ', 'học nặn', 'học nhuộm', 'học đúc', 'nặn gốm', 'vẽ gốm', 
+                'nhuộm lụa', 'vẽ sơn mài', 'lớp dạy', 'sáng tạo',
+                // Giá cả & Thương mại (Module C)
+                'giá', 'báo giá', 'giá cả', 'giá tiền', 'giá bán', 'giá tham khảo', 
+                'bảng giá', 'chi phí', 'định giá', 'bao nhiêu', 'mua', 'cửa hàng', 
+                'shop', 'quà lưu niệm', 'quà tặng', 'đặc sản', 'handmade',
+                // Tiếng Anh (English Keywords)
+                'pottery', 'ceramic', 'silk', 'bronze', 'wood carving', 'stone carving', 
+                'sculpture', 'lacquer', 'incense', 'fish sauce', 'silver', 'souvenir', 
+                'handicraft', 'price', 'cost', 'how much', 'workshop', 'diy', 'class', 
+                'traditional village', 'artisan village', 'craft village'
+            ];
+
+            let isCraft = craftTriggers.some(trigger => lowerText.includes(trigger)) || lowerText.startsWith('/tc');
+
+            // 3. Quyết định chế độ (Ưu tiên DIALECT)
+            if (isDialect) {
                 mode = 'DIALECT';
-            } else if (lowerText.startsWith('/tc') || lowerText.includes('thủ công') || lowerText.includes('sáng tạo') || lowerText.includes('làng nghề')) {
+            } else if (isCraft) {
                 mode = 'CRAFT';
             }
 
             if (!mode) {
                 removeTypingIndicator(typingId);
-                addMessage('assistant', "🤖 Chào bạn! Để hỗ trợ tốt nhất, vui lòng chọn ngăn dữ liệu bằng cách thêm từ khóa:\n\n1️⃣ **Phương ngữ**: Gõ '/pn' hoặc nhắc đến 'phương ngữ'.\n2️⃣ **Thủ công**: Gõ '/tc' hoặc nhắc đến 'thủ công'.");
+                addMessage('assistant', "🤖 Chào bạn! Để hỗ trợ tốt nhất, vui lòng chọn ngăn dữ liệu bằng cách hỏi về:\n\n1️⃣ **Phương ngữ**: Hỏi 'dịch tiếng Huế', 'nghĩa từ răng rứa là gì', hoặc dùng các từ địa phương.\n2️⃣ **Thủ công & Giá cả**: Hỏi về 'làng gốm Bát Tràng', 'lụa Vạn Phúc', 'giá cả', 'workshop', 'mua đồ lưu niệm'...");
                 return;
             }
 
