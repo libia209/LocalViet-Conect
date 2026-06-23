@@ -8,8 +8,13 @@ from services.authenticity_service import AuthenticityService
 import os
 import shutil
 import tempfile
+from dotenv import load_dotenv
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(os.path.dirname(BASE_DIR), "frontend")
+
+# Load environment variables from .env
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 app = FastAPI(title="LocalViet Connect API")
 
@@ -101,6 +106,12 @@ async def chat_audio(file: UploadFile = File(...), mime_type: str = Form(None)):
             os.remove(temp_path)
         print(f"Backend Error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/config")
+async def get_config():
+    return {
+        "google_maps_api_key": os.getenv("GOOGLE_MAPS_API_KEY", "")
+    }
 
 @app.get("/api/crafts")
 async def get_crafts():

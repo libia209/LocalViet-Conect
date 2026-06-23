@@ -634,14 +634,10 @@ document.addEventListener('DOMContentLoaded', () => {
             craftTrigger.classList.remove('hidden');
             initMap();
             if (map) {
-                const view = map.getView();
                 const zoom = window.innerWidth < 768 ? 5.5 : 6;
                 setTimeout(() => {
-                    view.animate({
-                        center: ol.proj.fromLonLat([106.125, 15.75]),
-                        zoom: zoom,
-                        duration: 1500
-                    });
+                    map.panTo({ lat: 15.75, lng: 106.125 });
+                    map.setZoom(zoom);
                 }, 100);
             }
         } else if (index === 2) {
@@ -659,82 +655,83 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', () => switchTab(index));
     });
 
-    // === MAP LOGIC (OpenLayers Migration) ===
-    function initMap() {
+    // === MAP LOGIC (Google Maps Migration) ===
+    async function initMap() {
         if (map) return;
 
-        const container = document.getElementById('ol-popup');
-        const content = document.getElementById('ol-popup-content');
-        const closer = document.getElementById('ol-popup-closer');
+        // 1. Fetch Google Maps API Key from Backend
+        try {
+            const res = await fetch('/api/config');
+            const config = await res.json();
+            const apiKey = config.google_maps_api_key;
 
-        mapOverlay = new ol.Overlay({
-            element: container,
-            autoPan: { animation: { duration: 250 } },
-        });
+            if (!apiKey || apiKey.includes('YOUR_GOOGLE_MAPS_API_KEY')) {
+                console.warn("Google Maps API Key is missing or invalid. Map cannot be loaded.");
+                document.getElementById('map').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; font-family: Montserrat, sans-serif;">
+                        <b>⚠️ Lỗi cấu hình Bản đồ:</b><br>
+                        Vui lòng nhập API Key Google Maps trong tệp tin <code>backend/.env</code> để kích hoạt bản đồ.
+                    </div>
+                `;
+                return;
+            }
 
-        closer.onclick = function () {
-            mapOverlay.setPosition(undefined);
-            closer.blur();
-            return false;
-        };
+            // 2. Load Google Maps script dynamically
+            window.initGoogleMap = function () {
+                initializeGoogleMap();
+            };
 
-        const vectorSource = new ol.source.Vector();
-        const vectorLayer = new ol.layer.Vector({
-            source: vectorSource,
-            zIndex: 100
-        });
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initGoogleMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
 
-        const mapMin = ol.proj.fromLonLat([102.0, 7.5]);
-        const mapMax = ol.proj.fromLonLat([110.25, 24.0]);
-        const boardGameExtent = [mapMin[0], mapMin[1], mapMax[0], mapMax[1]];
+        } catch (err) {
+            console.error("Failed to load map configuration:", err);
+        }
+    }
 
-        const boardGameLayer = new ol.layer.Image({
-            source: new ol.source.ImageStatic({
-                url: '/static/assets/vietnam_boardgame_map.png',
-                projection: 'EPSG:3857',
-                imageExtent: boardGameExtent
-            })
-        });
-
-        map = new ol.Map({
-            target: 'map',
-            layers: [
-                boardGameLayer,
-                vectorLayer
-            ],
-            overlays: [mapOverlay],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([106.125, 15.75]),
-                zoom: 5.5,
-                minZoom: 5,
-                maxZoom: 8,
-                extent: boardGameExtent
-            })
+    function initializeGoogleMap() {
+        // Create the map centered on Vietnam
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 15.9, lng: 106.1 },
+            zoom: 6,
+            minZoom: 5,
+            maxZoom: 18,
+            mapTypeControl: true,
+            streetViewControl: false,
+            fullscreenControl: true
         });
 
         // Add Sovereignty Banner Overlay
         const banner = document.createElement('div');
         banner.className = 'sovereignty-banner-ol';
+        banner.style.position = 'absolute';
+        banner.style.top = '10px';
+        banner.style.left = '50%';
+        banner.style.transform = 'translateX(-50%)';
+        banner.style.zIndex = '99';
         banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
         document.getElementById('map-container').appendChild(banner);
 
+        let activeInfoWindow = null;
+
         CRAFT_LOCATIONS.forEach(loc => {
-            const feature = new ol.Feature({
-                geometry: new ol.geom.Point(ol.proj.fromLonLat([loc.lng, loc.lat])),
-                data: loc
-            });
+            const locName = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
+            const locDesc = typeof loc.desc === 'object' ? loc.desc[user.lang] : loc.desc;
+
+            let markerOptions = {
+                position: { lat: loc.lat, lng: loc.lng },
+                map: map,
+                title: locName
+            };
 
             if (loc.isSovereign) {
-                feature.setStyle(new ol.style.Style({
-                    text: new ol.style.Text({
-                        text: '📍 ' + loc.name,
-                        font: 'bold 12px Montserrat, sans-serif',
-                        fill: new ol.style.Fill({ color: '#ffffff' }),
-                        backgroundFill: new ol.style.Fill({ color: '#d32f2f' }),
-                        padding: [4, 8, 4, 8],
-                        offsetY: -20
-                    })
-                }));
+                markerOptions.label = {
+                    text: '🇻🇳',
+                    fontSize: '16px'
+                };
             } else {
                 let emoji = '🏺';
                 const key = loc.guardrailKey;
@@ -744,56 +741,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (key === 'sculpture') emoji = '🗿';
                 else if (key === 'lacquer') emoji = '🎨';
                 else if (key === 'jewelry') emoji = '💍';
-
-                feature.setStyle(new ol.style.Style({
-                    image: new ol.style.Circle({
-                        radius: 14,
-                        fill: new ol.style.Fill({ color: '#ffffff' }),
-                        stroke: new ol.style.Stroke({ color: '#d84315', width: 3 })
-                    }),
-                    text: new ol.style.Text({
-                        text: emoji,
-                        font: '14px Arial',
-                        offsetY: 0
-                    })
-                }));
+                
+                markerOptions.label = {
+                    text: emoji,
+                    fontSize: '14px'
+                };
             }
-            vectorSource.addFeature(feature);
-        });
 
-        map.on('singleclick', function (evt) {
-            const feature = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature);
-            if (feature) {
-                const loc = feature.get('data');
-                if (!loc) return;
+            const marker = new google.maps.Marker(markerOptions);
 
-                const locName = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
-                const locDesc = typeof loc.desc === 'object' ? loc.desc[user.lang] : loc.desc;
+            const infoWindowContent = loc.isSovereign ?
+                `<div style="color:#d32f2f; font-family:Montserrat,sans-serif; padding:5px; font-size:0.95rem;"><b>${locName}</b><br>${locDesc}</div>` :
+                `<div style="width: 220px; font-family:Montserrat,sans-serif; padding:5px;">
+                    <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px; height:120px; object-fit:cover;">
+                    <b style="font-size:1.1rem; color:var(--primary);">${locName}</b>
+                    <p style="font-size:0.85rem; margin:5px 0; color:#333; line-height:1.4;">${locDesc}</p>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                        <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '🔍 View Details' : '🔍 Xem chi tiết'}</button>
+                        ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '📜 Craft Process' : '📜 Quy trình chế tác'}</button>` : ''}
+                    </div>
+                </div>`;
 
-                const coordinate = evt.coordinate;
-                content.innerHTML = loc.isSovereign ?
-                    `<b style="color:#d32f2f">${locName}</b><br>${locDesc}` :
-                    `<div style="width: 220px;">
-                        <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px;">
-                        <b style="font-size:1.1rem; color:var(--primary);">${locName}</b>
-                        <p style="font-size:0.85rem; margin:5px 0;">${locDesc}</p>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '🔍 View Details' : '🔍 Xem chi tiết'}</button>
-                            ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '📜 Craft Process' : '📜 Quy trình chế tác'}</button>` : ''}
-                        </div>
-                    </div>`;
-                mapOverlay.setPosition(coordinate);
-                container.style.display = 'block';
-            } else {
-                mapOverlay.setPosition(undefined);
-                container.style.display = 'none';
-            }
-        });
+            const infoWindow = new google.maps.InfoWindow({
+                content: infoWindowContent
+            });
 
-        map.on('pointermove', function (e) {
-            const pixel = map.getEventPixel(e.originalEvent);
-            const hit = map.hasFeatureAtPixel(pixel);
-            map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+            marker.addListener('click', () => {
+                if (activeInfoWindow) {
+                    activeInfoWindow.close();
+                }
+                infoWindow.open(map, marker);
+                activeInfoWindow = infoWindow;
+            });
         });
     }
 
