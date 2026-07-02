@@ -131,4 +131,5 @@ if __name__ == "__main__":
     import uvicorn
     # Tự động lấy Port từ Render, nếu không có thì mặc định 8000
     port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    host = "0.0.0.0" if "PORT" in os.environ else "127.0.0.1"
+    uvicorn.run(app, host=host, port=port)

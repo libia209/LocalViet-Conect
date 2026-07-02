@@ -51,14 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHeritage = document.getElementById('close-heritage');
     const guardrailContent = document.getElementById('guardrail-content');
 
-    const craftTrigger = document.getElementById('craft-creator-trigger');
-    const craftWindow = document.getElementById('craft-creator-window');
-    const closeCraft = document.getElementById('close-craft');
-    const minimizeCraft = document.getElementById('minimize-craft');
-    const craftForm = document.getElementById('craft-chat-form');
-    const craftInput = document.getElementById('craft-input');
-    const craftMessages = document.getElementById('craft-messages');
-    const suggestionChips = document.querySelectorAll('.chip');
 
     // === DATA DATABASES ===
     let DIALECT_DB = {};
@@ -519,51 +511,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    const CRAFT_CREATOR_DATA = {
-        pricing: {
-            pottery: {
-                "Ấm trà Bát Tràng": "500.000 - 2.000.000 VND",
-                "Bình gốm trang trí (30cm)": "300.000 - 800.000 VND",
-                "Chén bát bộ 6": "150.000 - 400.000 VND",
-                "Tượng gốm lớn (60cm)": "1.500.000 - 5.000.000 VND"
-            },
-            bronze: {
-                "Chuông đồng nhỏ (20cm)": "800.000 - 1.500.000 VND",
-                "Chuông đồng lớn (1m)": "8.000.000 - 25.000.000 VND",
-                "Tượng đồng (40cm)": "3.000.000 - 10.000.000 VND",
-                "Lư hương đồng": "1.500.000 - 4.000.000 VND"
-            },
-            lacquer: {
-                "Bức sơn mài (40x60cm)": "2.000.000 - 8.000.000 VND",
-                "Bình sơn mài": "1.000.000 - 5.000.000 VND",
-                "Tranh sơn mài mini": "500.000 - 1.500.000 VND"
-            },
-            wood: {
-                "Tượng Phật gỗ mít (30cm)": "1.500.000 - 4.000.000 VND",
-                "Bộ tượng Tam thế": "5.000.000 - 15.000.000 VND",
-                "Hoành phi câu đối (1m)": "2.000.000 - 6.000.000 VND"
-            },
-            silver: {
-                "Vòng tay bạc Mông": "300.000 - 800.000 VND",
-                "Vòng cổ bạc": "800.000 - 2.500.000 VND",
-                "Bộ trang sức cưới": "3.000.000 - 8.000.000 VND"
-            }
-        },
-        leadTime: {
-            pottery: "7 - 20 ngày",
-            bronze: "15 ngày - 6 tháng (tùy kích thước)",
-            lacquer: "4 - 8 tháng",
-            wood: "1 - 4 tháng",
-            silver: "5 - 15 ngày"
-        },
-        customizations: {
-            pottery: ["khắc tên", "vẽ logo", "thay đổi kích thước", "chọn màu men"],
-            bronze: ["dát vàng 24k", "mạ bạc", "khắc chữ", "tạo màu giả cổ"],
-            lacquer: ["chọn đề tài", "thay đổi kích thước", "phối màu riêng"],
-            wood: ["chọn loại gỗ", "sơn son thếp vàng", "khắc họa tiết riêng"]
-        }
-    };
-
     // === STATE ===
     let map = null;
     let mapOverlay = null;
@@ -626,12 +573,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index === 0) {
             chatView.classList.remove('hidden');
             chatInputContainer.classList.remove('hidden');
-            // Hide Craft Creator on main chat tab
-            craftTrigger.classList.add('hidden');
-            craftWindow.classList.add('hidden');
         } else if (index === 1) {
             mapView.classList.remove('hidden');
-            craftTrigger.classList.remove('hidden');
             initMap();
             if (map) {
                 const zoom = window.innerWidth < 768 ? 5.5 : 6;
@@ -642,7 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (index === 2) {
             knowledgeView.classList.remove('hidden');
-            craftTrigger.classList.remove('hidden');
             renderKnowledge();
         }
     }
@@ -1037,96 +979,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el) el.remove();
     }
 
-    // === CRAFT CREATOR LOGIC ===
-    craftTrigger.addEventListener('click', () => craftWindow.classList.toggle('hidden'));
-    closeCraft.addEventListener('click', () => craftWindow.classList.add('hidden'));
-    minimizeCraft.addEventListener('click', () => craftWindow.classList.add('hidden'));
-
-    suggestionChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            craftInput.value = chip.textContent;
-            craftForm.dispatchEvent(new Event('submit'));
-        });
-    });
-
-    craftForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = craftInput.value.trim();
-        if (!text) return;
-
-        addCraftMessage('user', text);
-        craftInput.value = '';
-
-        setTimeout(() => {
-            const response = getCraftCreatorResponse(text);
-            addCraftMessage('assistant', response);
-        }, 600);
-    });
-
-    function addCraftMessage(role, content) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${role}`;
-        msgDiv.innerHTML = `<div class="bubble">${content.replace(/\n/g, '<br>')}</div>`;
-        craftMessages.appendChild(msgDiv);
-        craftMessages.scrollTop = craftMessages.scrollHeight;
-    }
-
-    function getCraftCreatorResponse(input) {
-        const lowerInput = input.toLowerCase();
-
-        // Define Categories
-        const categories = {
-            pottery: ['gốm', 'ấm trà', 'bát tràng', 'pottery', 'ceramic'],
-            bronze: ['đồng', 'chuông', 'tượng đồng', 'lư hương', 'bronze'],
-            lacquer: ['sơn mài', 'tranh sơn mài', 'lacquer'],
-            wood: ['gỗ', 'tượng phật', 'hoành phi', 'wood'],
-            silver: ['bạc', 'trang sức', 'vòng tay', 'silver']
-        };
-
-        let selectedCat = null;
-        for (const cat in categories) {
-            if (categories[cat].some(kw => lowerInput.includes(kw))) {
-                selectedCat = cat;
-                break;
-            }
-        }
-
-        // Pricing check
-        if (lowerInput.includes('giá') || lowerInput.includes('bao nhiêu') || lowerInput.includes('price')) {
-            if (selectedCat) {
-                const items = CRAFT_CREATOR_DATA.pricing[selectedCat];
-                let resp = `Bảng giá tham khảo cho dòng **${selectedCat}**:\n`;
-                for (const item in items) resp += `• ${item}: ${items[item]}\n`;
-                return resp + "\nBạn muốn đặt làm mẫu nào trong số này không?";
-            }
-        }
-
-        // leadTime check
-        if (lowerInput.includes('bao lâu') || lowerInput.includes('thời gian') || lowerInput.includes('time')) {
-            if (selectedCat) {
-                return `Thời gian hoàn thiện sản phẩm **${selectedCat}** thường mất khoảng **${CRAFT_CREATOR_DATA.leadTime[selectedCat]}**.\nBạn có cần nhận hàng gấp vào ngày cụ thể nào không?`;
-            }
-        }
-
-        // Customization check
-        if (lowerInput.includes('tùy chỉnh') || lowerInput.includes('thiết kế') || lowerInput.includes('khắc') || lowerInput.includes('custom')) {
-            if (selectedCat) {
-                return `Với dòng ${selectedCat}, chúng tôi có thể: **${CRAFT_CREATOR_DATA.customizations[selectedCat].join(', ')}**.\nBạn muốn cá nhân hóa vật phẩm của mình như thế nào?`;
-            }
-        }
-
-        // Comparison
-        if (lowerInput.includes('so sánh') || lowerInput.includes('khác gì')) {
-            return "Sự khác biệt chính nằm ở chất liệu và quy trình: Gốm mang vẻ đẹp mộc mạc từ đất, Sơn mài đòi hỏi sự kiên nhẫn với nhiều lớp sơn ủ ẩm, còn Đồ đồng mang giá trị tâm linh vĩnh cửu. Bạn ưu tiên yếu tố nào hơn?";
-        }
-
-        // Default Ordering Response
-        if (selectedCat) {
-            return `Tôi đã ghi nhận yêu cầu về sản phẩm **${selectedCat}** của bạn. Để báo giá chính xác nhất, bạn có thể cho tôi biết thêm về kích thước hoặc yêu cầu đặc biệt nào không?`;
-        }
-
-        return "Chào bạn! Tôi là Craft Creator. Tôi có thể giúp bạn:\n• Tư vấn giá & thời gian đặt làm đồ thủ công\n• Thiết kế vật phẩm theo yêu cầu\n• So sánh các loại chất liệu di sản\n\nBạn đang quan tâm đến món đồ nào ạ?";
-    }
 
     // === LOGIN HANDLING ===
 
