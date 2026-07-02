@@ -1051,19 +1051,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let recognition = null;
 
     // Toggle menu
-    btnPlus.addEventListener('click', (e) => {
-        e.stopPropagation();
-        optionsMenu.classList.toggle('hidden');
-        btnPlus.innerHTML = optionsMenu.classList.contains('hidden') ? '＋' : '×';
-    });
+    if (btnPlus && optionsMenu) {
+        btnPlus.addEventListener('click', (e) => {
+            e.stopPropagation();
+            optionsMenu.classList.toggle('hidden');
+            btnPlus.innerHTML = optionsMenu.classList.contains('hidden') ? '＋' : '×';
+        });
 
-    // Close menu when clicking outside
-    document.addEventListener('click', () => {
-        optionsMenu.classList.add('hidden');
-        btnPlus.innerHTML = '＋';
-    });
+        // Close menu when clicking outside
+        document.addEventListener('click', () => {
+            optionsMenu.classList.add('hidden');
+            btnPlus.innerHTML = '＋';
+        });
 
-    optionsMenu.addEventListener('click', (e) => e.stopPropagation());
+        optionsMenu.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     async function toggleVoiceRecording() {
         if (!isRecording) {
