@@ -82,8 +82,7 @@
                 <button class="nav-item active"><span class="emoji">💬</span> Trò chuyện</button>
                 <button class="nav-item"><span class="emoji">🗺️</span> Bản đồ làng nghề</button>
                 <button class="nav-item"><span class="emoji">📚</span> Kiến thức di sản</button>
-
-
+                <button class="nav-item"><span class="emoji">🛍️</span> Shop thủ công</button>
             </nav>
             <div class="sidebar-footer">
                 <button id="logout-btn" class="btn-text"><span class="emoji">🚪</span> Đăng xuất</button>
@@ -98,6 +97,10 @@
                     <span class="pulse"></span> Online
                 </div>
                 <h2>Trợ lý Văn hóa</h2>
+                <button id="btn-toggle-board" class="btn-toggle-board" title="Chọn nội dung">
+                    <span class="emoji">📋</span>
+                    <span class="btn-text">Chọn nội dung</span>
+                </button>
             </header>
             
             <div id="chat-messages" class="chat-messages">
@@ -130,6 +133,43 @@
                 </div>
             </div>
 
+            <div id="shop-view" class="view-container hidden">
+                <div class="view-header">
+                    <h2 id="shop-view-title">🛍️ Shop Sản Phẩm Thủ Công Mỹ Nghệ</h2>
+                    <p id="shop-view-desc">Sản phẩm chính gốc từ các nghệ nhân làng nghề di sản.</p>
+                </div>
+                
+                <div class="shop-controls glass">
+                    <div class="shop-filter-group">
+                        <label for="shop-filter-category" id="lbl-filter-cat">Phân loại</label>
+                        <select id="shop-filter-category" class="shop-select">
+                            <option value="all">Tất cả sản phẩm</option>
+                            <option value="ceramics">Gốm sứ</option>
+                            <option value="textiles">Lụa & Dệt thủ công</option>
+                            <option value="sculpture">Điêu khắc gỗ & Đá</option>
+                            <option value="lacquer">Sơn mài</option>
+                            <option value="jewelry">Trang sức bạc</option>
+                        </select>
+                    </div>
+                    <div class="shop-filter-group">
+                        <label for="shop-filter-region" id="lbl-filter-reg">Vùng miền</label>
+                        <select id="shop-filter-region" class="shop-select">
+                            <option value="all">Tất cả vùng miền</option>
+                            <option value="north">Miền Bắc</option>
+                            <option value="central">Miền Trung</option>
+                            <option value="south">Miền Nam</option>
+                        </select>
+                    </div>
+                    <button id="btn-view-cart" class="btn-primary" style="width: auto; padding: 10px 20px;">
+                        🛒 Giỏ hàng (<span id="cart-count">0</span>)
+                    </button>
+                </div>
+
+                <div id="shop-products-grid" class="item-grid">
+                    <!-- Dynamic products render -->
+                </div>
+            </div>
+
 
             <div class="chat-input-container glass">
                 <form id="chat-form">
@@ -153,7 +193,6 @@
                 </form>
             </div>
 
-            <!-- Mobile Navigation (Visible only on small screens) -->
             <nav class="mobile-nav glass">
                 <button class="mobile-nav-item active" data-index="0">
                     <span class="emoji">💬</span>
@@ -166,6 +205,10 @@
                 <button class="mobile-nav-item" data-index="2">
                     <span class="emoji">📚</span>
                     <span>Di sản</span>
+                </button>
+                <button class="mobile-nav-item" data-index="3">
+                    <span class="emoji">🛍️</span>
+                    <span>Shop</span>
                 </button>
             </nav>
         </main>
@@ -200,7 +243,159 @@
         </div>
     </div>
 
+    <!-- Shop Product Detail Modal -->
+    <div id="shop-product-modal" class="modal hidden">
+        <div class="modal-content glass large animate-fade-in">
+            <div class="modal-header">
+                <h2 id="product-modal-title">Tên sản phẩm</h2>
+                <button id="close-product-modal" class="btn-close">×</button>
+            </div>
+            <div class="modal-body custom-scroll">
+                <div class="product-modal-layout">
+                    <img id="product-modal-img" src="" class="full-img">
+                    <div class="product-modal-info">
+                        <p class="product-origin-badge">🏺 <span id="product-modal-origin">Làng nghề</span></p>
+                        <p class="product-modal-price" id="product-modal-price">0 VND</p>
+                        <p class="product-modal-desc" id="product-modal-desc">Mô tả sản phẩm...</p>
+                        
+                        <div class="product-buy-controls">
+                            <div class="qty-control">
+                                <button id="btn-qty-minus">-</button>
+                                <span id="product-qty">1</span>
+                                <button id="btn-qty-plus">+</button>
+                            </div>
+                            <button id="btn-add-to-cart" class="btn-primary">Thêm vào giỏ hàng 🛒</button>
+                        </div>
+                        
+                        <!-- Two-way Integration: About Village -->
+                        <div class="product-village-section glass">
+                            <h4 id="product-village-title">🏛️ Về làng nghề</h4>
+                            <p id="product-village-summary">Thông tin về làng nghề...</p>
+                            <p id="product-village-warning" class="artisan-warning">⚠️ Khuyến nghị của nghệ nhân: ...</p>
+                            <div class="product-village-actions">
+                                <button id="btn-view-village-detail" class="btn-text">📖 Xem chi tiết làng nghề</button>
+                            </div>
+                        </div>
 
+                        <!-- Shop-Workshop Integration: Related Workshops -->
+                        <div id="product-workshop-section" class="product-workshop-section glass hidden">
+                            <h4 id="product-workshop-title">🎨 Trải nghiệm làm sản phẩm này</h4>
+                            <div class="mini-workshop-card">
+                                <h5 id="mini-ws-title">Workshop nặn gốm</h5>
+                                <p id="mini-ws-loc">📍 Địa điểm: ...</p>
+                                <p id="mini-ws-rating">⭐ 4.9 (120 lượt)</p>
+                                <button id="btn-book-related-ws" class="btn-primary" style="margin-top: 10px;">Đặt workshop ngay</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal hidden">
+        <div class="modal-content glass animate-fade-in">
+            <div class="modal-header">
+                <h2 id="cart-modal-title">Giỏ hàng thủ công</h2>
+                <button id="close-cart-modal" class="btn-close">×</button>
+            </div>
+            <div class="modal-body custom-scroll">
+                <div id="cart-items-list" class="cart-items-list">
+                    <!-- Dynamic cart items -->
+                </div>
+                <div class="cart-total-section">
+                    <span id="lbl-cart-total">Tổng cộng:</span>
+                    <span id="cart-total-price">0 VND</span>
+                </div>
+                
+                <!-- Checkout Form -->
+                <form id="checkout-form" class="checkout-form">
+                    <h3>Thông tin nhận hàng</h3>
+                    <div class="input-group">
+                        <label for="ship-name">Tên người nhận</label>
+                        <input type="text" id="ship-name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ship-phone">Số điện thoại</label>
+                        <input type="tel" id="ship-phone" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="ship-address">Địa chỉ nhận hàng</label>
+                        <input type="text" id="ship-address" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="pay-method">Phương thức thanh toán</label>
+                        <select id="pay-method" class="shop-select">
+                            <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+                            <option value="bank">Chuyển khoản ngân hàng (VietQR)</option>
+                            <option value="momo">Ví điện tử MoMo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary" style="margin-top: 15px;">Xác nhận đặt hàng 🚀</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- In-App Notification Toast -->
+    <div id="in-app-notification" class="in-app-notification hidden">
+        <div class="notification-content">
+            <span class="bell-icon">🔔</span>
+            <div class="notification-text">
+                <p id="notification-message">Thông báo mới</p>
+            </div>
+            <button id="btn-notification-action" class="btn-primary" style="width:auto; padding: 6px 12px; font-size:0.8rem; margin:0 10px;">Xem ngay</button>
+            <button id="close-notification" class="btn-close" style="font-size:1.5rem;">&times;</button>
+        </div>
+    </div>
+
+    <!-- Content Board Drawer -->
+    <div id="content-board" class="board-container">
+        <div class="board-overlay" id="board-overlay"></div>
+        <div class="board-drawer glass">
+            <div class="board-header">
+                <h2 id="board-title">Khám phá di sản</h2>
+                <button id="close-board" class="btn-close">&times;</button>
+            </div>
+            <div class="board-body custom-scroll">
+                <!-- Section 1: Quick Navigation -->
+                <div class="board-section">
+                    <h3 id="section-views-title">Chế độ xem</h3>
+                    <div class="quick-nav-buttons">
+                        <button class="board-nav-btn" data-tab="0">
+                            <span class="emoji">💬</span>
+                            <span class="btn-lbl" data-key="chat">Trò chuyện</span>
+                        </button>
+                        <button class="board-nav-btn" data-tab="1">
+                            <span class="emoji">🗺️</span>
+                            <span class="btn-lbl" data-key="map">Bản đồ</span>
+                        </button>
+                        <button class="board-nav-btn" data-tab="2">
+                            <span class="emoji">📚</span>
+                            <span class="btn-lbl" data-key="heritage">Di sản</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 2: Heritage Articles -->
+                <div class="board-section">
+                    <h3 id="section-articles-title">Bài viết nổi bật</h3>
+                    <div id="board-knowledge-list" class="board-list">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+
+                <!-- Section 3: Craft Villages -->
+                <div class="board-section">
+                    <h3 id="section-crafts-title">Làng nghề truyền thống</h3>
+                    <div id="board-craft-list" class="board-list">
+                        <!-- Dynamic list -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="/static/app.js?v=3.0"></script>
 

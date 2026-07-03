@@ -28,6 +28,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const knowledgeGrid = document.getElementById('knowledge-grid');
     const chatInputContainer = document.querySelector('.chat-input-container');
 
+    const btnToggleBoard = document.getElementById('btn-toggle-board');
+    const contentBoard = document.getElementById('content-board');
+    const boardOverlay = document.getElementById('board-overlay');
+    const closeBoard = document.getElementById('close-board');
+    const boardNavButtons = document.querySelectorAll('.board-nav-btn');
+    const boardKnowledgeList = document.getElementById('board-knowledge-list');
+    const boardCraftList = document.getElementById('board-craft-list');
+
+    const shopView = document.getElementById('shop-view');
+    const shopProductsGrid = document.getElementById('shop-products-grid');
+    const shopFilterCategory = document.getElementById('shop-filter-category');
+    const shopFilterRegion = document.getElementById('shop-filter-region');
+    const btnViewCart = document.getElementById('btn-view-cart');
+    const cartCount = document.getElementById('cart-count');
+    const shopProductModal = document.getElementById('shop-product-modal');
+    const closeProductModal = document.getElementById('close-product-modal');
+    const cartModal = document.getElementById('cart-modal');
+    const closeCartModal = document.getElementById('close-cart-modal');
+    const inAppNotification = document.getElementById('in-app-notification');
+
     // === INTRO BUTTON (ưu tiên khởi tạo đầu tiên) ===
     const startDiscoveryBtn = document.getElementById('start-discovery');
     if (startDiscoveryBtn) {
@@ -514,6 +534,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // === STATE ===
     let map = null;
     let mapOverlay = null;
+    let activeInfoWindow = null;
+    let googleMarkers = {};
+    let googleInfoWindows = {};
 
     // === LANGUAGE DETECTION & AUTO-SWITCH ===
     function detectAndSwitchLanguage(input) {
@@ -548,6 +571,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? '🇻🇳 Hoang Sa & Truong Sa Archipelagos belong to Vietnam'
                 : '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
         }
+        // Update content board text if it is active
+        if (contentBoard && contentBoard.classList.contains('active')) {
+            renderBoardContent();
+        }
     }
 
     // === NAVIGATION LOGIC ===
@@ -568,6 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatView.classList.add('hidden');
         mapView.classList.add('hidden');
         knowledgeView.classList.add('hidden');
+        if (shopView) shopView.classList.add('hidden');
         chatInputContainer.classList.add('hidden');
 
         if (index === 0) {
@@ -586,6 +614,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (index === 2) {
             knowledgeView.classList.remove('hidden');
             renderKnowledge();
+        } else if (index === 3) {
+            if (shopView) shopView.classList.remove('hidden');
+            renderShopProducts();
         }
     }
 
@@ -657,8 +688,6 @@ document.addEventListener('DOMContentLoaded', () => {
         banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
         document.getElementById('map-container').appendChild(banner);
 
-        let activeInfoWindow = null;
-
         CRAFT_LOCATIONS.forEach(loc => {
             const locName = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
             const locDesc = typeof loc.desc === 'object' ? loc.desc[user.lang] : loc.desc;
@@ -701,12 +730,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
                         <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '🔍 View Details' : '🔍 Xem chi tiết'}</button>
                         ${loc.guardrailKey ? `<button onclick="showGuardrailDetail('${loc.guardrailKey}', ${loc.id})" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '📜 Craft Process' : '📜 Quy trình chế tác'}</button>` : ''}
+                        ${[1, 2, 5].includes(loc.id) ? `<button onclick="triggerWorkshopCompletion(${loc.id})" style="background:#2e7d32; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem;">${user.lang === 'en' ? '✅ Complete Workshop' : '✅ Hoàn thành Workshop'}</button>` : ''}
                     </div>
                 </div>`;
 
             const infoWindow = new google.maps.InfoWindow({
                 content: infoWindowContent
             });
+
+            if (loc.id) {
+                googleMarkers[loc.id] = marker;
+                googleInfoWindows[loc.id] = infoWindow;
+            }
 
             marker.addListener('click', () => {
                 if (activeInfoWindow) {
@@ -798,6 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p><strong>📍 ${user.lang === 'en' ? 'Location' : 'Địa điểm'}:</strong> ${typeof item.location === 'object' ? item.location[user.lang] : item.location}</p>
                     <p>${typeof item.desc === 'object' ? item.desc[user.lang] : item.desc}</p>
                 </div>
+                ${getRelatedProductsHtml(item.id)}
             `;
         } else {
             item = KNOWLEDGE_DB.find(k => k.id === id);
@@ -806,6 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
             guardrailContent.innerHTML = `
                 <img src="${item.img}" class="full-img">
                 <div class="article-text"><p>${item.content[user.lang]}</p></div>
+                ${getRelatedProductsHtml(item.id)}
             `;
         }
         heritageModal.classList.remove('hidden');
@@ -903,9 +940,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             removeTypingIndicator(typingId);
             
-            // Nếu là chế độ phương ngữ, vẫn kiểm tra từ điển nhanh trước
             let prefix = mode === 'DIALECT' ? "🏮 [NGĂN PHƯƠNG NGỮ]\n" : "🎨 [NGĂN THỦ CÔNG MỸ NGHỆ]\n";
-            addMessage('assistant', prefix + data.response);
+            addMessage('assistant', prefix + data.response, data.cards, data.global_actions);
 
         } catch (error) {
             removeTypingIndicator(typingId);
@@ -952,13 +988,61 @@ document.addEventListener('DOMContentLoaded', () => {
         return "Tôi chưa học từ này hoặc thông tin này. Bạn dạy tôi nhé! Hoặc hãy thử hỏi tôi về các từ như: mô, răng, rứa, chi, hén...";
     }
 
-    function addMessage(role, content) {
+    function addMessage(role, content, cards = null, globalActions = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${role}`;
         const bubble = document.createElement('div');
         bubble.className = 'bubble';
         bubble.innerHTML = content.replace(/\n/g, '<br>');
         messageDiv.appendChild(bubble);
+
+        // If there are rich cards, render them
+        if (cards && cards.length > 0) {
+            const carousel = document.createElement('div');
+            carousel.className = 'chat-cards-container';
+            carousel.innerHTML = cards.map(c => {
+                let actionFn = '';
+                if (c.type === 'shop_product') {
+                    actionFn = `openProductDetail(${c.id})`;
+                } else if (c.type === 'workshop') {
+                    actionFn = `bookRelatedWorkshop(${c.id})`;
+                } else if (c.type === 'hotel') {
+                    actionFn = `focusMapHotel(${c.lat}, ${c.lng}, '${c.title.replace(/'/g, "\\'")}')`;
+                }
+
+                return `
+                    <div class="chat-card glass">
+                        <img src="${c.image_url}" class="chat-card-img">
+                        <div class="chat-card-body">
+                            <h4>${c.title}</h4>
+                            <p class="chat-card-sub">${c.subtitle}</p>
+                            <p class="chat-card-price">${c.price_text}</p>
+                            <button class="chat-card-action-btn" onclick="${actionFn}">${c.action_label}</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            messageDiv.appendChild(carousel);
+        }
+
+        // If there are global actions, render them
+        if (globalActions && globalActions.length > 0) {
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'chat-global-actions';
+            globalActions.forEach(act => {
+                if (act.type === 'create_itinerary') {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-primary chat-global-action-btn';
+                    btn.textContent = act.label;
+                    btn.addEventListener('click', () => {
+                        generateUnifiedItinerary(act.target_params);
+                    });
+                    actionsDiv.appendChild(btn);
+                }
+            });
+            messageDiv.appendChild(actionsDiv);
+        }
+
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -1242,6 +1326,765 @@ document.addEventListener('DOMContentLoaded', () => {
             alert(`Lỗi chuyển đổi: ${err.message}`);
             return "";
         }
+    }
+
+    // === CONTENT BOARD DRAWER LOGIC ===
+    function toggleBoard(show) {
+        if (!contentBoard) return;
+        if (show) {
+            contentBoard.classList.add('active');
+            renderBoardContent();
+        } else {
+            contentBoard.classList.remove('active');
+        }
+    }
+
+    if (btnToggleBoard) {
+        btnToggleBoard.addEventListener('click', () => toggleBoard(true));
+    }
+    if (boardOverlay) {
+        boardOverlay.addEventListener('click', () => toggleBoard(false));
+    }
+    if (closeBoard) {
+        closeBoard.addEventListener('click', () => toggleBoard(false));
+    }
+
+    // Dynamic Board Content Rendering
+    function renderBoardContent() {
+        if (!boardKnowledgeList || !boardCraftList) return;
+
+        // Language dependent labels
+        const lang = user.lang;
+        const isEn = lang === 'en';
+
+        // Update titles based on language
+        const boardTitle = document.getElementById('board-title');
+        const sectionViewsTitle = document.getElementById('section-views-title');
+        const sectionArticlesTitle = document.getElementById('section-articles-title');
+        const sectionCraftsTitle = document.getElementById('section-crafts-title');
+
+        if (boardTitle) boardTitle.textContent = isEn ? 'Explore Heritage' : 'Khám phá di sản';
+        if (sectionViewsTitle) sectionViewsTitle.textContent = isEn ? 'Views' : 'Chế độ xem';
+        if (sectionArticlesTitle) sectionArticlesTitle.textContent = isEn ? 'Featured Articles' : 'Bài viết nổi bật';
+        if (sectionCraftsTitle) sectionCraftsTitle.textContent = isEn ? 'Traditional Craft Villages' : 'Làng nghề truyền thống';
+
+        // Render quick nav buttons labels
+        const labels = {
+            chat: isEn ? 'Chat' : 'Trò chuyện',
+            map: isEn ? 'Map' : 'Bản đồ',
+            heritage: isEn ? 'Heritage' : 'Di sản'
+        };
+        document.querySelectorAll('.btn-lbl').forEach(lbl => {
+            const key = lbl.getAttribute('data-key');
+            if (labels[key]) lbl.textContent = labels[key];
+        });
+
+        // 1. Render Heritage Articles
+        boardKnowledgeList.innerHTML = KNOWLEDGE_DB.map(k => `
+            <div class="board-item" data-id="${k.id}" data-type="knowledge">
+                <div class="board-item-img" style="background-image: url('${k.img}')"></div>
+                <div class="board-item-content">
+                    <h4>${k.title[lang]}</h4>
+                    <p>${k.summary[lang]}</p>
+                </div>
+            </div>
+        `).join('');
+
+        // 2. Render Craft Villages
+        const villages = CRAFT_LOCATIONS.filter(loc => !loc.isSovereign);
+        boardCraftList.innerHTML = villages.map(v => {
+            const locName = typeof v.name === 'object' ? v.name[lang] : v.name;
+            const locDesc = typeof v.desc === 'object' ? v.desc[lang] : v.desc;
+            return `
+                <div class="board-item" data-id="${v.id}" data-type="craft">
+                    <div class="board-item-img" style="background-image: url('${v.img}')"></div>
+                    <div class="board-item-content">
+                        <h4>${locName}</h4>
+                        <p>${locDesc}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Add Click Listeners to items
+        document.querySelectorAll('.board-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const id = parseInt(item.getAttribute('data-id'));
+                const type = item.getAttribute('data-type');
+                
+                toggleBoard(false); // Close drawer on selection
+
+                if (type === 'knowledge') {
+                    switchTab(2); // Switch to Heritage tab
+                    setTimeout(() => {
+                        window.showHeritageDetail(id, 'knowledge');
+                    }, 100);
+                } else if (type === 'craft') {
+                    selectCraftLocation(id);
+                }
+            });
+        });
+    }
+
+    // Handle Quick Nav click
+    if (boardNavButtons) {
+        boardNavButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabIndex = parseInt(btn.getAttribute('data-tab'));
+                toggleBoard(false);
+                switchTab(tabIndex);
+            });
+        });
+    }
+
+    // Helper to select and highlight craft location on map
+    function selectCraftLocation(id) {
+        const loc = CRAFT_LOCATIONS.find(c => c.id === id);
+        if (!loc) return;
+
+        switchTab(1); // Switch to Map tab
+
+        // Wait a bit for map view load
+        setTimeout(() => {
+            if (map) {
+                const marker = googleMarkers[id];
+                const infoWindow = googleInfoWindows[id];
+
+                if (marker && infoWindow) {
+                    map.panTo(marker.getPosition());
+                    map.setZoom(13);
+
+                    if (activeInfoWindow) {
+                        activeInfoWindow.close();
+                    }
+                    infoWindow.open(map, marker);
+                    activeInfoWindow = infoWindow;
+                } else {
+                    window.showHeritageDetail(id, 'craft');
+                }
+            } else {
+                window.showHeritageDetail(id, 'craft');
+            }
+    }
+
+    // === MOCK PRODUCTS & WORKSHOPS DATABASE (Frontend Sync) ===
+    const SHOP_PRODUCTS_DB = [
+        {
+            id: 1,
+            name: { vi: "Bình gốm vẽ tay Bát Tràng", en: "Bat Trang Hand-painted Ceramic Vase" },
+            price: 750000,
+            category: "ceramics",
+            region: "north",
+            villageId: 1,
+            workshopId: 12,
+            is_diy_kit: false,
+            img: "https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&q=80&w=800",
+            desc: {
+                vi: "Bình gốm cao cấp từ làng cổ Bát Tràng được nghệ nhân vẽ tay tinh xảo họa tiết sơn thủy. Sử dụng lớp men rạn tự nhiên độc bản.",
+                en: "Premium ceramic vase from Bat Trang ancient village, hand-painted with landscape patterns by skilled artisans. Features unique natural crackle glaze."
+            }
+        },
+        {
+            id: 2,
+            name: { vi: "Bộ Kit Tự Vẽ Gốm Bát Tràng", en: "Bat Trang DIY Pottery Painting Kit" },
+            price: 180000,
+            category: "ceramics",
+            region: "north",
+            villageId: 1,
+            workshopId: 12,
+            is_diy_kit: true,
+            img: "https://images.unsplash.com/photo-1590640927838-8979ca6fdd12?auto=format&fit=crop&q=80&w=800",
+            desc: {
+                vi: "Bộ Kit tự thực hành tại nhà gồm: 1 sản phẩm gốm mộc (chưa nung men), bộ cọ vẽ chuyên dụng, 5 hũ màu khoáng tự nhiên và link video hướng dẫn của nghệ nhân.",
+                en: "At-home DIY kit includes: 1 raw clay ceramic piece (unfired), professional brushes, 5 natural mineral color jars, and video tutorial link from the artisan."
+            }
+        },
+        {
+            id: 3,
+            name: { vi: "Khăn Lụa Vân Vạn Phúc", en: "Van Phuc Cloud Silk Scarf" },
+            price: 450000,
+            category: "textiles",
+            region: "north",
+            villageId: 2,
+            workshopId: 13,
+            is_diy_kit: false,
+            img: "https://images.unsplash.com/photo-1528646332357-c341772b233b?auto=format&fit=crop&q=80&w=800",
+            desc: {
+                vi: "Khăn lụa tơ tằm dệt thủ công theo kỹ thuật vân mịn màng của làng lụa Vạn Phúc. Hoa văn chìm ẩn hiện óng ánh theo ánh sáng mặt trời.",
+                en: "Pure silk scarf woven by traditional cloud-weaving technique of Van Phuc village. Subtle patterns shimmer dynamically under sunlight."
+            }
+        },
+        {
+            id: 4,
+            name: { vi: "Đèn Lồng Lụa Hội An cổ truyền", en: "Traditional Hoi An Silk Lantern" },
+            price: 150000,
+            category: "textiles",
+            region: "central",
+            villageId: 5,
+            workshopId: 15,
+            is_diy_kit: false,
+            img: "https://images.unsplash.com/photo-1549429451-9128f7311749?auto=format&fit=crop&q=80&w=800",
+            desc: {
+                vi: "Đèn lồng tre bọc lụa gấm thêu hoa nổi bật. Chế tác bởi nghệ nhân Hội An, có cấu trúc khung tre già bền bỉ, dễ dàng xếp gọn.",
+                en: "Bamboo lantern wrapped in premium brocade silk with embroidered patterns. Crafted by Hoi An artisans, features aging bamboo frame and foldable design."
+            }
+        },
+        {
+            id: 5,
+            name: { vi: "Bộ Kit Làm Đèn Lồng Hội An", en: "Hoi An DIY Lantern Making Kit" },
+            price: 95000,
+            category: "textiles",
+            region: "central",
+            villageId: 5,
+            workshopId: 15,
+            is_diy_kit: true,
+            img: "https://images.unsplash.com/photo-1568285141006-2f107f97f742?auto=format&fit=crop&q=80&w=800",
+            desc: {
+                vi: "Bộ Kit tự làm đèn lồng tại nhà gồm: khung tre đã liên kết sẵn, mảnh vải lụa tơ tằm cắt sẵn theo kích thước, keo dán, dây treo và hướng dẫn xếp nếp bọc vải.",
+                en: "At-home DIY lantern making kit: pre-connected bamboo frame, pre-cut silk fabric segments, special glue, hanging rope, and fabric-wrapping guide."
+            }
+        }
+    ];
+
+    const WORKSHOPS_DB = [
+        {
+            id: 12,
+            title: { vi: "Workshop nặn gốm & vẽ họa tiết Bát Tràng", en: "Bat Trang Pottery & Painting Workshop" },
+            villageId: 1,
+            price: 50000,
+            rating: 4.9,
+            address: { vi: "Xóm 3, Làng cổ Bát Tràng, Gia Lâm, Hà Nội", en: "Commune 3, Bat Trang Ancient Village, Gia Lam, Hanoi" },
+            lat: 20.9791,
+            lng: 105.9221
+        },
+        {
+            id: 13,
+            title: { vi: "Workshop dệt lụa vân truyền thống", en: "Traditional Cloud Silk Weaving Workshop" },
+            villageId: 2,
+            price: 100000,
+            rating: 4.8,
+            address: { vi: "Phố lụa Vạn Phúc, Hà Đông, Hà Nội", en: "Van Phuc Silk St, Ha Dong, Hanoi" },
+            lat: 20.9520,
+            lng: 105.7680
+        },
+        {
+            id: 15,
+            title: { vi: "Workshop làm đèn lồng Hội An nghệ nhân", en: "Hoi An Artisan Lantern Making Workshop" },
+            villageId: 5,
+            price: 120000,
+            rating: 4.9,
+            address: { vi: "Nhà cổ 14 Nguyễn Thái Học, Minh An, Hội An", en: "14 Nguyen Thai Hoc Ancient House, Minh An, Hoi An" },
+            lat: 15.8778,
+            lng: 108.3262
+        }
+    ];
+
+    // Shopping Cart State
+    let cart = [];
+    let currentSelectedProductId = null;
+    let mapLoadingQueue = null;
+
+    // === SHOP RENDER ENGINE ===
+    function renderShopProducts() {
+        if (!shopProductsGrid) return;
+
+        const catFilter = shopFilterCategory ? shopFilterCategory.value : "all";
+        const regFilter = shopFilterRegion ? shopFilterRegion.value : "all";
+        const lang = user.lang;
+        const isEn = lang === 'en';
+
+        // Update translations
+        const viewTitle = document.getElementById('shop-view-title');
+        const viewDesc = document.getElementById('shop-view-desc');
+        const labelFilterCat = document.getElementById('lbl-filter-cat');
+        const labelFilterReg = document.getElementById('lbl-filter-reg');
+        if (viewTitle) viewTitle.textContent = isEn ? "🛍️ Genuine Craft Shop" : "🛍️ Shop Sản Phẩm Thủ Công Mỹ Nghệ";
+        if (viewDesc) viewDesc.textContent = isEn ? "Original products directly from verified heritage artisans." : "Sản phẩm chính gốc từ các nghệ nhân làng nghề di sản.";
+        if (labelFilterCat) labelFilterCat.textContent = isEn ? "Category" : "Phân loại";
+        if (labelFilterReg) labelFilterReg.textContent = isEn ? "Region" : "Vùng miền";
+
+        // Filter Products
+        let filtered = SHOP_PRODUCTS_DB;
+        if (catFilter !== 'all') {
+            filtered = filtered.filter(p => p.category === catFilter);
+        }
+        if (regFilter !== 'all') {
+            filtered = filtered.filter(p => p.region === regFilter);
+        }
+
+        shopProductsGrid.innerHTML = filtered.map(p => {
+            const nameText = p.name[lang];
+            const priceFormatted = p.price.toLocaleString() + " VND";
+            const village = CRAFT_LOCATIONS.find(v => v.id === p.villageId);
+            const villageName = village ? (typeof village.name === 'object' ? village.name[lang] : village.name) : "";
+
+            return `
+                <div class="card glass" onclick="openProductDetail(${p.id})">
+                    <div class="card-img" style="background-image: url('${p.img}')"></div>
+                    <div class="card-content">
+                        <span class="region">${villageName || (p.region === 'north' ? 'Miền Bắc' : p.region === 'central' ? 'Miền Trung' : 'Miền Nam')}</span>
+                        <h3>${nameText}</h3>
+                        <p class="price">${priceFormatted}</p>
+                        <button class="btn-primary" style="margin-top:auto;">${isEn ? 'Buy Now 🛒' : 'Mua ngay 🛒'}</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Set filters change event
+    if (shopFilterCategory) shopFilterCategory.addEventListener('change', renderShopProducts);
+    if (shopFilterRegion) shopFilterRegion.addEventListener('change', renderShopProducts);
+
+    // === PRODUCT DETAIL MODAL ===
+    window.openProductDetail = (productId) => {
+        const prod = SHOP_PRODUCTS_DB.find(p => p.id === productId);
+        if (!prod || !shopProductModal) return;
+
+        currentSelectedProductId = productId;
+        const lang = user.lang;
+        const isEn = lang === 'en';
+
+        // Set Product Info
+        const modalTitle = document.getElementById('product-modal-title');
+        const modalImg = document.getElementById('product-modal-img');
+        const modalOrigin = document.getElementById('product-modal-origin');
+        const modalPrice = document.getElementById('product-modal-price');
+        const modalDesc = document.getElementById('product-modal-desc');
+        const qtySpan = document.getElementById('product-qty');
+
+        if (modalTitle) modalTitle.textContent = prod.name[lang];
+        if (modalImg) modalImg.src = prod.img;
+        if (modalPrice) modalPrice.textContent = prod.price.toLocaleString() + " VND";
+        if (modalDesc) modalDesc.textContent = prod.desc[lang];
+        if (qtySpan) qtySpan.textContent = "1";
+
+        // Find associated village details
+        const village = CRAFT_LOCATIONS.find(v => v.id === prod.villageId);
+        const villageName = village ? (typeof village.name === 'object' ? village.name[lang] : village.name) : "";
+        const villageSummary = village ? (typeof village.desc === 'object' ? village.desc[lang] : village.desc) : "";
+        
+        if (modalOrigin) modalOrigin.textContent = villageName;
+
+        // Origin Village Section (Two-way Link)
+        const villageTitle = document.getElementById('product-village-title');
+        const villageSum = document.getElementById('product-village-summary');
+        const villageWarn = document.getElementById('product-village-warning');
+        const viewVillageBtn = document.getElementById('btn-view-village-detail');
+
+        if (villageTitle) villageTitle.textContent = isEn ? `🏛️ About ${villageName}` : `🏛️ Về làng nghề ${villageName}`;
+        if (villageSum) villageSum.textContent = villageSummary;
+        
+        // Setup Artisan Warnings (retrieved from guardrails database)
+        let warningText = "";
+        let guardrailKey = village ? village.guardrailKey : null;
+        if (guardrailKey && GUARDRAILS_DB[guardrailKey]) {
+            warningText = GUARDRAILS_DB[guardrailKey].warning[lang];
+        }
+        if (villageWarn) {
+            if (warningText) {
+                villageWarn.innerHTML = `<strong>⚠️ ${isEn ? 'Artisan Recommendation' : 'Khuyến nghị nghệ nhân'}:</strong> ${warningText}`;
+                villageWarn.classList.remove('hidden');
+            } else {
+                villageWarn.classList.add('hidden');
+            }
+        }
+
+        if (viewVillageBtn) {
+            viewVillageBtn.textContent = isEn ? "📖 View Village Details" : "📖 Xem chi tiết làng nghề";
+            // Replace click listener
+            const newBtn = viewVillageBtn.cloneNode(true);
+            viewVillageBtn.parentNode.replaceChild(newBtn, viewVillageBtn);
+            newBtn.addEventListener('click', () => {
+                if (shopProductModal) shopProductModal.classList.add('hidden');
+                selectCraftLocation(prod.villageId);
+            });
+        }
+
+        // Associated Workshop Section (Shop -> Workshop Link)
+        const workshopSec = document.getElementById('product-workshop-section');
+        const wsTitleLabel = document.getElementById('product-workshop-title');
+        const miniWsTitle = document.getElementById('mini-ws-title');
+        const miniWsLoc = document.getElementById('mini-ws-loc');
+        const miniWsRating = document.getElementById('mini-ws-rating');
+        const bookWsBtn = document.getElementById('btn-book-related-ws');
+
+        const workshop = WORKSHOPS_DB.find(w => w.id === prod.workshopId);
+        if (workshop && workshopSec) {
+            if (wsTitleLabel) wsTitleLabel.textContent = isEn ? "🎨 Related Craft Workshop" : "🎨 Trải nghiệm làm sản phẩm này";
+            if (miniWsTitle) miniWsTitle.textContent = workshop.title[lang];
+            if (miniWsLoc) miniWsLoc.textContent = `📍 ${workshop.address[lang]}`;
+            if (miniWsRating) miniWsRating.textContent = `⭐ ${workshop.rating} (${isEn ? '120 reviews' : '120 đánh giá'})`;
+            
+            if (bookWsBtn) {
+                bookWsBtn.textContent = isEn ? "Book Workshop" : "Đặt workshop ngay";
+                const newBookBtn = bookWsBtn.cloneNode(true);
+                bookWsBtn.parentNode.replaceChild(newBookBtn, bookWsBtn);
+                newBookBtn.addEventListener('click', () => {
+                    if (shopProductModal) shopProductModal.classList.add('hidden');
+                    bookRelatedWorkshop(workshop.id);
+                });
+            }
+            workshopSec.classList.remove('hidden');
+        } else if (workshopSec) {
+            workshopSec.classList.add('hidden');
+        }
+
+        shopProductModal.classList.remove('hidden');
+    };
+
+    if (closeProductModal) {
+        closeProductModal.addEventListener('click', () => shopProductModal.classList.add('hidden'));
+    }
+
+    // Modal Qty Controls
+    const btnQtyMinus = document.getElementById('btn-qty-minus');
+    const btnQtyPlus = document.getElementById('btn-qty-plus');
+    const productQty = document.getElementById('product-qty');
+
+    if (btnQtyMinus && productQty) {
+        btnQtyMinus.addEventListener('click', () => {
+            let qty = parseInt(productQty.textContent);
+            if (qty > 1) {
+                productQty.textContent = (qty - 1).toString();
+            }
+        });
+    }
+    if (btnQtyPlus && productQty) {
+        btnQtyPlus.addEventListener('click', () => {
+            let qty = parseInt(productQty.textContent);
+            productQty.textContent = (qty + 1).toString();
+        });
+    }
+
+    // Add to Cart
+    const btnAddToCart = document.getElementById('btn-add-to-cart');
+    if (btnAddToCart) {
+        btnAddToCart.addEventListener('click', () => {
+            const qty = parseInt(productQty.textContent);
+            const prod = SHOP_PRODUCTS_DB.find(p => p.id === currentSelectedProductId);
+            if (!prod) return;
+
+            // Check if item already in cart
+            const cartItem = cart.find(item => item.productId === currentSelectedProductId);
+            if (cartItem) {
+                cartItem.qty += qty;
+            } else {
+                cart.push({ productId: currentSelectedProductId, qty: qty });
+            }
+
+            // Update UI count
+            updateCartCount();
+            if (shopProductModal) shopProductModal.classList.add('hidden');
+            
+            // Show toast confirmation
+            showInAppNotification(
+                user.lang === 'en' 
+                    ? `Added ${qty}x ${prod.name.en} to your cart!` 
+                    : `Đã thêm ${qty}x ${prod.name.vi} vào giỏ hàng!`, 
+                null, 
+                null
+            );
+        });
+    }
+
+    function updateCartCount() {
+        if (!cartCount) return;
+        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+        cartCount.textContent = totalQty.toString();
+    }
+
+    // === CART & CHECKOUT MODAL ===
+    if (btnViewCart) {
+        btnViewCart.addEventListener('click', () => {
+            renderCartItems();
+            if (cartModal) cartModal.classList.remove('hidden');
+        });
+    }
+    if (closeCartModal) {
+        closeCartModal.addEventListener('click', () => cartModal.classList.add('hidden'));
+    }
+
+    const cartItemsList = document.getElementById('cart-items-list');
+    const cartTotalPrice = document.getElementById('cart-total-price');
+
+    function renderCartItems() {
+        if (!cartItemsList || !cartTotalPrice) return;
+        const lang = user.lang;
+        const isEn = lang === 'en';
+
+        // Update labels
+        const cartTitle = document.getElementById('cart-modal-title');
+        const cartTotalLbl = document.getElementById('lbl-cart-total');
+        if (cartTitle) cartTitle.textContent = isEn ? "Shopping Cart" : "Giỏ hàng thủ công";
+        if (cartTotalLbl) cartTotalLbl.textContent = isEn ? "Total:" : "Tổng cộng:";
+
+        if (cart.length === 0) {
+            cartItemsList.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-muted);">${isEn ? 'Your cart is empty' : 'Giỏ hàng đang trống'}</p>`;
+            cartTotalPrice.textContent = "0 VND";
+            return;
+        }
+
+        let total = 0;
+        cartItemsList.innerHTML = cart.map(item => {
+            const prod = SHOP_PRODUCTS_DB.find(p => p.id === item.productId);
+            if (!prod) return "";
+            const subtotal = prod.price * item.qty;
+            total += subtotal;
+
+            return `
+                <div class="cart-item">
+                    <img src="${prod.img}" class="cart-item-img">
+                    <div class="cart-item-info">
+                        <h4>${prod.img ? prod.name[lang] : ""}</h4>
+                        <p>${prod.price.toLocaleString()} VND</p>
+                    </div>
+                    <div class="cart-item-qty">x${item.qty}</div>
+                    <button class="btn-remove-item" onclick="removeFromCart(${item.productId})">&times;</button>
+                </div>
+            `;
+        }).join('');
+
+        cartTotalPrice.textContent = total.toLocaleString() + " VND";
+    }
+
+    window.removeFromCart = (productId) => {
+        cart = cart.filter(item => item.productId !== productId);
+        updateCartCount();
+        renderCartItems();
+    };
+
+    // Checkout submission
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const lang = user.lang;
+            const isEn = lang === 'en';
+
+            // Clear cart
+            cart = [];
+            updateCartCount();
+            if (cartModal) cartModal.classList.add('hidden');
+
+            alert(isEn 
+                ? "🎉 Order placed successfully! We will process your handcrafted products shortly." 
+                : "🎉 Đặt hàng thành công! Đơn hàng sản phẩm thủ công của bạn đang được xử lý.");
+        });
+    }
+
+    // === DEEP LINKING TO MAP & LOADING GUARD ===
+    function bookRelatedWorkshop(workshopId) {
+        const workshop = WORKSHOPS_DB.find(w => w.id === workshopId);
+        if (!workshop) return;
+
+        switchTab(1); // Switch to Map tab
+
+        // Check if map and its markers are loaded
+        if (map && googleMarkers[workshopId]) {
+            executeMapFocus(workshopId);
+        } else {
+            // Queue the action
+            mapLoadingQueue = workshopId;
+            // Listen for tiles loaded or dynamic load trigger
+            if (map) {
+                google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
+                    if (mapLoadingQueue === workshopId) {
+                        executeMapFocus(workshopId);
+                        mapLoadingQueue = null;
+                    }
+                });
+            } else {
+                // If map is completely null, wait and check recursively
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (map && googleMarkers[workshopId]) {
+                        executeMapFocus(workshopId);
+                        clearInterval(checkInterval);
+                    } else if (attempts > 15) {
+                        // Fallback: show detail modal directly
+                        clearInterval(checkInterval);
+                        window.showHeritageDetail(workshop.villageId, 'craft');
+                    }
+                }, 300);
+            }
+        }
+    }
+
+    function executeMapFocus(workshopId) {
+        const marker = googleMarkers[workshopId];
+        const infoWindow = googleInfoWindows[workshopId];
+        if (!marker || !infoWindow) return;
+
+        map.panTo(marker.getPosition());
+        map.setZoom(14);
+        
+        if (activeInfoWindow) activeInfoWindow.close();
+        infoWindow.open(map, marker);
+        activeInfoWindow = infoWindow;
+    }
+
+    // Let's define triggerWorkshopCompletion:
+    window.triggerWorkshopCompletion = (villageId) => {
+        // Only products with "is_diy_kit": true and matching villageId/workshopId
+        const product = SHOP_PRODUCTS_DB.find(p => p.villageId === villageId && p.is_diy_kit === true);
+        if (!product) return;
+
+        const lang = user.lang;
+        const isEn = lang === 'en';
+        const msg = isEn 
+            ? `Thanks for completing the workshop! Click here to buy the DIY Kit: "${product.name.en}" and practice at home.`
+            : `Chúc mừng bạn đã hoàn thành workshop! Bấm vào đây để đặt mua bộ Kit tự làm: "${product.name.vi}" về thực hành tại nhà.`;
+
+        showInAppNotification(msg, isEn ? "View Kit" : "Xem bộ Kit", () => {
+            openProductDetail(product.id);
+        });
+    };
+
+    // === IN-APP NOTIFICATION SYSTEM ===
+    let notificationTimeout = null;
+
+    function showInAppNotification(message, actionLabel = null, actionCallback = null) {
+        if (!inAppNotification) return;
+
+        const msgEl = document.getElementById('notification-message');
+        const actBtn = document.getElementById('btn-notification-action');
+        const closeBtn = document.getElementById('close-notification');
+
+        if (msgEl) msgEl.innerHTML = message;
+
+        if (actBtn) {
+            if (actionLabel && actionCallback) {
+                actBtn.textContent = actionLabel;
+                actBtn.classList.remove('hidden');
+                
+                // Clone to clear event listeners
+                const newBtn = actBtn.cloneNode(true);
+                actBtn.parentNode.replaceChild(newBtn, actBtn);
+                newBtn.addEventListener('click', () => {
+                    actionCallback();
+                    inAppNotification.classList.remove('show');
+                });
+            } else {
+                actBtn.classList.add('hidden');
+            }
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                inAppNotification.classList.remove('show');
+            });
+        }
+
+        // Show notification
+        inAppNotification.classList.remove('hidden');
+        setTimeout(() => {
+            inAppNotification.classList.add('show');
+        }, 50);
+
+        // Auto dismiss after 8 seconds
+        if (notificationTimeout) clearTimeout(notificationTimeout);
+        notificationTimeout = setTimeout(() => {
+            inAppNotification.classList.remove('show');
+        }, 8000);
+    }
+
+    // === TWO-WAY INTEGRATION: HERITAGE ARTICLE PRODUCTS CAROUSEL ===
+    function getRelatedProductsHtml(villageId) {
+        const products = SHOP_PRODUCTS_DB.filter(p => p.villageId === villageId);
+        if (products.length === 0) return "";
+
+        const lang = user.lang;
+        const isEn = lang === 'en';
+
+        return `
+            <div class="heritage-products-section" style="margin-top:25px; border-top:1px dashed var(--glass-border); padding-top:20px;">
+                <h4 style="font-family:'Playfair Display',serif; color:var(--primary); font-size:1.2rem; margin-bottom:15px;">🛍️ ${isEn ? 'Authentic Products From This Village' : 'Sản phẩm chính gốc từ làng nghề này'}</h4>
+                <div class="chat-cards-container">
+                    ${products.map(p => `
+                        <div class="chat-card glass">
+                            <img src="${p.img}" class="chat-card-img">
+                            <div class="chat-card-body">
+                                <h4 style="font-size:0.85rem; font-weight:700; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-main);">${p.name[lang]}</h4>
+                                <p style="font-size:0.8rem; font-weight:700; color:var(--primary); margin:5px 0;">${p.price.toLocaleString()} VND</p>
+                                <button class="chat-card-action-btn" onclick="heritageBuyProduct(${p.id})">${isEn ? 'Buy Now 🛒' : 'Mua ngay 🛒'}</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    window.heritageBuyProduct = (productId) => {
+        if (heritageModal) heritageModal.classList.add('hidden');
+        switchTab(3); // Switch to Shop
+        setTimeout(() => {
+            openProductDetail(productId);
+        }, 100);
+    };
+
+    window.focusMapHotel = (lat, lng, name) => {
+        switchTab(1); // Switch to Map
+        
+        setTimeout(() => {
+            if (map) {
+                map.panTo({ lat: lat, lng: lng });
+                map.setZoom(15);
+                
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div style="padding:10px; font-family:Montserrat,sans-serif;">
+                        <h4 style="margin:0 0 5px 0; color:var(--primary); font-size:1rem;">🏨 ${name}</h4>
+                        <p style="margin:0; font-size:0.85rem; color:#555;">Địa điểm đã chọn từ hội thoại chat.</p>
+                        <button onclick="alert('Đã kết nối với hệ thống đặt phòng đối tác!')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer; margin-top:8px;">Đặt phòng ngay</button>
+                    </div>`
+                });
+
+                const marker = new google.maps.Marker({
+                    position: { lat: lat, lng: lng },
+                    map: map,
+                    title: name,
+                    icon: {
+                        url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                    }
+                });
+
+                if (activeInfoWindow) activeInfoWindow.close();
+                infoWindow.open(map, marker);
+                activeInfoWindow = infoWindow;
+            }
+        }, 300);
+    };
+
+    function generateUnifiedItinerary(params) {
+        const lang = user.lang;
+        const isEn = lang === 'en';
+        
+        const destination = params.destination;
+        const hotel = params.hotel;
+        const workshop = params.workshop;
+        const product = params.product;
+
+        const itText = isEn 
+            ? `🗓️ **UNIFIED TRAVEL ITINERARY PLAN: ${destination.toUpperCase()}**\n\n` +
+              `• **Day 1: Arrival & Check-in**\n` +
+              `  - Stay at: **${hotel}**\n` +
+              `  - Afternoon: Relax and walk around the local ancient village.\n\n` +
+              `• **Day 2: Cultural Experience & Souvenirs**\n` +
+              `  - Morning: Attend **${workshop}** to craft your own souvenir.\n` +
+              `  - Afternoon: Visit craft shop to pick up local products like: **${product}**.\n\n` +
+              `*Draft schedule created. Let me know if you would like to edit or book!*`
+            : `🗓️ **KẾ HOẠCH LỊCH TRÌNH DU LỊCH TRỌN GÓI: ${destination.toUpperCase()}**\n\n` +
+              `• **Ngày 1: Check-in & Nghỉ dưỡng**\n` +
+              `  - Lưu trú tại: **${hotel}**\n` +
+              `  - Chiều: Khám phá không gian văn hóa & phong vị ẩm thực địa phương.\n\n` +
+              `• **Ngày 2: Trải nghiệm di sản & Mua sắm**\n` +
+              `  - Sáng: Tham gia **${workshop}** để tự tay chế tác sản phẩm lưu niệm.\n` +
+              `  - Chiều: Ghé Shop thủ công để nhận sắm các tặng phẩm chính hiệu: **${product}**.\n\n` +
+              `*Lịch trình nháp đã được lưu. Bạn có muốn điều chỉnh thêm hoặc tiến hành đặt dịch vụ không ạ?*`;
+
+        addMessage('assistant', itText);
     }
 
 });
