@@ -159,7 +159,7 @@ h1, h2, h3 {
 /* THEME TOGGLE */
 .theme-toggle {
     position: fixed;
-    top: 2rem;
+    top: 1.15rem;
     right: 2rem;
     z-index: 1000;
     width: 44px;
@@ -900,6 +900,11 @@ h1, h2, h3 {
         overflow: auto;
     }
 
+    .theme-toggle {
+        top: 0.8rem;
+        right: 1rem;
+    }
+
     #app-container {
         flex-direction: column;
     }
@@ -1412,6 +1417,7 @@ h1, h2, h3 {
     gap: 8px;
     font-size: 0.9rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    margin-right: 55px; /* Prevent overlap with fixed theme toggle */
 }
 
 .btn-toggle-board:hover {
