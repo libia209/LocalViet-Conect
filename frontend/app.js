@@ -2157,5 +2157,42 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage('assistant', itText);
     }
 
+    // === COLLAPSIBLE SIDEBAR LOGIC ===
+    const sidebar = document.getElementById('sidebar');
+    const btnCollapseSidebar = document.getElementById('btn-collapse-sidebar');
+
+    if (sidebar && btnCollapseSidebar) {
+        const toggleSidebar = (collapse) => {
+            if (collapse) {
+                sidebar.classList.add('collapsed');
+                btnCollapseSidebar.textContent = '▶';
+                btnCollapseSidebar.title = user.lang === 'en' ? 'Expand sidebar' : 'Mở rộng thanh bên';
+                localStorage.setItem('sidebar_collapsed', 'true');
+            } else {
+                sidebar.classList.remove('collapsed');
+                btnCollapseSidebar.textContent = '◀';
+                btnCollapseSidebar.title = user.lang === 'en' ? 'Collapse sidebar' : 'Thu nhỏ thanh bên';
+                localStorage.setItem('sidebar_collapsed', 'false');
+            }
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 300);
+        };
+
+        btnCollapseSidebar.addEventListener('click', () => {
+            const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
+            toggleSidebar(!isCurrentlyCollapsed);
+        });
+
+        const isCollapsedSaved = localStorage.getItem('sidebar_collapsed') === 'true';
+        if (isCollapsedSaved) {
+            sidebar.style.transition = 'none';
+            toggleSidebar(true);
+            setTimeout(() => {
+                sidebar.style.transition = 'width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.3s ease';
+            }, 50);
+        }
+    }
+
 });
 

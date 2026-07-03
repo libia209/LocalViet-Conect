@@ -2105,3 +2105,109 @@ h1, h2, h3 {
     width: auto;
 }
 
+/* Collapsible Sidebar Styles */
+.sidebar {
+    transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.3s ease;
+}
+
+.btn-collapse-sidebar {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: var(--transition);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-collapse-sidebar:hover {
+    color: var(--primary);
+    transform: scale(1.2);
+}
+
+.sidebar.collapsed {
+    width: 80px;
+    padding: 2.5rem 0.5rem;
+    align-items: center;
+}
+
+.sidebar.collapsed .brand {
+    margin-bottom: 2.5rem;
+    padding-left: 0;
+    justify-content: center;
+    width: 100%;
+}
+
+.sidebar.collapsed .brand h2 {
+    display: none;
+}
+
+.sidebar.collapsed .btn-collapse-sidebar {
+    margin-left: 0;
+}
+
+.sidebar.collapsed .user-profile {
+    padding: 0.5rem;
+    justify-content: center;
+    width: auto;
+    margin-bottom: 2rem;
+}
+
+.sidebar.collapsed .user-profile .user-info {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    width: 100%;
+    align-items: center;
+}
+
+.sidebar.collapsed .nav-item {
+    font-size: 0;
+    padding: 12px;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.sidebar.collapsed .nav-item .emoji {
+    font-size: 1.4rem;
+    margin-right: 0;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
+.sidebar.collapsed #logout-btn {
+    font-size: 0;
+    padding: 10px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--surface-solid);
+    border: 1px solid var(--glass-border);
+}
+
+.sidebar.collapsed #logout-btn .emoji {
+    font-size: 1.2rem;
+    margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .btn-collapse-sidebar {
+        display: none !important;
+    }
+}
+
