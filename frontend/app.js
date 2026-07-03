@@ -1091,10 +1091,80 @@ document.addEventListener('DOMContentLoaded', () => {
         if (moonIcon) moonIcon.style.display = theme === 'dark' ? 'block' : 'none';
     }
 
+    let hasDraggedThemeBtn = false;
     if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
+        themeToggle.addEventListener('click', (e) => {
+            if (hasDraggedThemeBtn) {
+                hasDraggedThemeBtn = false;
+                e.preventDefault();
+                return;
+            }
             setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         });
+
+        let isDragging = false;
+        let startX, startY;
+        let initialLeft, initialTop;
+        let dragThreshold = 5;
+
+        const dragStart = (e) => {
+            const rect = themeToggle.getBoundingClientRect();
+            initialLeft = rect.left;
+            initialTop = rect.top;
+            
+            themeToggle.style.right = 'auto';
+            themeToggle.style.left = initialLeft + 'px';
+            themeToggle.style.top = initialTop + 'px';
+            themeToggle.style.position = 'fixed';
+
+            const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+            startX = clientX;
+            startY = clientY;
+            isDragging = true;
+            hasDraggedThemeBtn = false;
+            themeToggle.style.transition = 'none';
+        };
+
+        const dragMove = (e) => {
+            if (!isDragging) return;
+            
+            const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+
+            if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
+                hasDraggedThemeBtn = true;
+            }
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+
+            const btnWidth = themeToggle.offsetWidth;
+            const btnHeight = themeToggle.offsetHeight;
+            newLeft = Math.max(10, Math.min(window.innerWidth - btnWidth - 10, newLeft));
+            newTop = Math.max(10, Math.min(window.innerHeight - btnHeight - 10, newTop));
+
+            themeToggle.style.left = newLeft + 'px';
+            themeToggle.style.top = newTop + 'px';
+        };
+
+        const dragEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            themeToggle.style.transition = 'transform 0.2s ease, background 0.3s ease';
+        };
+
+        themeToggle.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('mouseup', dragEnd);
+
+        themeToggle.addEventListener('touchstart', dragStart, { passive: true });
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('touchend', dragEnd);
     }
 
     setTheme(localStorage.getItem('theme') || 'light');
