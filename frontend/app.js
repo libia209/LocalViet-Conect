@@ -1535,6 +1535,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 window.showHeritageDetail(id, 'craft');
             }
+        }, 300);
     }
 
     // === MOCK PRODUCTS & WORKSHOPS DATABASE (Frontend Sync) ===
