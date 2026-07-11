@@ -2211,3 +2211,13 @@ h1, h2, h3 {
     }
 }
 
+/* LEAFLET CUSTOM MARKER STYLES */
+.custom-emoji-marker, .custom-hotel-marker {
+    background: none !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+}
+

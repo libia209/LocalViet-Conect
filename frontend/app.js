@@ -607,8 +607,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (map) {
                 const zoom = window.innerWidth < 768 ? 5.5 : 6;
                 setTimeout(() => {
-                    map.panTo({ lat: 15.75, lng: 106.125 });
-                    map.setZoom(zoom);
+                    if (typeof map.invalidateSize === 'function') {
+                        map.invalidateSize();
+                        map.panTo([15.75, 106.125]);
+                        map.setZoom(zoom);
+                    } else if (typeof map.panTo === 'function') {
+                        map.panTo({ lat: 15.75, lng: 106.125 });
+                        map.setZoom(zoom);
+                    }
                 }, 100);
             }
         } else if (index === 2) {
@@ -628,9 +634,17 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', () => switchTab(index));
     });
 
-    // === MAP LOGIC (Google Maps Migration) ===
+    // === MAP LOGIC (Leaflet Fallback & Google Maps Config) ===
+    const FORCE_GOOGLE_MAPS = false; // Đổi thành true khi lọt vào vòng sau để chuyển sang Google Maps
+
     async function initMap() {
         if (map) return;
+
+        if (!FORCE_GOOGLE_MAPS) {
+            console.log("Using Leaflet fallback map (free, clean design, Vietnamese place labels).");
+            initializeLeafletMap();
+            return;
+        }
 
         // 1. Fetch Google Maps API Key from Backend
         try {
@@ -639,13 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const apiKey = config.google_maps_api_key;
 
             if (!apiKey || apiKey.includes('YOUR_GOOGLE_MAPS_API_KEY')) {
-                console.warn("Google Maps API Key is missing or invalid. Map cannot be loaded.");
-                document.getElementById('map').innerHTML = `
-                    <div style="padding: 20px; text-align: center; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; font-family: Montserrat, sans-serif;">
-                        <b>⚠️ Lỗi cấu hình Bản đồ:</b><br>
-                        Vui lòng nhập API Key Google Maps trong tệp tin <code>backend/.env</code> để kích hoạt bản đồ.
-                    </div>
-                `;
+                console.warn("Google Maps API Key is missing or invalid. Falling back to Leaflet.");
+                initializeLeafletMap();
                 return;
             }
 
@@ -661,8 +670,79 @@ document.addEventListener('DOMContentLoaded', () => {
             document.head.appendChild(script);
 
         } catch (err) {
-            console.error("Failed to load map configuration:", err);
+            console.error("Failed to load map configuration, falling back to Leaflet:", err);
+            initializeLeafletMap();
         }
+    }
+
+    function initializeLeafletMap() {
+        map = L.map('map', {
+            center: [15.9, 106.1],
+            zoom: 6,
+            minZoom: 5,
+            maxZoom: 18
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors, © CartoDB'
+        }).addTo(map);
+
+        // Add Sovereignty Banner Overlay
+        const banner = document.createElement('div');
+        banner.className = 'sovereignty-banner-ol';
+        banner.style.position = 'absolute';
+        banner.style.top = '10px';
+        banner.style.left = '50%';
+        banner.style.transform = 'translateX(-50%)';
+        banner.style.zIndex = '999';
+        banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
+        document.getElementById('map-container').appendChild(banner);
+
+        CRAFT_LOCATIONS.forEach(loc => {
+            const locName = typeof loc.name === 'object' ? loc.name[user.lang] : loc.name;
+            const locDesc = typeof loc.desc === 'object' ? loc.desc[user.lang] : loc.desc;
+
+            let emoji = '🏺';
+            if (loc.isSovereign) {
+                emoji = '🇻🇳';
+            } else {
+                const key = loc.guardrailKey;
+                if (key === 'ceramics') emoji = '🏺';
+                else if (key === 'bronze') emoji = '🔔';
+                else if (key === 'textiles') emoji = '🧵';
+                else if (key === 'sculpture') emoji = '🗿';
+                else if (key === 'lacquer') emoji = '🎨';
+                else if (key === 'jewelry') emoji = '💍';
+            }
+
+            const customIcon = L.divIcon({
+                html: `<div style="font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer;">${emoji}</div>`,
+                className: 'custom-emoji-marker',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const marker = L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(map);
+
+            const infoWindowContent = loc.isSovereign ?
+                `<div style="color:#d32f2f; font-family:Montserrat,sans-serif; padding:5px; font-size:0.95rem;"><b>${locName}</b><br>${locDesc}</div>` :
+                `<div style="width: 220px; font-family:Montserrat,sans-serif; padding:5px;">
+                    <img src="${loc.img}" style="width:100%; border-radius:8px; margin-bottom:8px; height:120px; object-fit:cover;">
+                    <b style="font-size:1.1rem; color:var(--primary);">${locName}</b>
+                    <p style="font-size:0.85rem; margin:5px 0; color:#333; line-height:1.4;">${locDesc}</p>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                        <button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--primary); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem; width:100%;">${user.lang === 'en' ? '🔍 View Details' : '🔍 Xem chi tiết'}</button>
+                        ${loc.guardrailKey ? `<button onclick="showHeritageDetail(${loc.id}, 'craft')" style="background:var(--accent); color:var(--primary); border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem; width:100%;">${user.lang === 'en' ? '📜 Craft Process' : '📜 Quy trình chế tác'}</button>` : ''}
+                        ${[1, 2, 5].includes(loc.id) ? `<button onclick="triggerWorkshopCompletion(${loc.id})" style="background:#2e7d32; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.8rem; width:100%;">${user.lang === 'en' ? '✅ Complete Workshop' : '✅ Hoàn thành Workshop'}</button>` : ''}
+                    </div>
+                </div>`;
+
+            marker.bindPopup(infoWindowContent);
+
+            if (loc.id) {
+                googleMarkers[loc.id] = marker;
+            }
+        });
     }
 
     function initializeGoogleMap() {
@@ -1518,17 +1598,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (map) {
                 const marker = googleMarkers[id];
-                const infoWindow = googleInfoWindows[id];
-
-                if (marker && infoWindow) {
-                    map.panTo(marker.getPosition());
-                    map.setZoom(13);
-
-                    if (activeInfoWindow) {
-                        activeInfoWindow.close();
+                if (marker) {
+                    if (typeof marker.getPosition === 'function') {
+                        // Google Maps
+                        const infoWindow = googleInfoWindows[id];
+                        map.panTo(marker.getPosition());
+                        map.setZoom(13);
+                        if (infoWindow) {
+                            if (activeInfoWindow) activeInfoWindow.close();
+                            infoWindow.open(map, marker);
+                            activeInfoWindow = infoWindow;
+                        }
+                    } else if (typeof marker.getLatLng === 'function') {
+                        // Leaflet
+                        map.panTo(marker.getLatLng());
+                        map.setZoom(13);
+                        marker.openPopup();
                     }
-                    infoWindow.open(map, marker);
-                    activeInfoWindow = infoWindow;
                 } else {
                     window.showHeritageDetail(id, 'craft');
                 }
@@ -1959,12 +2045,22 @@ document.addEventListener('DOMContentLoaded', () => {
             mapLoadingQueue = workshopId;
             // Listen for tiles loaded or dynamic load trigger
             if (map) {
-                google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
-                    if (mapLoadingQueue === workshopId) {
-                        executeMapFocus(workshopId);
-                        mapLoadingQueue = null;
-                    }
-                });
+                if (typeof google !== 'undefined' && google.maps && google.maps.event) {
+                    google.maps.event.addListenerOnce(map, 'tilesloaded', () => {
+                        if (mapLoadingQueue === workshopId) {
+                            executeMapFocus(workshopId);
+                            mapLoadingQueue = null;
+                        }
+                    });
+                } else {
+                    // Leaflet fallback
+                    setTimeout(() => {
+                        if (mapLoadingQueue === workshopId) {
+                            executeMapFocus(workshopId);
+                            mapLoadingQueue = null;
+                        }
+                    }, 100);
+                }
             } else {
                 // If map is completely null, wait and check recursively
                 let attempts = 0;
@@ -1985,15 +2081,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function executeMapFocus(workshopId) {
         const marker = googleMarkers[workshopId];
-        const infoWindow = googleInfoWindows[workshopId];
-        if (!marker || !infoWindow) return;
+        if (!marker) return;
 
-        map.panTo(marker.getPosition());
-        map.setZoom(14);
-        
-        if (activeInfoWindow) activeInfoWindow.close();
-        infoWindow.open(map, marker);
-        activeInfoWindow = infoWindow;
+        if (typeof marker.getPosition === 'function') {
+            // Google Maps
+            const infoWindow = googleInfoWindows[workshopId];
+            map.panTo(marker.getPosition());
+            map.setZoom(14);
+            if (infoWindow) {
+                if (activeInfoWindow) activeInfoWindow.close();
+                infoWindow.open(map, marker);
+                activeInfoWindow = infoWindow;
+            }
+        } else if (typeof marker.getLatLng === 'function') {
+            // Leaflet
+            map.panTo(marker.getLatLng());
+            map.setZoom(14);
+            marker.openPopup();
+        }
     }
 
     // Let's define triggerWorkshopCompletion:
@@ -2101,29 +2206,52 @@ document.addEventListener('DOMContentLoaded', () => {
         
         setTimeout(() => {
             if (map) {
-                map.panTo({ lat: lat, lng: lng });
-                map.setZoom(15);
-                
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `<div style="padding:10px; font-family:Montserrat,sans-serif;">
+                if (typeof google !== 'undefined' && google.maps) {
+                    map.panTo({ lat: lat, lng: lng });
+                    map.setZoom(15);
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div style="padding:10px; font-family:Montserrat,sans-serif;">
+                            <h4 style="margin:0 0 5px 0; color:var(--primary); font-size:1rem;">🏨 ${name}</h4>
+                            <p style="margin:0; font-size:0.85rem; color:#555;">Địa điểm đã chọn từ hội thoại chat.</p>
+                            <button onclick="alert('Đã kết nối với hệ thống đặt phòng đối tác!')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer; margin-top:8px;">Đặt phòng ngay</button>
+                        </div>`
+                    });
+
+                    const marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: map,
+                        title: name,
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                        }
+                    });
+
+                    if (activeInfoWindow) activeInfoWindow.close();
+                    infoWindow.open(map, marker);
+                    activeInfoWindow = infoWindow;
+                } else {
+                    // Leaflet fallback
+                    map.panTo([lat, lng]);
+                    map.setZoom(15);
+
+                    const customIcon = L.divIcon({
+                        html: `<div style="font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer;">🏨</div>`,
+                        className: 'custom-hotel-marker',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+
+                    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+                    const popupContent = `<div style="padding:10px; font-family:Montserrat,sans-serif; width: 180px;">
                         <h4 style="margin:0 0 5px 0; color:var(--primary); font-size:1rem;">🏨 ${name}</h4>
-                        <p style="margin:0; font-size:0.85rem; color:#555;">Địa điểm đã chọn từ hội thoại chat.</p>
-                        <button onclick="alert('Đã kết nối với hệ thống đặt phòng đối tác!')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer; margin-top:8px;">Đặt phòng ngay</button>
-                    </div>`
-                });
+                        <p style="margin:0; font-size:0.85rem; color:#555; line-height: 1.4;">Địa điểm đã chọn từ hội thoại chat.</p>
+                        <button onclick="alert('Đã kết nối với hệ thống đặt phòng đối tác!')" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:4px; font-size:0.75rem; font-weight:600; cursor:pointer; margin-top:8px; width: 100%;">Đặt phòng ngay</button>
+                    </div>`;
 
-                const marker = new google.maps.Marker({
-                    position: { lat: lat, lng: lng },
-                    map: map,
-                    title: name,
-                    icon: {
-                        url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                    }
-                });
-
-                if (activeInfoWindow) activeInfoWindow.close();
-                infoWindow.open(map, marker);
-                activeInfoWindow = infoWindow;
+                    marker.bindPopup(popupContent).openPopup();
+                }
             }
         }, 300);
     };
