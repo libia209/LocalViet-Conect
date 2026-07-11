@@ -578,7 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === NAVIGATION LOGIC ===
-    function switchTab(index) {
+    async function switchTab(index) {
         // Desktop updates
         navItems.forEach((item, idx) => {
             if (idx === index) item.classList.add('active');
@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatInputContainer.classList.remove('hidden');
         } else if (index === 1) {
             mapView.classList.remove('hidden');
-            initMap();
+            await initMap();
             if (map) {
                 const zoom = window.innerWidth < 768 ? 5.5 : 6;
                 setTimeout(() => {
@@ -683,6 +683,11 @@ document.addEventListener('DOMContentLoaded', () => {
             maxZoom: 18
         });
 
+        // Fix Leaflet rendering container size issue in hidden elements
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 150);
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '© OpenStreetMap contributors, © CartoDB'
         }).addTo(map);
@@ -716,10 +721,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const customIcon = L.divIcon({
-                html: `<div style="font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer;">${emoji}</div>`,
+                html: `<div style="font-size: 15px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); cursor: pointer;">${emoji}</div>`,
                 className: 'custom-emoji-marker',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
             });
 
             const marker = L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(map);
@@ -2236,10 +2241,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     map.setZoom(15);
 
                     const customIcon = L.divIcon({
-                        html: `<div style="font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer;">🏨</div>`,
+                        html: `<div style="font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); cursor: pointer;">🏨</div>`,
                         className: 'custom-hotel-marker',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
                     });
 
                     const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
