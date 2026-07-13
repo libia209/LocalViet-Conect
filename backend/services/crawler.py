@@ -1,0 +1,184 @@
+import os
+import json
+
+# Rich detailed database for craft villages
+VILLAGE_DETAILS_RAW = {
+    "1": { # Bát Tràng
+        "name_vi": "Làng gốm Bát Tràng",
+        "name_en": "Bat Trang Pottery Village",
+        "history_vi": "Được hình thành từ thời nhà Lý (năm 1010) khi Vua Lý Công Uẩn dời đô về Thăng Long. Dòng họ Nguyễn Ninh Trang cùng 5 dòng họ lớn khác ở Vĩnh Bảo (Hải Phòng) đã đưa thợ gốm di cư về vùng đất sét trắng tả ngạn sông Hồng lập nghiệp. Trải qua hơn 1.000 năm lịch sử, Bát Tràng là làng gốm cổ truyền lâu đời bậc nhất Việt Nam, sản xuất các sản phẩm ngự dụng cống phẩm cho hoàng gia.",
+        "history_en": "Formed during the Ly Dynasty (1010 AD) when King Ly Cong Uan moved the capital to Thang Long. The Nguyen Ninh Trang clan along with five other major clans migrated here, establishing a historic ceramics hub on the Red River. Bat Trang produced premium imperial tributes and exported fine stoneware across Asia.",
+        "secrets_vi": "Sử dụng đất sét trắng tự nhiên được xử lý qua hệ thống 4 bể lắng đặc trưng. Công thức men rạn độc bản sử dụng vôi nung, tro trấu và đất phù sa sông Hồng, nung ở nhiệt độ chuẩn xác 1.200°C - 1.300°C trong lò hộp hoặc lò bầu truyền thống để tạo nên xương gốm đanh, tiếng vang thanh.",
+        "secrets_en": "Uses natural white clay processed through a unique 4-tank filtration system. The signature crackle glaze formula is blended from burnt lime, rice husk ash, and Red River alluvial clay, fired at precisely 1200°C - 1300°C in traditional kilns to produce highly durable bodies.",
+        "visitor_guide_vi": {
+            "ticket_price": "Miễn phí vào làng. Vé vào Bảo tàng Gốm Bát Tràng: 50,000 VND/người.",
+            "workshop_price": "50,000 - 100,000 VND/người (Đã bao gồm nặn gốm trên bàn xoay và nghệ nhân hỗ trợ).",
+            "transport": "Đi xe bus số 47A từ trung tâm Hà Nội (Trạm Long Biên) thẳng đến cổng làng (giá vé 9,000 VND) hoặc di chuyển bằng taxi công nghệ khoảng 25 phút.",
+            "best_time": "Từ tháng 10 đến tháng 4 năm sau (tiết trời khô mát, thích hợp đi bộ quanh ngõ cổ).",
+            "artisan_contacts": [
+                {"name": "Nghệ nhân Nhân dân Trần Độ", "address": "Xóm 3, Bát Tràng", "phone": "0913 218 532"},
+                {"name": "Nghệ nhân Ưu tú Phạm Đạt", "address": "Xóm 5, Bát Tràng", "phone": "0983 456 789"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "Free entry to the village. Bat Trang Ceramics Museum: 50,000 VND/person.",
+            "workshop_price": "50,000 - 100,000 VND/person (includes clay throwing on wheel and guide support).",
+            "transport": "Take public Bus 47A from Long Bien Bus Interchange directly to the village entrance (9,000 VND) or book a ride-hailing taxi (approx. 25 minutes from Hanoi center).",
+            "best_time": "October to April (cool and dry weather, perfect for exploring narrow alleys).",
+            "artisan_contacts": [
+                {"name": "People's Artisan Tran Do", "address": "Commune 3, Bat Trang", "phone": "+84 913 218 532"},
+                {"name": "Elite Artisan Pham Dat", "address": "Commune 5, Bat Trang", "phone": "+84 983 456 789"}
+            ]
+        }
+    },
+    "2": { # Vạn Phúc
+        "name_vi": "Làng lụa Vạn Phúc",
+        "name_en": "Van Phuc Silk Village",
+        "history_vi": "Do bà A Lã Thị Nương - một vương phi triều đình có công dệt lụa tài tình đến truyền dạy nghề cho dân làng từ thế kỷ thứ IX. Dưới thời nhà Nguyễn, lụa Vạn Phúc (lụa Hà Đông) được xem là cống phẩm thượng hạng cho triều đình Huế. Năm 1931, lụa Vạn Phúc lần đầu tiên được giới thiệu ra thị trường quốc tế tại hội chợ Marseille (Pháp) và được người Pháp đánh giá là một trong những sản phẩm tinh xảo nhất Đông Dương.",
+        "history_en": "Founded by Lady A La Thi Nuong in the 9th century, who taught the locals the art of sericulture. During the Nguyen Dynasty, Van Phuc silk was selected for royal garments. In 1931, it made its international debut at the Marseille Exhibition in France, celebrated as the finest fabric in Indochina.",
+        "secrets_vi": "Sử dụng 100% sợi tơ tằm tự nhiên. Hoa văn dệt chìm phức tạp nhờ hệ thống thẻ Jacquard cổ. Kỹ thuật nhuộm bằng các loại lá cây bản địa như lá bàng, vỏ cây kết hợp ngâm nước bùn ao để tạo nên màu sắc tự nhiên óng ả tuyệt đối không phai màu hay kích ứng da.",
+        "secrets_en": "Uses 100% natural mulberry silk fibers. Complex patterns are woven dynamically into the fabric using historic Jacquard punch-cards. Dyes are extracted from local botanical sources (almond leaves, bark) and fixed with pond mud to produce shimmering natural shades.",
+        "visitor_guide_vi": {
+            "ticket_price": "Miễn phí tham quan.",
+            "workshop_price": "80,000 - 150,000 VND/người (Trải nghiệm vẽ tranh trên lụa gấm hoặc học dệt tơ thô).",
+            "transport": "Đi xe bus số 19, 22 hoặc tàu điện trên cao Cát Linh - Hà Đông (xuống ga Phùng Khoang hoặc Hà Đông rồi đi xe ôm 1km).",
+            "best_time": "Từ tháng 9 đến tháng 11 (mùa thu mát mẻ, phố ô rực rỡ nắng vàng để chụp hình).",
+            "artisan_contacts": [
+                {"name": "Nghệ nhân Triệu Văn Mão (Xưởng Mão Silk)", "address": "Phố lụa Vạn Phúc", "phone": "0243 382 4572"},
+                {"name": "Hợp tác xã Vụn Art (Làm tranh ghép lụa)", "address": "Đền thờ Tổ nghề Vạn Phúc", "phone": "0983 124 567"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "Free entry.",
+            "workshop_price": "80,000 - 150,000 VND/person (workshop on silk painting or silk weaving crafts).",
+            "transport": "Take Bus 19, 22 or ride the Cat Linh - Ha Dong Metro line (alight at Phung Khoang station, then take a short 5-minute taxi).",
+            "best_time": "September to November (pleasant autumn weather with beautiful sun-drenched umbrella streets).",
+            "artisan_contacts": [
+                {"name": "Artisan Trieu Van Mao Family (Mao Silk)", "address": "Van Phuc Silk St.", "phone": "+84 243 382 4572"},
+                {"name": "Vun Art Cooperative (Silk Scrap Art)", "address": "Van Phuc Ancestral Temple", "phone": "+84 983 124 567"}
+            ]
+        }
+    },
+    "5": { # Thủy Xuân
+        "name_vi": "Làng hương Thủy Xuân",
+        "name_en": "Thuy Xuan Incense Village",
+        "history_vi": "Có lịch sử hơn 700 năm dưới triều đại nhà Nguyễn. Ban đầu, hương được làm chủ yếu để phục vụ cho các nghi lễ cung đình, đền đài và đời sống tâm linh của các bậc vua chúa, quan lại triều Nguyễn. Trải qua bao thăng trầm, người dân Thủy Xuân vẫn gìn giữ vẹn nguyên nghề làm hương thơm ngát tỏa khắp vùng đất Cố đô.",
+        "history_en": "Dating back over 700 years during the Nguyen Dynasty, this village historically supplied aromatic incense to royal courts, palaces, and spiritual temples in the Imperial City of Hue. Thuy Xuan remains a sensory hallmark of the ancient capital.",
+        "secrets_vi": "Bột hương được pha trộn từ các vị thảo mộc tự nhiên theo tỷ lệ bí truyền: quế chi, thảo quả, đinh hương, hoa hồi và đặc biệt là trầm hương xứ Huế. Tăm tre được vót tay tròn đều, nhuộm các màu rực rỡ xanh, đỏ, tím, vàng xòe thành bó như những đóa hoa rực rỡ.",
+        "secrets_en": "The incense powder is blended from natural herbs with secret family ratios: cinnamon, cardamom, cloves, star anise, and Hue agarwood. The bamboo splints are hand-shaved and dyed in vivid colors, arranged into bouquets that bloom like tropical flowers.",
+        "visitor_guide_vi": {
+            "ticket_price": "Miễn phí tham quan và chụp hình (Khuyến khích mua hương ủng hộ hoặc thuê trang phục cổ phục).",
+            "workshop_price": "30,000 - 50,000 VND/người (Học cách se hương thủ công bằng tay hoặc se hương bằng máy cùng các mệ).",
+            "transport": "Nằm cách trung tâm thành phố Huế 7km về phía Tây Nam, trên đường Huyền Trân Công Chúa. Có thể di chuyển bằng xe máy, xe đạp hoặc xe công nghệ mất khoảng 12 phút.",
+            "best_time": "Tháng 3 đến tháng 8 (mùa khô nắng rực, người dân phơi hương rực rỡ trên đường phố).",
+            "artisan_contacts": [
+                {"name": "Mệ Tuyết Hương Thủy Xuân", "address": "82 Huyền Trân Công Chúa, Huế", "phone": "0905 123 456"},
+                {"name": "Xưởng hương Mệ Gái", "address": "90 Huyền Trân Công Chúa, Huế", "phone": "0914 987 654"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "Free entry & photo-taking (visitors are encouraged to purchase souvenir incense or rent traditional royal costumes).",
+            "workshop_price": "30,000 - 50,000 VND/person (learn manual incense rolling with local elders).",
+            "transport": "Located 7km southwest of Hue City Center on Huyen Tran Cong Chua Road. Easily reachable via motorbike or taxi in 12 minutes.",
+            "best_time": "March to August (sunny season when colored incense bundles are laid out to dry on streets).",
+            "artisan_contacts": [
+                {"name": "Aunt Tuyet Incense House", "address": "82 Huyen Tran Cong Chua, Hue", "phone": "+84 905 123 456"},
+                {"name": "Me Gai Incense Workshop", "address": "90 Huyen Tran Cong Chua, Hue", "phone": "+84 914 987 654"}
+            ]
+        }
+    },
+    "111": { # Chu Đậu
+        "name_vi": "Làng gốm Chu Đậu",
+        "name_en": "Chu Dau Ceramics Village",
+        "history_vi": "Gốm Chu Đậu phát triển rực rỡ từ thế kỷ XIV đến thế kỷ XVII, sau đó bị thất truyền do chiến tranh Trịnh - Mạc. Năm 1980, một chiếc bình gốm Chu Đậu cổ vẽ chim thiên nga quý giá được phát hiện tại Bảo tàng Topkapi (Thổ Nhĩ Kỳ) có ghi tên nghệ nhân Bùi Thị Hí dệt gốm năm 1450. Từ đó, Hải Dương đã nỗ lực phục dựng thành công dòng gốm quý cổ truyền này.",
+        "history_en": "Flourished from the 14th to 17th centuries before vanishing due to civil wars. In 1980, a historic Chu Dau vase with a swan pattern signed by female artisan Bui Thi Hi (1450 AD) was identified in Istanbul's Topkapi Palace, sparking a major revival of this lost heritage.",
+        "secrets_vi": "Nổi tiếng với men trắng rạn tự nhiên được làm từ tro trấu nếp cái hoa vàng độc đáo. Màu xanh chàm vẽ dưới men sử dụng quặng coban tự nhiên. Họa tiết chủ đạo tả thực đời sống đồng quê Việt Nam: hoa sen, chim thiên nga, cá hóa rồng.",
+        "secrets_en": "Famed for its soft ivory crackle glaze made from the ash of yellow-flowered sticky rice husks. The underglaze blue brushwork uses cobalt ore. Classic motifs reflect peaceful Vietnamese rural life: lotus blossoms, swans, and dragon fish.",
+        "visitor_guide_vi": {
+            "ticket_price": "Miễn phí vào cổng khu du lịch làng nghề.",
+            "workshop_price": "70,000 - 120,000 VND/người (Trải nghiệm vẽ men trực tiếp trên bình mộc nung sẵn và được lò nung gởi tận nhà).",
+            "transport": "Từ Hà Nội đi xe khách hoặc tàu hỏa đến thành phố Hải Dương (chặng dài 60km), sau đó đón taxi hoặc xe bus nội tỉnh đi thêm 12km đến Nam Sách.",
+            "best_time": "Tháng 9 đến tháng 12 (thời tiết khô ráo, gió nhẹ thích hợp dạo mát ven sông).",
+            "artisan_contacts": [
+                {"name": "Nghệ nhân Bùi Quốc Việt", "address": "Khu công nghiệp Gốm Chu Đậu, Hải Dương", "phone": "0989 333 444"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "Free entry to the historic craft park.",
+            "workshop_price": "70,000 - 120,000 VND/person (includes underglaze painting on biscuit-fired pottery with home delivery).",
+            "transport": "From Hanoi, take a bus or train to Hai Duong City (60km), then catch a local taxi or bus for another 12km to Nam Sach district.",
+            "best_time": "September to December (pleasant climate, ideal for exploring peaceful riverside ceramics kilns).",
+            "artisan_contacts": [
+                {"name": "Artisan Bui Quoc Viet", "address": "Chu Dau Ceramics Industrial Park, Hai Duong", "phone": "+84 989 333 444"}
+            ]
+        }
+    },
+    "202": { # Thanh Hà
+        "name_vi": "Làng gốm Thanh Hà",
+        "name_en": "Thanh Ha Pottery Village",
+        "history_vi": "Được hình thành vào thế kỷ thứ XVI khi các nghệ nhân Thanh Hóa di cư vào vùng đất Quảng Nam lập nghiệp. Dưới thời nhà Nguyễn, làng gốm Thanh Hà rất thịnh vượng, chuyên cung cấp ngói lợp lầu đài, gạch xây thành lũy và gốm gia dụng cho cả vùng cảng thị Hội An sầm uất.",
+        "history_en": "Established in the 16th century by migrant potters from Thanh Hoa. During the Nguyen Dynasty, Thanh Ha prospered by supplying clay roof tiles, bricks, and housewares to the merchant port city of Hoi An.",
+        "secrets_vi": "Gốm đất nung mộc mạc màu đỏ cam óng ánh đặc trưng của đất sét sông Thu Bồn lọc sạch cát. Hoàn toàn không tráng men mà tạo bóng bằng kỹ thuật đánh bóng xương đất bằng tay trước khi nung lò ngửa truyền thống bằng củi cành.",
+        "secrets_en": "Features unglazed terracotta earthenware made from Thu Bon River clay. The lustrous red-orange finish is achieved entirely by manually polishing the leather-hard clay with smooth pebbles before firing in wood-burning kilns.",
+        "visitor_guide_vi": {
+            "ticket_price": "35,000 VND/người lớn, 15,000 VND/trẻ em (Vé đã bao gồm một món quà tò he lưu niệm xinh xắn).",
+            "workshop_price": "30,000 - 50,000 VND/người (Trải nghiệm xoay gốm bằng chân gỗ với sự hỗ trợ của hai nghệ nhân).",
+            "transport": "Nằm cách phố cổ Hội An khoảng 3km về phía Tây. Bạn có thể thuê xe đạp đi thong thả dọc bờ sông Thu Bồn hoặc đón taxi mất 5 phút.",
+            "best_time": "Tháng 2 đến tháng 8 (mùa nắng rực rỡ, thích hợp trải nghiệm ngoài trời).",
+            "artisan_contacts": [
+                {"name": "Nghệ nhân Nhân dân Nguyễn Lành", "address": "Khối phố Nam Diêu, Thanh Hà, Hội An", "phone": "0905 456 789"},
+                {"name": "Nghệ nhân Ưu tú Nguyễn Thị Được", "address": "Xóm gốm Thanh Hà", "phone": "0934 888 999"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "35,000 VND/adult, 15,000 VND/child (Ticket includes a cute terracotta toy whistle/tohe gift).",
+            "workshop_price": "30,000 - 50,000 VND/person (includes wheel throwing experience assisted by two senior artisans).",
+            "transport": "Located 3km west of Hoi An Ancient Town. Ride a bicycle along the Thu Bon River or take a 5-minute taxi.",
+            "best_time": "February to August (clear sunny skies, great for outdoor photo sessions).",
+            "artisan_contacts": [
+                {"name": "People's Artisan Nguyen Lanh", "address": "Nam Dieu Quarter, Thanh Ha, Hoi An", "phone": "+84 905 456 789"},
+                {"name": "Elite Artisan Nguyen Thị Duoc", "address": "Thanh Ha Ceramics Hamlet", "phone": "+84 934 888 999"}
+            ]
+        }
+    },
+    "102": { # Bàu Trúc
+        "name_vi": "Làng gốm Bàu Trúc",
+        "name_en": "Bau Truc Cham Pottery Village",
+        "history_vi": "Làng gốm cổ nhất Đông Nam Á của người đồng bào Chăm. Tương truyền, ông Poklong Chanh - Tổ nghề gốm Chăm - đã truyền dạy nghề cho phụ nữ làng Bàu Trúc từ ngàn xưa. Điểm độc đáo nhất là kỹ thuật làm gốm 'tay quay mông chạy' - nghệ nhân đi giật lùi xoay quanh ụ đất để tạo hình sản phẩm.",
+        "history_en": "One of the oldest ancient Cham pottery villages in Southeast Asia. Legend has it that Poklong Chanh taught Cham women the art of pottery creation. It is famous for the unique technique of shaping clay where the artisan moves backward around a stationary clay pedestal.",
+        "secrets_vi": "Sử dụng đất sét mịn trộn cát mịn ven sông Quao. Nung lộ thiên bằng rơm, củi và trấu trong 4-6 tiếng. Điểm nhấn là kỹ thuật phun màu tự nhiên từ nước vỏ quả thị hoặc lá rừng khi gốm đang nóng hổi từ lò nung ra, tạo nên vết loang vân đỏ, xám đen độc bản.",
+        "secrets_en": "Made from Quao River fine clay mixed with sand. Fired outdoors in open pits using straw, wood, and husks for 4-6 hours. Coloring is sprayed onto hot wares using wild forest berry juices to create abstract patterns of black and copper.",
+        "visitor_guide_vi": {
+            "ticket_price": "Miễn phí tham quan trung tâm trưng bày.",
+            "workshop_price": "40,000 - 80,000 VND/người (Tập đi giật lùi nặn nồi gốm Chăm cổ truyền dưới sự hướng dẫn của nghệ nhân Chăm).",
+            "transport": "Nằm ở thị trấn Phước Dân, huyện Ninh Phước, tỉnh Ninh Thuận. Cách thành phố Phan Rang - Tháp Chàm 10km về phía Nam. Di chuyển thuận tiện bằng xe ôm hoặc taxi.",
+            "best_time": "Từ tháng 1 đến tháng 9 (mùa nắng giòn đặc trưng của Ninh Thuận, rơm rạ khô ráo dễ nung gốm).",
+            "artisan_contacts": [
+                {"name": "Nghệ nhân Đàng Thị Phan", "address": "Thị trấn Phước Dân, Ninh Thuận", "phone": "0946 555 666"},
+                {"name": "Nghệ nhân Trượng Sành", "address": "Xóm gốm Chăm Bàu Trúc", "phone": "0915 222 333"}
+            ]
+        },
+        "visitor_guide_en": {
+            "ticket_price": "Free entry to the communal showroom.",
+            "workshop_price": "40,000 - 80,000 VND/person (includes learning the Cham walking-backward clay molding technique).",
+            "transport": "Located in Phuoc Dan Town, Ninh Phuoc district, 10km south of Phan Rang city. Easily accessible by motorcycle or taxi.",
+            "best_time": "January to September (dry sunny weather, ideal for open-pit pottery firings).",
+            "artisan_contacts": [
+                {"name": "Cham Artisan Dang Thi Phan", "address": "Phuoc Dan Town, Ninh Thuan", "phone": "+84 946 555 666"},
+                {"name": "Cham Artisan Truong Sanh", "address": "Bau Truc Cham Village", "phone": "+84 915 222 333"}
+            ]
+        }
+    }
+}
+
+def generate_database():
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+    os.makedirs(data_dir, exist_ok=True)
+    target_path = os.path.join(data_dir, "villages_details.json")
+    
+    with open(target_path, "w", encoding="utf-8") as f:
+        json.dump(VILLAGE_DETAILS_RAW, f, ensure_ascii=False, indent=4)
+    print(f"Successfully generated detailed village database at: {target_path}")
+
+if __name__ == "__main__":
+    generate_database()

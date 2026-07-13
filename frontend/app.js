@@ -48,6 +48,48 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCartModal = document.getElementById('close-cart-modal');
     const inAppNotification = document.getElementById('in-app-notification');
 
+    // === CULTURAL AI DOM ELEMENTS ===
+    const dialectView = document.getElementById('dialect-view');
+    const dialectInput = document.getElementById('dialect-input');
+    const btnDialectVoice = document.getElementById('btn-dialect-voice');
+    const btnDialectTranslate = document.getElementById('btn-dialect-translate');
+    const dialectResultPlaceholder = document.getElementById('dialect-result-placeholder');
+    const dialectResultContent = document.getElementById('dialect-result-content');
+    const dialectDetectedBadge = document.getElementById('dialect-detected-badge');
+    const dialectTranslatedText = document.getElementById('dialect-translated-text');
+    const dialectWordsContainer = document.getElementById('dialect-words-container');
+    const dialectExplanation = document.getElementById('dialect-explanation');
+    const dialectSampleBtns = document.querySelectorAll('.dialect-sample-btn');
+
+    const gpsSelect = document.getElementById('gps-select');
+    const tabRoutePlanner = document.getElementById('tab-route-planner');
+    const tabVirtualGuide = document.getElementById('tab-virtual-guide');
+    const panelRoutePlanner = document.getElementById('panel-route-planner');
+    const panelVirtualGuide = document.getElementById('panel-virtual-guide');
+    const btnGenerateRoute = document.getElementById('btn-generate-route');
+    const routeStart = document.getElementById('route-start');
+    const routeInterest = document.getElementById('route-interest');
+    const routeDays = document.getElementById('route-days');
+    const routeResult = document.getElementById('route-result');
+    const routeTitle = document.getElementById('route-title');
+    const routeSummary = document.getElementById('route-summary');
+    const routeStepsList = document.getElementById('route-steps-list');
+
+    const guideStatus = document.getElementById('guide-status');
+    const guideChatContainer = document.getElementById('guide-chat-container');
+    const guideLocationName = document.getElementById('guide-location-name');
+    const guideChatMessages = document.getElementById('guide-chat-messages');
+    const guideChatInput = document.getElementById('guide-chat-input');
+    const btnGuideSend = document.getElementById('btn-guide-send');
+
+    const shopAiRecs = document.getElementById('shop-ai-recommendations');
+    const shopRecsGrid = document.getElementById('shop-recs-grid');
+
+    const imageFileInput = document.getElementById('image-file-input');
+    const menuUploadImage = document.getElementById('menu-upload-image');
+    const menuMockPottery = document.getElementById('menu-mock-pottery');
+    const menuMockAodai = document.getElementById('menu-mock-aodai');
+
     // === INTRO BUTTON (ưu tiên khởi tạo đầu tiên) ===
     const startDiscoveryBtn = document.getElementById('start-discovery');
     if (startDiscoveryBtn) {
@@ -593,6 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Hide all
         chatView.classList.add('hidden');
+        if (dialectView) dialectView.classList.add('hidden');
         mapView.classList.add('hidden');
         knowledgeView.classList.add('hidden');
         if (shopView) shopView.classList.add('hidden');
@@ -602,6 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chatView.classList.remove('hidden');
             chatInputContainer.classList.remove('hidden');
         } else if (index === 1) {
+            if (dialectView) dialectView.classList.remove('hidden');
+        } else if (index === 2) {
             mapView.classList.remove('hidden');
             await initMap();
             if (map) {
@@ -617,10 +662,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }, 100);
             }
-        } else if (index === 2) {
+        } else if (index === 3) {
             knowledgeView.classList.remove('hidden');
             renderKnowledge();
-        } else if (index === 3) {
+        } else if (index === 4) {
             if (shopView) shopView.classList.remove('hidden');
             renderShopProducts();
         }
@@ -695,11 +740,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Sovereignty Banner Overlay
         const banner = document.createElement('div');
         banner.className = 'sovereignty-banner-ol';
-        banner.style.position = 'absolute';
-        banner.style.top = '10px';
-        banner.style.left = '50%';
-        banner.style.transform = 'translateX(-50%)';
-        banner.style.zIndex = '999';
         banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
         document.getElementById('map-container').appendChild(banner);
 
@@ -765,11 +805,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Sovereignty Banner Overlay
         const banner = document.createElement('div');
         banner.className = 'sovereignty-banner-ol';
-        banner.style.position = 'absolute';
-        banner.style.top = '10px';
-        banner.style.left = '50%';
-        banner.style.transform = 'translateX(-50%)';
-        banner.style.zIndex = '99';
         banner.innerHTML = '🇻🇳 Quần đảo Hoàng Sa & Trường Sa thuộc chủ quyền Việt Nam';
         document.getElementById('map-container').appendChild(banner);
 
@@ -906,20 +941,93 @@ document.addEventListener('DOMContentLoaded', () => {
         heritageModal.classList.remove('hidden');
     };
 
-    window.showHeritageDetail = (id, type) => {
+    window.showHeritageDetail = async (id, type) => {
         let item;
+        const isEn = user.lang === 'en';
+        
         if (type === 'craft') {
             item = CRAFT_LOCATIONS.find(c => c.id === id);
             if (!item) return;
+            
             document.getElementById('modal-title').textContent = typeof item.name === 'object' ? item.name[user.lang] : item.name;
+            
             guardrailContent.innerHTML = `
-                <img id="modal-img" src="${item.img}" class="full-img">
-                <div class="article-text">
-                    <p><strong>📍 ${user.lang === 'en' ? 'Location' : 'Địa điểm'}:</strong> ${typeof item.location === 'object' ? item.location[user.lang] : item.location}</p>
-                    <p>${typeof item.desc === 'object' ? item.desc[user.lang] : item.desc}</p>
+                <div style="padding:40px; text-align:center; color:var(--text-muted); font-size:1.1rem;">
+                    <span class="emoji spinner">⏳</span> ${isEn ? 'Retrieving detailed heritage records...' : 'Đang truy xuất tài liệu di sản chi tiết...'}
                 </div>
-                ${getRelatedProductsHtml(item.id)}
             `;
+            heritageModal.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`/api/villages/${id}/details`);
+                const details = await response.json();
+                
+                const guide = isEn ? details.visitor_guide_en : details.visitor_guide_vi;
+                const history = isEn ? details.history_en : details.history_vi;
+                const secrets = isEn ? details.secrets_en : details.secrets_vi;
+                
+                let contactsHtml = '';
+                if (guide.artisan_contacts && guide.artisan_contacts.length > 0) {
+                    contactsHtml = `
+                        <div class="artisan-contacts-section" style="margin-top:15px; background:var(--glass-bg); padding:12px; border-radius:10px; border:1px dashed var(--primary);">
+                            <h4 style="margin:0 0 8px 0; color:var(--primary); font-size:0.95rem;">📞 ${isEn ? 'Artisan Contacts' : 'Liên hệ nghệ nhân tiêu biểu:'}</h4>
+                            <ul style="margin:0; padding-left:20px; font-size:0.9rem; line-height:1.5;">
+                                ${guide.artisan_contacts.map(contact => `
+                                    <li style="margin-bottom:6px;">
+                                        <strong>${contact.name}</strong> - ${contact.address}<br>
+                                        <span style="color:var(--text-muted);">📱 SĐT: ${contact.phone}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                guardrailContent.innerHTML = `
+                    <div style="position:relative; border-radius:15px; overflow:hidden; margin-bottom:15px;">
+                        <img id="modal-img" src="${item.img}" class="full-img" style="height:220px; object-fit:cover; width:100%;">
+                        <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.85)); padding:15px; color:white;">
+                            <p style="margin:0; font-size:0.9rem; opacity:0.85;">📍 ${typeof item.location === 'object' ? item.location[user.lang] : item.location}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-tabs" style="display:flex; border-bottom:2px solid var(--glass-border); margin-bottom:15px; gap:10px;">
+                        <button class="detail-tab-btn active" onclick="switchDetailTab(event, 'tab-history')" style="flex:1; background:none; border:none; padding:10px; color:var(--primary); font-weight:600; border-bottom:2px solid var(--primary); cursor:pointer;">📜 ${isEn ? 'History' : 'Lịch sử & Cội nguồn'}</button>
+                        <button class="detail-tab-btn" onclick="switchDetailTab(event, 'tab-secrets')" style="flex:1; background:none; border:none; padding:10px; color:var(--text-muted); font-weight:600; cursor:pointer;">🏺 ${isEn ? 'Secrets' : 'Bí quyết Chế tác'}</button>
+                        <button class="detail-tab-btn" onclick="switchDetailTab(event, 'tab-guide')" style="flex:1; background:none; border:none; padding:10px; color:var(--text-muted); font-weight:600; cursor:pointer;">🧭 ${isEn ? 'Visitor Guide' : 'Cẩm nang du khách'}</button>
+                    </div>
+                    
+                    <div id="tab-history" class="detail-tab-content" style="font-size:0.95rem; line-height:1.6; color:var(--text-main);">
+                        <p style="margin:0 0 10px 0; text-align:justify;">${history}</p>
+                    </div>
+                    
+                    <div id="tab-secrets" class="detail-tab-content hidden" style="font-size:0.95rem; line-height:1.6; color:var(--text-main);">
+                        <p style="margin:0 0 10px 0; text-align:justify;">${secrets}</p>
+                    </div>
+                    
+                    <div id="tab-guide" class="detail-tab-content hidden" style="font-size:0.95rem; line-height:1.6; color:var(--text-main);">
+                        <div style="display:grid; gap:12px;">
+                            <p style="margin:0;">🎟️ <strong>${isEn ? 'Entrance Ticket' : 'Vé vào cửa'}:</strong> ${guide.ticket_price}</p>
+                            <p style="margin:0;">🎨 <strong>${isEn ? 'Workshop Price' : 'Giá trải nghiệm'}:</strong> ${guide.workshop_price}</p>
+                            <p style="margin:0;">🚌 <strong>${isEn ? 'Transportation' : 'Cách di chuyển'}:</strong> ${guide.transport}</p>
+                            <p style="margin:0;">☀️ <strong>${isEn ? 'Best Time to Visit' : 'Thời điểm đẹp nhất'}:</strong> ${guide.best_time}</p>
+                            ${contactsHtml}
+                        </div>
+                    </div>
+                    
+                    ${getRelatedProductsHtml(item.id)}
+                `;
+            } catch (err) {
+                console.error("Failed to load rich details:", err);
+                guardrailContent.innerHTML = `
+                    <img id="modal-img" src="${item.img}" class="full-img">
+                    <div class="article-text">
+                        <p><strong>📍 ${user.lang === 'en' ? 'Location' : 'Địa điểm'}:</strong> ${typeof item.location === 'object' ? item.location[user.lang] : item.location}</p>
+                        <p>${typeof item.desc === 'object' ? item.desc[user.lang] : item.desc}</p>
+                    </div>
+                    ${getRelatedProductsHtml(item.id)}
+                `;
+            }
         } else {
             item = KNOWLEDGE_DB.find(k => k.id === id);
             if (!item) return;
@@ -929,8 +1037,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="article-text"><p>${item.content[user.lang]}</p></div>
                 ${getRelatedProductsHtml(item.id)}
             `;
+            heritageModal.classList.remove('hidden');
         }
-        heritageModal.classList.remove('hidden');
+    };
+
+    window.switchDetailTab = (event, tabId) => {
+        const buttons = document.querySelectorAll('.detail-tab-btn');
+        const contents = document.querySelectorAll('.detail-tab-content');
+        
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.color = 'var(--text-muted)';
+            btn.style.borderBottom = 'none';
+        });
+        
+        contents.forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        event.currentTarget.classList.add('active');
+        event.currentTarget.style.color = 'var(--primary)';
+        event.currentTarget.style.borderBottom = '2px solid var(--primary)';
+        
+        document.getElementById(tabId).classList.remove('hidden');
     };
 
     closeHeritage.addEventListener('click', () => heritageModal.classList.add('hidden'));
@@ -1115,15 +1244,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'chat-global-actions';
             globalActions.forEach(act => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary chat-global-action-btn';
+                btn.textContent = act.label;
+                
                 if (act.type === 'create_itinerary') {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-primary chat-global-action-btn';
-                    btn.textContent = act.label;
                     btn.addEventListener('click', () => {
                         generateUnifiedItinerary(act.target_params);
                     });
-                    actionsDiv.appendChild(btn);
+                } else if (act.type === 'send_chat_message') {
+                    btn.addEventListener('click', () => {
+                        chatInput.value = act.target_params.message;
+                        const submitBtn = chatForm.querySelector('.btn-send') || chatForm.querySelector('button[type="submit"]');
+                        if (submitBtn) submitBtn.click();
+                    });
+                } else if (act.type === 'deep_link_heritage') {
+                    btn.className = 'btn-accent chat-global-action-btn';
+                    btn.addEventListener('click', () => {
+                        switchTab(3); // Go to Heritage tab
+                        setTimeout(() => {
+                            window.showHeritageDetail(act.target_params.id, act.target_params.type);
+                        }, 150);
+                    });
                 }
+                
+                actionsDiv.appendChild(btn);
             });
             messageDiv.appendChild(actionsDiv);
         }
@@ -1570,7 +1715,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleBoard(false); // Close drawer on selection
 
                 if (type === 'knowledge') {
-                    switchTab(2); // Switch to Heritage tab
+                    switchTab(3); // Switch to Heritage tab
                     setTimeout(() => {
                         window.showHeritageDetail(id, 'knowledge');
                     }, 100);
@@ -1597,7 +1742,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const loc = CRAFT_LOCATIONS.find(c => c.id === id);
         if (!loc) return;
 
-        switchTab(1); // Switch to Map tab
+        switchTab(2); // Switch to Map tab
 
         // Wait a bit for map view load
         setTimeout(() => {
@@ -1749,6 +1894,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // === SHOP RENDER ENGINE ===
     function renderShopProducts() {
         if (!shopProductsGrid) return;
+
+        let activeCraftId = window.activeGuideCraftId;
+        if (!activeCraftId && gpsSelect && gpsSelect.value !== 'none') {
+            activeCraftId = parseInt(gpsSelect.value);
+        }
+        if (!activeCraftId) {
+            activeCraftId = 1; // Fallback to Bát Tràng (Gốm sứ)
+        }
+        triggerShopRecommendationsFor(activeCraftId);
 
         const catFilter = shopFilterCategory ? shopFilterCategory.value : "all";
         const regFilter = shopFilterRegion ? shopFilterRegion.value : "all";
@@ -2040,7 +2194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const workshop = WORKSHOPS_DB.find(w => w.id === workshopId);
         if (!workshop) return;
 
-        switchTab(1); // Switch to Map tab
+        switchTab(2); // Switch to Map tab
 
         // Check if map and its markers are loaded
         if (map && googleMarkers[workshopId]) {
@@ -2200,14 +2354,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.heritageBuyProduct = (productId) => {
         if (heritageModal) heritageModal.classList.add('hidden');
-        switchTab(3); // Switch to Shop
+        switchTab(4); // Switch to Shop
         setTimeout(() => {
             openProductDetail(productId);
         }, 100);
     };
 
     window.focusMapHotel = (lat, lng, name) => {
-        switchTab(1); // Switch to Map
+        switchTab(2); // Switch to Map
         
         setTimeout(() => {
             if (map) {
@@ -2327,6 +2481,558 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50);
         }
     }
+
+    // === CULTURAL AI: DIALECT TRANSLATOR LOGIC ===
+    if (btnDialectTranslate) {
+        btnDialectTranslate.addEventListener('click', async () => {
+            const val = dialectInput.value.trim();
+            if (!val) {
+                alert("Vui lòng nhập đoạn văn bản cần dịch!");
+                return;
+            }
+            await performDialectTranslation(val);
+        });
+    }
+
+    // Quick samples trigger
+    dialectSampleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            dialectInput.value = btn.getAttribute('data-text');
+            performDialectTranslation(btn.getAttribute('data-text'));
+        });
+    });
+
+    // Voice record for dialect
+    let dialectRecording = false;
+    let dialectMediaRecorder = null;
+    let dialectAudioChunks = [];
+
+    if (btnDialectVoice) {
+        btnDialectVoice.addEventListener('click', async () => {
+            if (!dialectRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    dialectMediaRecorder = new MediaRecorder(stream);
+                    dialectAudioChunks = [];
+                    
+                    btnDialectVoice.textContent = "🛑 Đang thu âm... (Nhấn để dừng)";
+                    btnDialectVoice.style.background = "var(--primary)";
+                    dialectRecording = true;
+                    
+                    dialectMediaRecorder.ondataavailable = (e) => dialectAudioChunks.push(e.data);
+                    dialectMediaRecorder.onstop = async () => {
+                        const blob = new Blob(dialectAudioChunks, { type: dialectMediaRecorder.mimeType });
+                        btnDialectVoice.textContent = "⌛ Đang nhận dạng & dịch...";
+                        btnDialectVoice.disabled = true;
+                        
+                        await performDialectTranslation(null, blob);
+                        
+                        btnDialectVoice.textContent = "🎙️ Thu âm giọng địa phương";
+                        btnDialectVoice.style.background = "";
+                        btnDialectVoice.disabled = false;
+                        dialectRecording = false;
+                    };
+                    
+                    dialectMediaRecorder.start();
+                } catch (err) {
+                    console.error("Mic access error for dialect:", err);
+                    alert("Vui lòng cấp quyền Microphone để thu âm phương ngữ!");
+                }
+            } else {
+                if (dialectMediaRecorder && dialectMediaRecorder.state !== 'inactive') {
+                    dialectMediaRecorder.stop();
+                    dialectMediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+            }
+        });
+    }
+
+    async function performDialectTranslation(text, audioBlob = null) {
+        if (dialectResultPlaceholder) dialectResultPlaceholder.classList.add('hidden');
+        if (dialectResultContent) dialectResultContent.classList.add('hidden');
+        
+        // Add loading state in placeholder
+        const loader = document.createElement('div');
+        loader.className = 'result-placeholder';
+        loader.id = 'dialect-loader';
+        loader.innerHTML = '<div class="recording-dot" style="margin-right:10px;"></div> Đang phân tích phương ngữ bằng AI...';
+        dialectResultPlaceholder.parentNode.appendChild(loader);
+
+        const formData = new FormData();
+        if (audioBlob) {
+            formData.append('file', audioBlob, 'recording.webm');
+            formData.append('mime_type', audioBlob.type.split(';')[0]);
+        } else {
+            formData.append('text', text);
+        }
+
+        try {
+            const response = await fetch('/api/dialect-translate', {
+                method: 'POST',
+                body: formData
+            });
+
+            const loaderEl = document.getElementById('dialect-loader');
+            if (loaderEl) loaderEl.remove();
+
+            if (!response.ok) {
+                throw new Error("Lỗi máy chủ dịch thuật");
+            }
+
+            const data = await response.json();
+            
+            // Populate results
+            if (dialectDetectedBadge) dialectDetectedBadge.textContent = data.detected_region || "Chưa rõ";
+            if (dialectTranslatedText) dialectTranslatedText.textContent = data.translated_text || "";
+            if (dialectExplanation) dialectExplanation.textContent = data.explanation || "";
+            if (dialectInput && audioBlob && data.original_text) {
+                dialectInput.value = data.original_text;
+            }
+
+            // Word cards
+            if (dialectWordsContainer) {
+                dialectWordsContainer.innerHTML = "";
+                if (data.dialect_words && data.dialect_words.length > 0) {
+                    data.dialect_words.forEach(w => {
+                        const card = document.createElement('div');
+                        card.className = 'dialect-word-card';
+                        card.innerHTML = `
+                            <div class="word-header">
+                                <span class="word-term">${w.word}</span>
+                                <span class="word-region">${w.region}</span>
+                            </div>
+                            <div class="word-meaning">👉 ${w.meaning}</div>
+                            ${w.nuance ? `<div class="word-nuance">${w.nuance}</div>` : ''}
+                        `;
+                        dialectWordsContainer.appendChild(card);
+                    });
+                } else {
+                    dialectWordsContainer.innerHTML = "<p style='font-size:0.85rem; color:var(--text-muted);'>Không phát hiện từ địa phương cụ thể trong từ điển.</p>";
+                }
+            }
+
+            if (dialectResultContent) dialectResultContent.classList.remove('hidden');
+        } catch (err) {
+            console.error("Dialect translation err:", err);
+            const loaderEl = document.getElementById('dialect-loader');
+            if (loaderEl) loaderEl.remove();
+            if (dialectResultPlaceholder) {
+                dialectResultPlaceholder.textContent = `Lỗi phân tích: ${err.message}`;
+                dialectResultPlaceholder.classList.remove('hidden');
+            }
+        }
+    }
+
+    // === CULTURAL AI: HERITAGE SCANNER LOGIC ===
+    if (menuUploadImage && imageFileInput) {
+        menuUploadImage.addEventListener('click', (e) => {
+            e.stopPropagation();
+            imageFileInput.click();
+        });
+        
+        imageFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await performHeritageScan(file);
+            }
+        });
+    }
+
+    if (menuMockPottery) {
+        menuMockPottery.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await performMockHeritageScan("Gốm Chu Đậu vẽ tay", "Làng gốm Chu Đậu (Hải Dương)", "Thế kỷ XIII-XIV", "Chu Đậu là dòng gốm mỹ nghệ cổ truyền cao cấp bậc nhất Việt Nam với màu men trắng rạn đặc trưng, họa tiết xanh chàm vẽ tay.");
+        });
+    }
+
+    if (menuMockAodai) {
+        menuMockAodai.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await performMockHeritageScan("Áo dài lụa vân gấm", "Làng lụa Vạn Phúc (Hà Đông)", "Thời Nguyễn", "Họa tiết dệt chìm hoa cúc dây trên nền lụa vân gấm tơ tằm nguyên chất óng ánh sang trọng.");
+        });
+    }
+
+    async function performHeritageScan(file) {
+        const messageId = "scan-" + Date.now();
+        addMessage('assistant', `⌛ Đang tải ảnh lên và phân tích quét di sản bằng Computer Vision...`);
+        
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/api/scan-heritage', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error("Máy chủ phân tích ảnh bị lỗi.");
+            const data = await response.json();
+
+            renderScanCardInChat(data);
+        } catch (err) {
+            console.error(err);
+            addMessage('assistant', `❌ Lỗi quét di sản: ${err.message}`);
+        }
+    }
+
+    async function performMockHeritageScan(name, origin, age, extraText) {
+        addMessage('assistant', `🏺 Đang thực hiện quét di sản ảo cho: **${name}**...`);
+        setTimeout(() => {
+            const mockData = {
+                heritage_name: name,
+                origin: origin,
+                estimated_age: age,
+                story: `Đây là một di sản nghệ thuật đặc trưng mang tính lịch sử sâu sắc. Tác phẩm thể hiện tài hoa và tinh thần gìn giữ văn hóa của các nghệ nhân làng ${origin}. Lớp vân và màu sắc tráng men mang giá trị văn hóa và phong thủy vô cùng quý báu, tạo nên điểm nhấn tinh tế cho sản phẩm.`,
+                guardrails_summary: {
+                    dos: ["Nên hỏi nghệ nhân về ý nghĩa họa tiết cổ", "Ủ ẩm tự nhiên khi trưng bày đồ mộc cổ"],
+                    donts: ["Tránh chà xát cọ rửa bằng búi kim loại", "Không sử dụng sơn PU công nghiệp giả sơn mài cổ"]
+                },
+                village_id: name.includes("Gốm") ? 1 : 2
+            };
+            renderScanCardInChat(mockData);
+        }, 1200);
+    }
+
+    function renderScanCardInChat(data) {
+        const rulesListDos = data.guardrails_summary?.dos?.map(r => `<li>${r}</li>`).join('') || '';
+        const rulesListDonts = data.guardrails_summary?.donts?.map(r => `<li>${r}</li>`).join('') || '';
+
+        const cardHtml = `
+            <div class="scan-result-card glass">
+                <h3 style="color:var(--primary); margin-bottom:5px;">🔍 Đã Nhận Diện: ${data.heritage_name}</h3>
+                <div class="scan-meta" style="margin-bottom: 10px;">
+                    <span class="scan-badge">📍 Nguồn gốc: ${data.origin}</span>
+                    <span class="scan-badge age">⏳ Niên đại: ${data.estimated_age}</span>
+                </div>
+                <p class="scan-story" style="margin-bottom: 12px;">📖 <strong>Câu chuyện di sản (Storytelling):</strong> ${data.story}</p>
+                <div class="scan-rules" style="margin-bottom: 12px;">
+                    <h5 style="color:var(--accent); margin-bottom: 5px;">⚠️ Hướng dẫn ứng xử & Bản sắc làng nghề (Guardrails)</h5>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <strong style="color:#2ecc71; font-size:0.75rem;">NÊN LÀM:</strong>
+                            <ul style="padding-left:10px; font-size:0.75rem; margin-top:2px;">${rulesListDos || '<li>Tham khảo chỉ dẫn</li>'}</ul>
+                        </div>
+                        <div>
+                            <strong style="color:#e74c3c; font-size:0.75rem;">TRÁNH LÀM:</strong>
+                            <ul style="padding-left:10px; font-size:0.75rem; margin-top:2px;">${rulesListDonts || '<li>Không sử dụng hóa chất</li>'}</ul>
+                        </div>
+                    </div>
+                </div>
+                ${data.village_id ? `
+                    <div style="margin-top:10px; display:flex; gap:10px;">
+                        <button type="button" class="btn-primary" style="font-size:0.75rem; padding:6px 12px; width:auto;" onclick="window.focusVillageFromScan(${data.village_id})">🗺️ Xem trên bản đồ</button>
+                        <button type="button" class="btn-primary" style="font-size:0.75rem; padding:6px 12px; width:auto; background:var(--accent);" onclick="window.focusShopFromScan(${data.village_id})">🛍️ Xem sản phẩm</button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        const chatContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message assistant';
+        messageDiv.innerHTML = cardHtml;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Global hooks for scanner actions
+    window.focusVillageFromScan = (villageId) => {
+        switchTab(2); // Go to map tab
+        setTimeout(() => {
+            const loc = CRAFT_LOCATIONS.find(c => c.id === villageId || (villageId === 1 && c.id === 1) || (villageId === 2 && c.id === 2));
+            if (loc && map) {
+                if (typeof map.panTo === 'function') {
+                    map.panTo([loc.lat, loc.lng]);
+                    map.setZoom(12);
+                }
+                selectCraftLocation(loc.id);
+            }
+        }, 300);
+    };
+
+    window.focusShopFromScan = (villageId) => {
+        switchTab(4); // Go to shop tab
+        if (shopFilterCategory) {
+            shopFilterCategory.value = villageId === 1 ? 'ceramics' : 'textiles';
+            shopFilterCategory.dispatchEvent(new Event('change'));
+        }
+    };
+
+    // === CULTURAL AI: SELF-GUIDED TOUR & AI TOUR GUIDE ===
+    if (tabRoutePlanner && tabVirtualGuide) {
+        tabRoutePlanner.addEventListener('click', () => {
+            tabRoutePlanner.classList.add('active');
+            tabVirtualGuide.classList.remove('active');
+            if (panelRoutePlanner) panelRoutePlanner.classList.remove('hidden');
+            if (panelVirtualGuide) panelVirtualGuide.classList.add('hidden');
+        });
+        
+        tabVirtualGuide.addEventListener('click', () => {
+            tabVirtualGuide.classList.add('active');
+            tabRoutePlanner.classList.remove('active');
+            if (panelVirtualGuide) panelVirtualGuide.classList.remove('hidden');
+            if (panelRoutePlanner) panelRoutePlanner.classList.add('hidden');
+        });
+    }
+
+    let routePolyline = null;
+    if (btnGenerateRoute) {
+        btnGenerateRoute.addEventListener('click', async () => {
+            const start = routeStart.value;
+            const interest = routeInterest.value;
+            const days = routeDays.value;
+
+            btnGenerateRoute.textContent = "⌛ Đang lập lộ trình bằng AI...";
+            btnGenerateRoute.disabled = true;
+
+            try {
+                const response = await fetch('/api/route-plan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        interest: interest,
+                        start_location: start,
+                        duration_days: parseInt(days)
+                    })
+                });
+
+                if (!response.ok) throw new Error("Lập lộ trình thất bại");
+                const data = await response.json();
+
+                renderAIItineraryOnMap(data);
+
+            } catch (err) {
+                console.error(err);
+                alert(`Lỗi lập lộ trình: ${err.message}`);
+            } finally {
+                btnGenerateRoute.textContent = "Lập lộ trình tối ưu";
+                btnGenerateRoute.disabled = false;
+            }
+        });
+    }
+
+    function renderAIItineraryOnMap(data) {
+        if (routeResult) routeResult.classList.remove('hidden');
+        if (routeTitle) routeTitle.textContent = data.route_name || "Lộ trình AI";
+        if (routeSummary) routeSummary.textContent = data.summary || "";
+
+        if (routeStepsList) {
+            routeStepsList.innerHTML = "";
+            const coords = [];
+
+            data.steps.forEach(step => {
+                const stepCard = document.createElement('div');
+                stepCard.className = 'route-step-card';
+                stepCard.innerHTML = `
+                    <div><strong>Ngày ${step.day}: ${step.place_name}</strong></div>
+                    <div style="font-size:0.75rem; color:var(--accent); font-weight:600; margin-top:2px;">🛠️ Hoạt động: ${step.activity}</div>
+                    <p>${step.tips}</p>
+                `;
+                
+                stepCard.style.cursor = "pointer";
+                stepCard.addEventListener('click', () => {
+                    if (step.coordinates && map) {
+                        map.panTo([step.coordinates.lat, step.coordinates.lng]);
+                        map.setZoom(13);
+                        activateVirtualGuideFor(step.place_name, step.craft_id);
+                    }
+                });
+
+                routeStepsList.appendChild(stepCard);
+
+                if (step.coordinates && step.coordinates.lat && step.coordinates.lng) {
+                    coords.push([step.coordinates.lat, step.coordinates.lng]);
+                }
+            });
+
+            if (map && coords.length > 1) {
+                if (routePolyline) {
+                    map.removeLayer(routePolyline);
+                }
+                if (typeof L !== 'undefined') {
+                    routePolyline = L.polyline(coords, { color: 'var(--primary)', weight: 4, opacity: 0.8 }).addTo(map);
+                    map.fitBounds(routePolyline.getBounds(), { padding: [30, 30] });
+                }
+            }
+        }
+    }
+
+    function activateVirtualGuideFor(placeName, craftId) {
+        if (tabVirtualGuide) tabVirtualGuide.click();
+        if (guideStatus) guideStatus.classList.add('hidden');
+        if (guideChatContainer) guideChatContainer.classList.remove('hidden');
+        if (guideLocationName) guideLocationName.textContent = placeName;
+        
+        triggerShopRecommendationsFor(craftId);
+
+        if (guideChatMessages) {
+            guideChatMessages.innerHTML = `
+                <div class="guide-msg guide">
+                    Xin chào! Tôi là Hướng dẫn viên bản địa ảo tại <strong>${placeName}</strong>. Rất vui được đồng hành cùng bạn. Bạn có câu hỏi nào về các di tích, mái đình hay kỹ thuật nghề tại đây không?
+                </div>
+            `;
+            guideChatMessages.scrollTop = guideChatMessages.scrollHeight;
+        }
+
+        window.activeGuideCraftId = craftId;
+        window.activeGuidePlaceName = placeName;
+    }
+
+    if (gpsSelect) {
+        gpsSelect.addEventListener('change', () => {
+            const val = gpsSelect.value;
+            if (val !== 'none') {
+                const item = CRAFT_LOCATIONS.find(c => c.id === parseInt(val));
+                if (item) {
+                    if (map) {
+                        map.panTo([item.lat, item.lng]);
+                        map.setZoom(14);
+                    }
+                    activateVirtualGuideFor(item.name.vi, item.id);
+                    
+                    showInAppNotification(
+                        `📍 Định vị GPS: Bạn đã đến ${item.name.vi}!`,
+                        "Gặp HDV Ảo",
+                        () => {
+                            switchTab(2);
+                            if (tabVirtualGuide) tabVirtualGuide.click();
+                        }
+                    );
+                }
+            }
+        });
+    }
+
+    if (btnGuideSend && guideChatInput) {
+        const sendMsg = async () => {
+            const val = guideChatInput.value.trim();
+            if (!val) return;
+
+            guideChatInput.value = "";
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = 'guide-msg visitor';
+            userDiv.textContent = val;
+            guideChatMessages.appendChild(userDiv);
+            guideChatMessages.scrollTop = guideChatMessages.scrollHeight;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'guide-msg guide';
+            loadingDiv.innerHTML = '⌛ ...';
+            guideChatMessages.appendChild(loadingDiv);
+            guideChatMessages.scrollTop = guideChatMessages.scrollHeight;
+
+            try {
+                const craftInfo = CRAFT_LOCATIONS.find(c => c.id === window.activeGuideCraftId);
+                const craftDetails = craftInfo ? `Làng nghề: ${craftInfo.name.vi}. Mô tả: ${craftInfo.desc.vi}` : `Địa điểm: ${window.activeGuidePlaceName}`;
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: 'user', content: `Hãy trả lời như một Hướng dẫn viên bản xứ thực tế và dí dỏm tại ${window.activeGuidePlaceName}. Câu hỏi: ${val}. Bối cảnh làng nghề: ${craftDetails}. Bạn cần cung cấp thông tin ngắn gọn, hấp dẫn.` }
+                        ]
+                    })
+                });
+
+                if (!response.ok) throw new Error("HDV ảo mất kết nối");
+                const data = await response.json();
+
+                loadingDiv.textContent = data.response;
+                guideChatMessages.scrollTop = guideChatMessages.scrollHeight;
+
+            } catch (err) {
+                loadingDiv.textContent = `Không có phản hồi: ${err.message}`;
+            }
+        };
+
+        btnGuideSend.addEventListener('click', sendMsg);
+        guideChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMsg();
+        });
+    }
+
+    // === CULTURAL AI: AI SHOP RECOMMENDATIONS ===
+    function triggerShopRecommendationsFor(craftId) {
+        if (!shopAiRecs || !shopRecsGrid) return;
+
+        let villageId = null;
+        if (craftId === 1 || craftId === 101 || craftId === 111) villageId = 1;
+        else if (craftId === 2 || craftId === 112 || craftId === 113) villageId = 2;
+        else if (craftId === 5 || craftId === 202) villageId = 5;
+
+        if (!villageId) {
+            shopAiRecs.classList.add('hidden');
+            return;
+        }
+
+        const matchingProducts = SHOP_PRODUCTS_DB.filter(p => p.village_id === villageId);
+        const matchingWorkshops = WORKSHOPS_DB.filter(w => w.village_id === villageId);
+
+        if (matchingProducts.length === 0 && matchingWorkshops.length === 0) {
+            shopAiRecs.classList.add('hidden');
+            return;
+        }
+
+        shopRecsGrid.innerHTML = "";
+        
+        matchingWorkshops.forEach(w => {
+            const card = document.createElement('div');
+            card.className = 'item-card glass';
+            card.style.border = '1px solid var(--accent)';
+            card.innerHTML = `
+                <div class="badge" style="background:var(--accent); color:#000;">🎨 Workshop gợi ý</div>
+                <div class="item-info" style="padding:15px;">
+                    <h4 style="font-size:0.9rem; margin-bottom:5px;">${w.title_vi}</h4>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:8px;">📍 ${w.address_vi}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:bold; color:var(--primary); font-size:0.85rem;">${w.price.toLocaleString()} VND</span>
+                        <button type="button" class="btn-primary" style="font-size:0.75rem; width:auto; padding:5px 10px;" onclick="window.bookWorkshopFromRec(${w.id})">Đặt Ngay</button>
+                    </div>
+                </div>
+            `;
+            shopRecsGrid.appendChild(card);
+        });
+
+        matchingProducts.slice(0, 1).forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'item-card glass';
+            card.innerHTML = `
+                <div class="badge">🏺 Sản phẩm gợi ý</div>
+                <img src="${p.img}" style="width:100%; height:120px; object-fit:cover; border-radius:10px 10px 0 0;">
+                <div class="item-info" style="padding:10px;">
+                    <h4 style="font-size:0.9rem; margin-bottom:5px;">${p.name_vi}</h4>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <span style="font-weight:bold; color:var(--primary); font-size:0.85rem;">${p.price.toLocaleString()} VND</span>
+                        <button type="button" class="btn-primary" style="font-size:0.75rem; width:auto; padding:5px 10px;" onclick="window.viewProductFromRec(${p.id})">Chi tiết</button>
+                    </div>
+                </div>
+            `;
+            shopRecsGrid.appendChild(card);
+        });
+
+        shopAiRecs.classList.remove('hidden');
+    }
+
+    window.bookWorkshopFromRec = (id) => {
+        bookRelatedWorkshop(id);
+    };
+
+    window.viewProductFromRec = (id) => {
+        const prod = SHOP_PRODUCTS_DB.find(p => p.id === id);
+        if (prod) {
+            if (shopProductModal) {
+                document.getElementById('product-modal-title').textContent = prod.name_vi;
+                document.getElementById('product-modal-img').src = prod.img;
+                document.getElementById('product-modal-origin').textContent = prod.region === 'north' ? 'Miền Bắc' : 'Miền Trung';
+                document.getElementById('product-modal-price').textContent = prod.price.toLocaleString() + " VND";
+                document.getElementById('product-modal-desc').textContent = prod.desc_vi;
+                
+                shopProductModal.classList.remove('hidden');
+            }
+        }
+    };
 
 });
 

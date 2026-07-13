@@ -1,0 +1,18 @@
+{
+  "workshop_booking": {
+    "booking_process": "Du khách có thể đặt chỗ trực tiếp trên ứng dụng bằng cách chọn Workshop mong muốn và bấm 'Đặt workshop'. Sau khi đặt, một mã QR xác nhận sẽ được gửi qua email hoặc hiển thị trong mục lịch trình.",
+    "cancellation_policy": "Chính sách hủy chỗ:\n- Hủy trước 24 giờ so với giờ bắt đầu: Hoàn tiền 100% không mất phí.\n- Hủy trong vòng 24 giờ: Hoàn tiền 50% hoặc hỗ trợ đổi lịch miễn phí 1 lần.\n- Không có mặt (No-show): Không hoàn tiền.",
+    "children_discount": "Trẻ em dưới 10 tuổi được giảm giá 30% khi tham gia bất kỳ workshop nào cùng với người lớn.",
+    "group_booking": "Nhóm từ 5 người trở lên được giảm giá 10% tổng chi phí đăng ký."
+  },
+  "payment_methods": {
+    "vietnam_domestic": "Các hình thức thanh toán trong nước:\n- Chuyển khoản ngân hàng nhanh qua mã VietQR.\n- Ví điện tử MoMo, ZaloPay.\n- Thanh toán trực tiếp bằng tiền mặt tại địa điểm workshop.",
+    "international": "Các hình thức thanh toán quốc tế:\n- Thẻ tín dụng/ghi nợ Visa, MasterCard, JCB.\n- Apple Pay và Google Pay tích hợp sẵn trên ứng dụng."
+  },
+  "shipping_policy": {
+    "shipping_methods": "Chúng tôi hỗ trợ gửi hàng thủ công mỹ nghệ đi quốc tế qua hai phương thức:\n1. Vận chuyển Tiêu chuẩn (Standard Shipping): Thời gian giao nhận từ 7-14 ngày làm việc.\n2. Vận chuyển Nhanh (Express Shipping via FedEx/DHL): Thời gian từ 3-5 ngày làm việc.",
+    "shipping_fees": "Bảng giá cước vận chuyển ước tính (mỗi kg):\n- Đi Mỹ / Canada: Tiêu chuẩn $25/kg, Nhanh $45/kg.\n- Đi Châu Âu (Đức, Pháp, Anh): Tiêu chuẩn $22/kg, Nhanh $40/kg.\n- Đi Nhật Bản / Hàn Quốc: Tiêu chuẩn $15/kg, Nhanh $28/kg.\n- Đi Đông Nam Á: Tiêu chuẩn $10/kg, Nhanh $20/kg.",
+    "customs_and_tax": "Hàng thủ công mỹ nghệ truyền thống (gốm sứ vẽ tay, lụa tự nhiên dệt tay) thường được hưởng mức thuế ưu đãi nhập khẩu thấp hoặc bằng 0% tại Mỹ và EU nhờ các hiệp định thương mại tự do. Du khách chịu trách nhiệm khai báo và đóng thuế hải quan nội địa nếu có phát sinh cước tại hải quan nước sở tại.",
+    "package_guarantee": "Mọi sản phẩm dễ vỡ như gốm sứ sẽ được đóng thùng gỗ bảo vệ chuyên dụng và bảo hiểm 100% giá trị. Nếu có nứt vỡ trong quá trình vận chuyển, chúng tôi sẽ hoàn tiền hoặc gửi sản phẩm thay thế miễn phí."
+  }
+}

@@ -54,11 +54,15 @@ class GeminiService:
        except:
            # Fallback sang bản 1.5 nếu vùng của bạn chưa cập nhật kịp 3.5
            self.model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+           
+       self.force_offline = True # Chạy ở chế độ offline để tránh sandbox chặn mạng
 
     def get_model(self):
         return self.model
 
     async def generate_response(self, prompt: str, history=None):
+        if self.force_offline:
+            return "Dạ, trợ lý đang gặp chút lỗi kết nối."
         try:
             model = self.get_model()
             # Không cần nhúng SYSTEM_PROMPT vào prompt nữa vì đã có system_instruction
@@ -68,7 +72,9 @@ class GeminiService:
             print(f"Text Error: {str(e)}")
             return f"Dạ, trợ lý đang gặp chút lỗi kết nối. Bạn thử lại nhé!"
 
-    async def generate_response_from_audio(self, audio_path: str, mime_type: str = None):
+    async def generate_response_from_audio(self, audio_path: str, mime_type: str = None, task_prompt: str = None):
+        if self.force_offline:
+            raise ConnectionError("Offline mode is enabled to avoid sandbox network block.")
         last_error = ""
         # Thử lần lượt các model trong danh sách để tránh lỗi 404
         for model_name in self.models_to_try:
@@ -82,7 +88,8 @@ class GeminiService:
                     "data": audio_data
                 }
 
-                task_prompt = "Hãy NGHE và DỊCH âm thanh này sang tiếng Việt. Xác định phương ngữ. Trả về JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
+                if not task_prompt:
+                    task_prompt = "Hãy NGHE và DỊCH âm thanh này sang tiếng Việt. Xác định phương ngữ. Trả về JSON: {\"transcription\": \"...\", \"dialect\": \"...\", \"response\": \"...\"}"
                 
                 # Khởi tạo model tạm thời để thử nghiệm
                 temp_model = genai.GenerativeModel(model_name=model_name)
@@ -105,3 +112,39 @@ class GeminiService:
                 continue # Thử model tiếp theo
                 
         return {"error": last_error, "response": "AI hiện không tìm thấy Model phù hợp trên server. Bạn hãy thử tạo lại API Key mới nhé!"}
+
+    async def generate_response_from_image(self, image_path: str, prompt: str, mime_type: str = None):
+        if self.force_offline:
+            raise ConnectionError("Offline mode is enabled to avoid sandbox network block.")
+        last_error = ""
+        # Thử lần lượt các model trong danh sách để tránh lỗi 404
+        for model_name in self.models_to_try:
+            try:
+                with open(image_path, 'rb') as f:
+                    image_data = f.read()
+
+                if not mime_type:
+                    ext = os.path.splitext(image_path)[1].lower()
+                    if ext == ".png":
+                        mime_type = "image/png"
+                    elif ext in [".jpg", ".jpeg"]:
+                        mime_type = "image/jpeg"
+                    elif ext == ".webp":
+                        mime_type = "image/webp"
+                    else:
+                        mime_type = "image/jpeg"
+
+                image_part = {
+                    "mime_type": mime_type,
+                    "data": image_data
+                }
+
+                temp_model = genai.GenerativeModel(model_name=model_name)
+                response = temp_model.generate_content([image_part, prompt])
+                return response.text
+            except Exception as e:
+                last_error = str(e)
+                print(f"Vision trial with {model_name} failed: {last_error}")
+                continue
+        return f"Dạ, trợ lý đang gặp lỗi kết nối thị giác: {last_error}"
+

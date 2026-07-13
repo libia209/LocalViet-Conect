@@ -12,7 +12,7 @@
         };
     </script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <link rel="stylesheet" href="/static/style.css?v=2.1">
+    <link rel="stylesheet" href="/static/style.css?v=2.2">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 
@@ -82,6 +82,7 @@
             </div>
             <nav class="sidebar-nav">
                 <button class="nav-item active"><span class="emoji">💬</span> Trò chuyện</button>
+                <button class="nav-item"><span class="emoji">🗣️</span> Dịch phương ngữ</button>
                 <button class="nav-item"><span class="emoji">🗺️</span> Bản đồ làng nghề</button>
                 <button class="nav-item"><span class="emoji">📚</span> Kiến thức di sản</button>
                 <button class="nav-item"><span class="emoji">🛍️</span> Shop thủ công</button>
@@ -114,16 +115,157 @@
                 </div>
             </div>
 
-            <div id="map-view" class="view-container hidden">
+            <div id="dialect-view" class="view-container hidden">
                 <div class="view-header">
-                    <h2>🗺️ Bản đồ di sản & Làng nghề</h2>
-                    <p>Khám phá các địa danh làng nghề truyền thống dọc chiều dài đất nước.</p>
+                    <h2>🗣️ Dịch Phương Ngữ & Tiếng Lóng</h2>
+                    <p>Dịch và hiểu các giọng vùng miền (miền Trung, miền Tây...) hoặc tiếng Anh bản xứ của khách du lịch.</p>
                 </div>
-                <div id="map-container" class="glass" style="position: relative;">
-                    <div id="map" style="height: 500px; width: 100%; border-radius: 15px;"></div>
-
+                <div class="dialect-layout">
+                    <div class="dialect-panel glass">
+                        <h3>✍️ Nhập hoặc Nói</h3>
+                        <textarea id="dialect-input" placeholder="Ví dụ: 'Con cá lóc này ngon lắm bậu ơi' hoặc 'Tau với mi đi mô rứa?'..."></textarea>
+                        
+                        <div class="dialect-input-actions">
+                            <button type="button" id="btn-dialect-voice" class="btn-primary" style="width: auto;">🎙️ Thu âm</button>
+                            <button type="button" id="btn-dialect-translate" class="btn-primary" style="width: auto; background: linear-gradient(135deg, #e056fd, #be2edd);">Dịch phương ngữ 🚀</button>
+                        </div>
+                        
+                        <div class="dialect-samples">
+                            <h4>Mẫu thử nhanh:</h4>
+                            <button type="button" class="dialect-sample-btn" data-text="Tau với mi đi chơi mô rứa?">Miền Trung (Nghệ Tĩnh)</button>
+                            <button type="button" class="dialect-sample-btn" data-text="Hắn mần răng mệ nớ nói rứa?">Miền Trung (Huế)</button>
+                            <button type="button" class="dialect-sample-btn" data-text="Tui mới đi ruộng dìa nè bậu ơi">Miền Nam (Sông nước)</button>
+                        </div>
+                    </div>
+                    
+                    <div class="dialect-panel glass">
+                        <h3>📊 Kết quả phân tích từ AI</h3>
+                        <div id="dialect-result-placeholder" class="result-placeholder">
+                            Hãy nhập tiếng địa phương hoặc thu âm giọng nói để AI phân tích...
+                        </div>
+                        <div id="dialect-result-content" class="dialect-result-content hidden">
+                            <div class="result-section">
+                                <span class="result-badge" id="dialect-detected-badge">Miền Trung</span>
+                                <h4>Bản dịch chuẩn:</h4>
+                                <p class="translated-text" id="dialect-translated-text"></p>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h4>Từ địa phương phát hiện:</h4>
+                                <div id="dialect-words-container" class="dialect-words-container">
+                                    <!-- Dynamic word cards -->
+                                </div>
+                            </div>
+                            
+                            <div class="result-section">
+                                <h4>Ý nghĩa & Ngữ cảnh văn hóa:</h4>
+                                <p class="explanation-text" id="dialect-explanation"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+ 
+             <div id="map-view" class="view-container hidden">
+                 <div class="view-header">
+                     <h2>🗺️ Bản đồ di sản & Làng nghề</h2>
+                     <p>Khám phá các địa danh làng nghề truyền thống dọc chiều dài đất nước.</p>
+                 </div>
+                 
+                 <div class="map-layout">
+                     <div id="map-container" class="glass" style="position: relative;">
+                         <div id="map" style="height: 500px; width: 100%; border-radius: 15px;"></div>
+                         
+                         <!-- Floating GPS Emulator -->
+                         <div class="gps-emulator glass">
+                             <span class="emoji">📍</span>
+                             <label for="gps-select">GPS ảo:</label>
+                             <select id="gps-select">
+                                 <option value="none">-- Chọn vị trí giả lập --</option>
+                                 <option value="1">Làng gốm Bát Tràng</option>
+                                 <option value="2">Làng lụa Vạn Phúc</option>
+                                 <option value="5">Làng hương Thủy Xuân (Huế)</option>
+                                 <option value="102">Làng gốm Bàu Trúc</option>
+                                 <option value="202">Làng gốm Thanh Hà (Hội An)</option>
+                             </select>
+                         </div>
+                     </div>
+                     
+                     <div class="map-sidebar-panel glass">
+                         <div class="map-panel-tabs">
+                             <button type="button" id="tab-route-planner" class="map-tab-btn active">🗓️ Lộ trình AI</button>
+                             <button type="button" id="tab-virtual-guide" class="map-tab-btn">💁 HDV Ảo</button>
+                         </div>
+                         
+                         <!-- Route Planner Panel -->
+                         <div id="panel-route-planner" class="map-panel-content">
+                             <h3>Lên lộ trình tự hành AI</h3>
+                             <div class="form-group">
+                                 <label for="route-start">Điểm xuất phát:</label>
+                                 <select id="route-start" class="shop-select">
+                                     <option value="Hà Nội">Hà Nội</option>
+                                     <option value="Huế">Huế</option>
+                                     <option value="Hội An">Hội An</option>
+                                     <option value="An Giang">Mekong (An Giang)</option>
+                                 </select>
+                             </div>
+                             <div class="form-group">
+                                 <label for="route-interest">Sở thích du lịch:</label>
+                                 <select id="route-interest" class="shop-select">
+                                     <option value="crafts">🏺 Trải nghiệm làm thủ công</option>
+                                     <option value="history">🏛️ Tìm hiểu văn hóa & Di sản</option>
+                                     <option value="food">🍲 Ẩm thực & Đời sống địa phương</option>
+                                 </select>
+                             </div>
+                             <div class="form-group">
+                                 <label for="route-days">Số ngày:</label>
+                                 <select id="route-days" class="shop-select">
+                                     <option value="1">1 Ngày</option>
+                                     <option value="2">2 Ngày</option>
+                                 </select>
+                             </div>
+                             <button type="button" id="btn-generate-route" class="btn-primary" style="margin-top: 10px;">Lập lộ trình tối ưu</button>
+                             
+                             <div id="route-result" class="route-result-container hidden">
+                                 <h4 id="route-title">Lộ trình của bạn</h4>
+                                 <p id="route-summary" style="font-size:0.8rem; color:#ccc; margin-bottom:10px;"></p>
+                                 <div id="route-steps-list" class="route-steps-list">
+                                     <!-- dynamic itinerary steps -->
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Virtual Guide Panel -->
+                         <div id="panel-virtual-guide" class="map-panel-content hidden">
+                             <div id="guide-status" class="guide-status-offline">
+                                 <span class="status-dot"></span> Chưa chọn địa điểm. Hãy bấm vào một marker trên bản đồ hoặc chọn vị trí GPS ảo để kết nối HDV bản địa.
+                             </div>
+                             <div id="guide-chat-container" class="guide-chat-container hidden">
+                                 <div class="guide-intro-card">
+                                     <div class="guide-avatar">💁</div>
+                                     <div class="guide-intro-text">
+                                         <h4 id="guide-name">HDV Bản Địa</h4>
+                                         <p style="font-size:0.75rem; color:#aaa; margin:0;">Đang ở: <strong id="guide-location-name">Bát Tràng</strong></p>
+                                     </div>
+                                 </div>
+                                 <div id="guide-chat-messages" class="guide-chat-messages custom-scroll">
+                                     <!-- chat history -->
+                                 </div>
+                                 <div class="guide-chat-input-wrapper">
+                                     <input type="text" id="guide-chat-input" placeholder="Hỏi HDV về lịch sử, kiến trúc, vật liệu...">
+                                     <button type="button" id="btn-guide-send">➔</button>
+                                 </div>
+                                 <div class="guide-sample-questions">
+                                     <h5>Câu hỏi gợi ý:</h5>
+                                     <button type="button" class="guide-q-btn" data-q="Tại sao cổng ở đây lại thấp thế?">Cổng thấp?</button>
+                                     <button type="button" class="guide-q-btn" data-q="Cái cột gỗ này được làm bằng loại gỗ gì?">Gỗ gì?</button>
+                                     <button type="button" class="guide-q-btn" data-q="Lịch sử lâu đời nhất ở đây là gì?">Lịch sử?</button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
 
             <div id="knowledge-view" class="view-container hidden">
                 <div class="view-header">
@@ -166,11 +308,20 @@
                         🛒 Giỏ hàng (<span id="cart-count">0</span>)
                     </button>
                 </div>
-
-                <div id="shop-products-grid" class="item-grid">
-                    <!-- Dynamic products render -->
+                
+                <!-- AI recommendations panel -->
+                <div id="shop-ai-recommendations" class="shop-ai-recommendations glass hidden" style="margin-bottom: 25px;">
+                    <h3>🎯 Gợi ý Làng nghề & Workshop cá nhân hóa</h3>
+                    <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 12px; margin-top:-5px;">Sản phẩm và workshop được gợi ý riêng dựa theo điểm GPS hiện tại của bạn.</p>
+                    <div id="shop-recs-grid" class="item-grid">
+                        <!-- Recs go here -->
+                    </div>
                 </div>
-            </div>
+ 
+                 <div id="shop-products-grid" class="item-grid">
+                     <!-- Dynamic products render -->
+                 </div>
+             </div>
 
 
             <div class="chat-input-container glass">
@@ -182,11 +333,20 @@
                                 <span class="icon">🎙️</span>
                                 <span class="label">Thu âm (Voice)</span>
                             </button>
-                            <button type="button" class="menu-item disabled">
+                            <button type="button" class="menu-item" id="menu-upload-image">
                                 <span class="icon">🖼️</span>
-                                <span class="label">Tải ảnh lên</span>
+                                <span class="label">Quét di sản (Scan)</span>
+                            </button>
+                            <button type="button" class="menu-item" id="menu-mock-pottery">
+                                <span class="icon">🏺</span>
+                                <span class="label">Mẫu: Quét Gốm Chu Đậu</span>
+                            </button>
+                            <button type="button" class="menu-item" id="menu-mock-aodai">
+                                <span class="icon">🎎</span>
+                                <span class="label">Mẫu: Quét Áo Dài hoa văn</span>
                             </button>
                         </div>
+                        <input type="file" id="image-file-input" accept="image/*" class="hidden">
                     </div>
                     <input type="text" id="chat-input" placeholder="Hỏi tôi về nón lá, gốm Chu Đậu, hay tiếng Huế..." autocomplete="off">
                     <button type="submit" class="btn-send">
@@ -201,14 +361,18 @@
                     <span>Chat</span>
                 </button>
                 <button class="mobile-nav-item" data-index="1">
+                    <span class="emoji">🗣️</span>
+                    <span>Dịch</span>
+                </button>
+                <button class="mobile-nav-item" data-index="2">
                     <span class="emoji">🗺️</span>
                     <span>Bản đồ</span>
                 </button>
-                <button class="mobile-nav-item" data-index="2">
+                <button class="mobile-nav-item" data-index="3">
                     <span class="emoji">📚</span>
                     <span>Di sản</span>
                 </button>
-                <button class="mobile-nav-item" data-index="3">
+                <button class="mobile-nav-item" data-index="4">
                     <span class="emoji">🛍️</span>
                     <span>Shop</span>
                 </button>
@@ -400,7 +564,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="/static/app.js?v=3.2"></script>
+    <script src="/static/app.js?v=3.6"></script>
 
 </body>
 </html>
