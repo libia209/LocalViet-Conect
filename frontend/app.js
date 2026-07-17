@@ -69,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnGenerateRoute = document.getElementById('btn-generate-route');
     const routeStart = document.getElementById('route-start');
     const routeInterest = document.getElementById('route-interest');
-    const routeDays = document.getElementById('route-days');
+    const routeDurationValue = document.getElementById('route-duration-value');
+    const routeDurationUnit = document.getElementById('route-duration-unit');
+    const routeBudget = document.getElementById('route-budget');
+    const routeGroupType = document.getElementById('route-group-type');
     const routeResult = document.getElementById('route-result');
     const routeTitle = document.getElementById('route-title');
     const routeSummary = document.getElementById('route-summary');
@@ -2780,7 +2783,15 @@ document.addEventListener('DOMContentLoaded', () => {
         btnGenerateRoute.addEventListener('click', async () => {
             const start = routeStart.value;
             const interest = routeInterest.value;
-            const days = routeDays.value;
+            const durationVal = parseInt(routeDurationValue.value) || 1;
+            const durationUnit = routeDurationUnit.value;
+            const budget = routeBudget.value;
+            const groupType = routeGroupType.value;
+
+            let durationDays = durationVal;
+            if (durationUnit === 'tuần') durationDays = durationVal * 7;
+            else if (durationUnit === 'tháng') durationDays = durationVal * 30;
+            else if (durationUnit === 'năm') durationDays = durationVal * 365;
 
             btnGenerateRoute.textContent = "⌛ Đang lập lộ trình bằng AI...";
             btnGenerateRoute.disabled = true;
@@ -2792,7 +2803,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         interest: interest,
                         start_location: start,
-                        duration_days: parseInt(days)
+                        duration_days: durationDays,
+                        duration_value: durationVal,
+                        duration_unit: durationUnit,
+                        budget: budget,
+                        group_type: groupType
                     })
                 });
 

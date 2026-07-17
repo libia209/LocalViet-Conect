@@ -507,6 +507,10 @@ class RoutePlanRequest(BaseModel):
     interest: str
     start_location: str
     duration_days: int = 1
+    duration_value: Optional[int] = None
+    duration_unit: Optional[str] = None
+    budget: Optional[str] = None
+    group_type: Optional[str] = None
 
 def generate_offline_guide_response(user_question: str, location: str) -> str:
     msg = user_question.lower().strip()
@@ -617,27 +621,33 @@ async def route_plan(req: RoutePlanRequest):
     12. Đá Non Nước (Điêu khắc đá, Đà Nẵng, lat: 16.0333, lng: 108.2500)
     """
     
+    duration_str = f"{req.duration_value} {req.duration_unit}" if req.duration_value and req.duration_unit else f"{req.duration_days} ngày"
+    budget_str = req.budget if req.budget else "Tự do / Chưa xác định"
+    group_type_str = req.group_type if req.group_type else "Chưa xác định"
+
     prompt = f"""
     Hãy lập một lộ trình du lịch tự hành tối ưu dựa trên:
     - Điểm xuất phát: {req.start_location}
     - Sở thích chính: {req.interest}
-    - Thời gian: {req.duration_days} ngày
+    - Thời gian: {duration_str}
+    - Ngân sách chi trả dự kiến: {budget_str}
+    - Hình thức chuyến đi: {group_type_str} (cá nhân hay đi theo đoàn đông người)
 
     Danh sách các làng nghề trong hệ thống:
     {locations_context}
 
-    Hãy chọn ra các địa điểm phù hợp nhất, sắp xếp hành trình tối ưu và thú vị.
+    Hãy chọn ra các địa điểm phù hợp nhất, sắp xếp hành trình tối ưu, tư vấn hoạt động và mẹo du lịch phù hợp với ngân sách và hình thức di chuyển (cá nhân hay theo đoàn).
     Trả về định dạng JSON chuẩn nằm trong thẻ ```json ... ```:
     {{
       "route_name": "[Tên lộ trình hấp dẫn]",
-      "summary": "[Mô tả ngắn gọn lộ trình]",
+      "summary": "[Mô tả ngắn gọn lộ trình, có đề cập ngắn đến điểm xuất phát, thời gian du lịch, ngân sách và hình thức chuyến đi để tăng tính cá nhân hóa]",
       "steps": [
          {{
            "day": 1,
            "place_name": "[Tên địa điểm]",
            "coordinates": {{"lat": [vĩ độ], "lng": [kinh độ]}},
            "activity": "[Hoạt động đề xuất]",
-           "tips": "[Mẹo nhỏ cho khách du lịch]",
+           "tips": "[Mẹo nhỏ cho khách du lịch, phù hợp với ngân sách/đoàn]",
            "craft_id": [ID số tương ứng ở trên: 1 cho Bát Tràng, 2 cho Vạn Phúc, 9 cho Thanh Hà, 10 cho Thủy Xuân, v.v., hoặc null nếu không có]
          }}
       ]
@@ -672,7 +682,7 @@ async def route_plan(req: RoutePlanRequest):
                         "place_name": "Làng gốm Bát Tràng",
                         "coordinates": {"lat": 20.9800, "lng": 105.9200},
                         "activity": "Trải nghiệm nặn gốm xoay tay và tham quan Bảo tàng Gốm Bát Tràng.",
-                        "tips": "Nên đi xe bus 47 hoặc taxi công nghệ. Tránh chạm tay vào gốm mộc chưa nung.",
+                        "tips": f"Phù hợp cho chuyến đi {group_type_str}. Nên đi xe bus 47 hoặc taxi. Ngân sách đề xuất: {budget_str}.",
                         "craft_id": 1
                     },
                     {
@@ -710,7 +720,7 @@ async def route_plan(req: RoutePlanRequest):
                     "place_name": "Làng hương Thủy Xuân",
                     "coordinates": {"lat": 16.4450, "lng": 107.5600},
                     "activity": "Chụp hình cùng những bó hương xòe hoa, tự tay trải nghiệm se hương.",
-                    "tips": "Nên mua một vài món quà lưu niệm nhỏ ủng hộ các mệ làm hương.",
+                    "tips": f"Phù hợp cho hình thức {group_type_str}. Nên mua một vài món quà lưu niệm nhỏ ủng hộ các mệ.",
                     "craft_id": 5
                 },
                 {
@@ -729,7 +739,7 @@ async def route_plan(req: RoutePlanRequest):
                     "place_name": "Làng gốm Thanh Hà",
                     "coordinates": {"lat": 15.8833, "lng": 108.3000},
                     "activity": "Trải nghiệm nặn tò he đất, xem kỹ thuật xoay gốm bằng đôi bàn chân vàng.",
-                    "tips": "Vé vào cổng đã bao gồm một phần quà tò he lưu niệm nhỏ xinh.",
+                    "tips": f"Rất tuyệt vời khi đi {group_type_str}. Vé vào cổng đã bao gồm quà tò he nhỏ.",
                     "craft_id": 202
                 },
                 {
@@ -744,8 +754,8 @@ async def route_plan(req: RoutePlanRequest):
             
         return {
             "route_name": f"Hành trình {req.interest.capitalize()} từ {req.start_location} (Offline)",
-            "summary": "Lộ trình tối ưu được lập tự động dựa trên sở thích khám phá di sản làng nghề bản địa.",
-            "steps": steps[:req.duration_days * 2]
+            "summary": f"Lộ trình tối ưu được lập tự động dựa trên sở thích khám phá di sản ({duration_str}, ngân sách {budget_str}, đi {group_type_str}).",
+            "steps": steps[:req.duration_days * 2] if req.duration_days > 0 else steps
         }
 
 @app.post("/api/dialect-translate")
